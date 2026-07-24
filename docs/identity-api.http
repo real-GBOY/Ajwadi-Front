@@ -1,0 +1,330 @@
+### Identity API Documentation
+### Complete API documentation for identity document management endpoints
+### All operations for uploading, viewing, and managing user identity documents
+### Reviewed and verified against implementation
+
+@baseUrl = http://localhost:5000/api
+@contentType = application/json
+@token = your-jwt-token-here
+
+### ============================================
+### VARIABLES SETUP
+### ============================================
+### Replace the variables above with actual values:
+### - @token: JWT token from /api/auth/verify-otp
+
+### ============================================
+### 1. GET MY IDENTITY
+### ============================================
+### Get the authenticated user's identity documents and verification status
+### Requires user JWT token
+
+GET {{baseUrl}}/users/me/identity
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Response Example (200 OK):
+### {
+###   "success": true,
+###   "message": "Identity fetched successfully",
+###   "data": {
+###     "id": "identity-uuid",
+###     "userId": "user-uuid",
+###     "isVerified": false,
+###     "verifiedBy": null,
+###     "images": [
+###       "https://ajwadi.s3.eu-west-3.amazonaws.com/identity/...",
+###       "https://ajwadi.s3.eu-west-3.amazonaws.com/identity/..."
+###     ],
+###     "createdAt": "2024-01-01T00:00:00.000Z",
+###     "updatedAt": "2024-01-01T00:00:00.000Z"
+###   }
+### }
+
+### Response Example (404 Not Found):
+### {
+###   "success": false,
+###   "message": "Identity not found"
+### }
+
+### ============================================
+### 2. UPLOAD/UPDATE MY IDENTITY
+### ============================================
+### Upload or update identity documents for the authenticated user
+### Requires user JWT token
+### File upload is REQUIRED
+### If identity already exists, it will be updated (verification status will be reset)
+
+### STEP 1: Get Upload URL for Identity Document(s)
+### You can upload multiple identity documents (front, back, etc.)
+
+POST {{baseUrl}}/s3/upload-url
+Content-Type: {{contentType}}
+
+{
+  "fileName": "identity-front.jpg",
+  "fileType": "image",
+  "filePurpose": "identity"
+}
+
+### Response Example:
+### {
+###   "success": true,
+###   "data": {
+###     "uploadUrl": "https://ajwadi.s3.eu-west-3.amazonaws.com/identity/...",
+###     "file": {
+###       "id": "file-uuid-here",
+###       "fileName": "identity-front.jpg",
+###       "fileType": "image",
+###       "filePurpose": "identity",
+###       "url": "https://ajwadi.s3.eu-west-3.amazonaws.com/identity/...",
+###       ...
+###     },
+###     "uploadToken": "token-string-here"
+###   }
+### }
+
+### Repeat Step 1 for additional identity documents (e.g., back side)
+
+POST {{baseUrl}}/s3/upload-url
+Content-Type: {{contentType}}
+
+{
+  "fileName": "identity-back.jpg",
+  "fileType": "image",
+  "filePurpose": "identity"
+}
+
+### STEP 2: Upload Files to S3
+### Use the uploadUrl from Step 1 to upload the actual files
+### This is a PUT request to the signed URL (not to our API)
+### Note: Replace {{uploadUrl}} with the actual URL from Step 1 response
+
+PUT {{uploadUrl}}
+Content-Type: image/jpeg
+
+< ./path/to/your/identity-front.jpg
+
+### Repeat for additional files
+
+PUT {{uploadUrl}}
+Content-Type: image/jpeg
+
+< ./path/to/your/identity-back.jpg
+
+### STEP 3: Upload/Update Identity
+### After uploading files to S3, use the fileId, uploadToken, and purpose from Step 1
+### IMPORTANT: identityPicture must be an array, even for single files
+### You can include multiple identity documents in one request
+
+POST {{baseUrl}}/users/me/identity
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "identityPicture": [
+    {
+      "fileId": "file-uuid-from-step-1-front",
+      "token": "token-from-step-1-front",
+      "purpose": "identity"
+    },
+    {
+      "fileId": "file-uuid-from-step-1-back",
+      "token": "token-from-step-1-back",
+      "purpose": "identity"
+    }
+  ]
+}
+
+### Example with single identity document:
+POST {{baseUrl}}/users/me/identity
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "identityPicture": [
+    {
+      "fileId": "file-uuid-here",
+      "token": "token-here",
+      "purpose": "identity"
+    }
+  ]
+}
+
+### Response Example (201 Created - New Identity):
+### {
+###   "success": true,
+###   "message": "Identity documents uploaded successfully. Verification pending.",
+###   "data": {
+###     "id": "identity-uuid",
+###     "userId": "user-uuid",
+###     "isVerified": false,
+###     "verifiedBy": null,
+###     "images": [
+###       "https://ajwadi.s3.eu-west-3.amazonaws.com/identity/...",
+###       "https://ajwadi.s3.eu-west-3.amazonaws.com/identity/..."
+###     ],
+###     "createdAt": "2024-01-01T00:00:00.000Z",
+###     "updatedAt": "2024-01-01T00:00:00.000Z"
+###   }
+### }
+
+### Response Example (200 OK - Updated Identity):
+### {
+###   "success": true,
+###   "message": "Identity documents updated successfully. Verification pending.",
+###   "data": {
+###     "id": "identity-uuid",
+###     "userId": "user-uuid",
+###     "isVerified": false,
+###     "verifiedBy": null,
+###     "images": [
+###       "https://ajwadi.s3.eu-west-3.amazonaws.com/identity/...",
+###       "https://ajwadi.s3.eu-west-3.amazonaws.com/identity/..."
+###     ],
+###     "createdAt": "2024-01-01T00:00:00.000Z",
+###     "updatedAt": "2024-01-01T00:05:00.000Z"
+###   }
+### }
+
+### Error Response (Missing Files):
+### {
+###   "success": false,
+###   "message": "At least one identity document file is required"
+### }
+
+### Error Response (Invalid File):
+### {
+###   "success": false,
+###   "message": "No valid files found"
+### }
+
+### Error Response (File Not Ready):
+### {
+###   "success": false,
+###   "message": "Files are not ready yet"
+### }
+
+### ============================================
+### COMPREHENSIVE NOTES & GUIDELINES
+### ============================================
+
+### 1. AUTHENTICATION & AUTHORIZATION
+###    - All endpoints require user JWT token
+###    - Users can only access their own identity documents
+###    - Include Authorization header: Authorization: Bearer <your-jwt-token>
+
+### 2. FILE UPLOAD FLOW
+###    - Step 1: Get upload URL from /api/s3/upload-url
+###    - Step 2: Upload file to S3 using the signed URL (PUT request)
+###    - Step 3: Use fileId, token, and purpose in the identity upload request
+###    - File upload tokens are required for security and validation
+###    - Purpose must match: "identity" for identity documents
+
+### 3. IDENTITY DOCUMENTS
+###    - You can upload multiple identity documents (front, back, etc.)
+###    - All documents must be uploaded to S3 before submitting
+###    - Supported file types: images (jpg, png, etc.)
+###    - File purpose must be "identity"
+
+### 4. VERIFICATION STATUS
+###    - When identity is uploaded/updated, isVerified is set to false
+###    - Verification is done by employees/admins
+###    - verifiedBy field stores the employee ID who verified the identity
+###    - Updating identity documents resets the verification status
+
+### 5. VALIDATION RULES
+###    - identityPicture: Required, must be an array
+###    - Each file reference must include: fileId, token, purpose
+###    - At least one identity document is required
+###    - Files must be uploaded to S3 and ready before submission
+
+### 6. ERROR RESPONSES
+###    - 400 Bad Request: Missing files, invalid file references, files not ready
+###    - 401 Unauthorized: Missing or invalid authentication token
+###    - 404 Not Found: Identity not found (for GET request)
+###    - 500 Internal Server Error: Server error
+
+### 7. USAGE EXAMPLES
+
+### Example 1: Upload Single Identity Document
+### (After uploading file to S3)
+POST {{baseUrl}}/users/me/identity
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "identityPicture": [
+    {
+      "fileId": "identity-file-uuid",
+      "token": "identity-upload-token",
+      "purpose": "identity"
+    }
+  ]
+}
+
+### Example 2: Upload Multiple Identity Documents
+### (After uploading files to S3)
+POST {{baseUrl}}/users/me/identity
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "identityPicture": [
+    {
+      "fileId": "identity-front-uuid",
+      "token": "identity-front-token",
+      "purpose": "identity"
+    },
+    {
+      "fileId": "identity-back-uuid",
+      "token": "identity-back-token",
+      "purpose": "identity"
+    }
+  ]
+}
+
+### Example 3: Get Identity Status
+GET {{baseUrl}}/users/me/identity
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### 8. BEST PRACTICES
+###    - Upload clear, high-quality images of identity documents
+###    - Include both front and back of identity documents when applicable
+###    - Ensure files are fully uploaded to S3 before submitting
+###    - Keep identity documents secure and private
+###    - Update identity documents if they expire or change
+
+### 9. SECURITY NOTES
+###    - File upload tokens are required to prevent unauthorized file associations
+###    - Tokens have expiration times for security
+###    - Users can only upload/update their own identity documents
+###    - Identity documents are stored securely in S3
+###    - Verification status prevents unauthorized access
+
+### 10. INTEGRATION NOTES
+###     - Identity is created during user registration (required for freelancers)
+###     - Identity can be updated after registration using this endpoint
+###     - Updating identity resets verification status
+###     - Employees can verify identity documents through admin endpoints
+###     - Verified identity is required for certain platform features
+
+### 11. FILE UPLOAD TOKEN FORMAT
+###     When uploading files, use this format in the request body:
+###     {
+###       "identityPicture": [
+###         {
+###           "fileId": "uuid-from-s3-upload-url-response",
+###           "token": "token-from-s3-upload-url-response",
+###           "purpose": "identity"
+###         }
+###       ]
+###     }
+###     Note: Even for single files, it must be an array
+
+### 12. IDENTITY VERIFICATION WORKFLOW
+###     1. User uploads identity documents (isVerified: false)
+###     2. Employee/admin reviews documents
+###     3. Employee/admin verifies identity (isVerified: true, verifiedBy: employeeId)
+###     4. If user updates identity, verification is reset (isVerified: false)

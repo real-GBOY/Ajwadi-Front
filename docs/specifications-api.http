@@ -1,0 +1,343 @@
+### Specifications API Documentation
+### Complete API documentation for specification tags management endpoints
+### All operations for creating, reading, updating, and deleting specifications
+
+@baseUrl = http://localhost:5000/api
+@contentType = application/json
+@token = your-jwt-token-here
+@specificationId = your-specification-uuid-here
+
+### ============================================
+### VARIABLES SETUP
+### ============================================
+### Replace the variables above with actual values:
+### - @token: JWT token from /api/auth/verify-otp (if authentication is required)
+### - @specificationId: UUID of an existing specification
+
+### ============================================
+### 1. CREATE SPECIFICATION
+### ============================================
+### Create a new specification tag
+### Public endpoint (authentication may be required based on your setup)
+### Both name and icon are required
+
+POST {{baseUrl}}/specifications
+Content-Type: {{contentType}}
+
+{
+  "name": "Web Development",
+  "icon": "web-icon"
+}
+
+### Example: Create Another Specification
+POST {{baseUrl}}/specifications
+Content-Type: {{contentType}}
+
+{
+  "name": "Mobile Development",
+  "icon": "mobile-icon"
+}
+
+### Example: Create Design Specification
+POST {{baseUrl}}/specifications
+Content-Type: {{contentType}}
+
+{
+  "name": "Graphic Design",
+  "icon": "design-icon"
+}
+
+### Response Example (201 Created):
+### {
+###   "success": true,
+###   "message": "Specification created successfully",
+###   "data": {
+###     "id": "specification-uuid",
+###     "name": "Web Development",
+###     "icon": "web-icon",
+###     "createdAt": "2026-02-12T01:00:00.000Z",
+###     "updatedAt": "2026-02-12T01:00:00.000Z"
+###   }
+### }
+
+### ============================================
+### 2. GET ALL SPECIFICATIONS
+### ============================================
+### Get all specifications with pagination and optional search
+### Public endpoint (no authentication required)
+### Query Parameters:
+###   - page: Page number (default: 1)
+###   - limit: Items per page (default: 100, max: 500)
+###   - search: Search term to filter specifications by name (optional)
+
+### Get All Specifications (Default - First Page, 100 items)
+GET {{baseUrl}}/specifications
+Content-Type: {{contentType}}
+
+### Get All Specifications with Pagination
+GET {{baseUrl}}/specifications?page=1&limit=10
+Content-Type: {{contentType}}
+
+### Get All Specifications with Search
+GET {{baseUrl}}/specifications?page=1&limit=10&search=web
+Content-Type: {{contentType}}
+
+### Get All Specifications - Second Page
+GET {{baseUrl}}/specifications?page=2&limit=20
+Content-Type: {{contentType}}
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "Specifications fetched successfully",
+###   "data": [
+###     {
+###       "id": "specification-uuid",
+###       "name": "Web Development",
+###       "icon": "web-icon",
+###       "createdAt": "2026-02-12T01:00:00.000Z",
+###       "updatedAt": "2026-02-12T01:00:00.000Z"
+###     }
+###   ],
+###   "pagination": {
+###     "page": 1,
+###     "limit": 10,
+###     "totalPages": 5,
+###     "totalItems": 50,
+###     "hasNextPage": true,
+###     "hasPreviousPage": false
+###   }
+### }
+
+### ============================================
+### 3. GET SPECIFICATION BY ID
+### ============================================
+### Get a specific specification by its ID
+### Public endpoint (no authentication required)
+
+GET {{baseUrl}}/specifications/{{specificationId}}
+Content-Type: {{contentType}}
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "Specification fetched successfully",
+###   "data": {
+###     "id": "specification-uuid",
+###     "name": "Web Development",
+###     "icon": "web-icon",
+###     "createdAt": "2026-02-12T01:00:00.000Z",
+###     "updatedAt": "2026-02-12T01:00:00.000Z"
+###   }
+### }
+
+### ============================================
+### 4. UPDATE SPECIFICATION
+### ============================================
+### Update an existing specification
+### Public endpoint (authentication may be required based on your setup)
+### At least one field must be provided for update
+
+PUT {{baseUrl}}/specifications/{{specificationId}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Full Stack Web Development"
+}
+
+### Example: Update Specification Name and Icon
+PUT {{baseUrl}}/specifications/{{specificationId}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Modern Web Development",
+  "icon": "modern-web-icon"
+}
+
+### Example: Update Only Icon
+PUT {{baseUrl}}/specifications/{{specificationId}}
+Content-Type: {{contentType}}
+
+{
+  "icon": "updated-icon"
+}
+
+### Response Example (200 OK):
+### {
+###   "success": true,
+###   "message": "Specification updated successfully",
+###   "data": {
+###     "id": "specification-uuid",
+###     "name": "Full Stack Web Development",
+###     "icon": "web-icon",
+###     "createdAt": "2026-02-12T01:00:00.000Z",
+###     "updatedAt": "2026-02-12T02:00:00.000Z"
+###   }
+### }
+
+### ============================================
+### 5. DELETE SPECIFICATION
+### ============================================
+### Delete a specification by ID
+### Public endpoint (authentication may be required based on your setup)
+### Note: Consider impact on linked skills before deleting
+
+DELETE {{baseUrl}}/specifications/{{specificationId}}
+Content-Type: {{contentType}}
+
+### Response Example (200 OK):
+### {
+###   "success": true,
+###   "message": "Specification deleted successfully"
+### }
+
+### ============================================
+### COMPREHENSIVE NOTES & GUIDELINES
+### ============================================
+
+### 1. AUTHENTICATION & AUTHORIZATION
+###    - Check your route configuration to see if authentication is required
+###    - If authentication is required, use: Authorization: Bearer {{token}}
+###    - Get token from: POST /api/auth/verify-otp
+
+### 2. VALIDATION RULES
+###    Create Specification:
+###    - name: Required, string, 1-100 characters
+###    - icon: Required, string, minimum 1 character
+###    
+###    Update Specification:
+###    - At least one field must be provided
+###    - name: Optional, string, 1-100 characters if provided
+###    - icon: Optional, string, minimum 1 character if provided
+
+### 3. PAGINATION
+###    - Default page: 1
+###    - Default limit: 100
+###    - Maximum limit: 500
+###    - Search is case-insensitive and searches specification names
+
+### 4. RELATIONSHIP WITH SKILLS
+###    - Specifications can have multiple skills linked to them
+###    - Skills reference specifications via specificationId
+###    - When deleting a specification, consider impact on linked skills
+###    - Skills can exist without a specification (specificationId: null)
+
+### 5. ERROR RESPONSES
+###    
+###    Validation Error (400):
+###    {
+###      "success": false,
+###      "message": "Validation error message",
+###      "errors": [
+###        {
+###          "field": "name",
+###          "message": "Specification name is required"
+###        }
+###      ]
+###    }
+###    
+###    Not Found (404):
+###    {
+###      "success": false,
+###      "message": "Specification not found"
+###    }
+
+### 6. SUCCESS RESPONSES
+###    
+###    Create Specification (201):
+###    {
+###       "success": true,
+###       "message": "Specification created successfully",
+###       "data": { ... }
+###     }
+###    
+###    Get Specifications (200):
+###    {
+###       "success": true,
+###       "message": "Specifications fetched successfully",
+###       "data": [ ... ],
+###       "pagination": { ... }
+###     }
+###    
+###    Update Specification (200):
+###    {
+###       "success": true,
+###       "message": "Specification updated successfully",
+###       "data": { ... }
+###     }
+###    
+###    Delete Specification (200):
+###    {
+###       "success": true,
+###       "message": "Specification deleted successfully"
+###     }
+
+### 7. BEST PRACTICES
+###    - Use clear, descriptive specification names
+###    - Use consistent icon naming conventions
+###    - Group related skills under appropriate specifications
+###    - Search for existing specifications before creating duplicates
+###    - Update specifications rather than creating duplicates
+###    - Consider impact on linked skills before deleting
+
+### 8. COMMON USE CASES
+###    
+###    Case 1: Create a new specification category
+###    1. POST /api/specifications with name and icon
+###    2. Specification is created
+###    3. Link skills to this specification using PUT /api/skills/:id
+###    
+###    Case 2: Search for specifications
+###    1. GET /api/specifications?search=web
+###    2. Returns matching specifications with pagination
+###    
+###    Case 3: Update specification details
+###    1. PUT /api/specifications/:id with updated fields
+###    2. Specification is updated
+###    
+###    Case 4: Reorganize skills by specification
+###    1. Get all specifications: GET /api/specifications
+###    2. Update skills to link to appropriate specifications
+###    3. Use PUT /api/skills/:id with specificationId
+
+### ============================================
+### TESTING EXAMPLES
+### ============================================
+
+### Test: Create Specification with Long Name
+POST {{baseUrl}}/specifications
+Content-Type: {{contentType}}
+
+{
+  "name": "Full Stack Web Development and Mobile Applications",
+  "icon": "fullstack-icon"
+}
+
+### Test: Search Specifications
+GET {{baseUrl}}/specifications?search=mobile&page=1&limit=5
+Content-Type: {{contentType}}
+
+### Test: Update Only Name
+PUT {{baseUrl}}/specifications/{{specificationId}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Updated Specification Name"
+}
+
+### Test: Update Only Icon
+PUT {{baseUrl}}/specifications/{{specificationId}}
+Content-Type: {{contentType}}
+
+{
+  "icon": "new-icon-name"
+}
+
+### Test: Update Both Fields
+PUT {{baseUrl}}/specifications/{{specificationId}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Modern Web Technologies",
+  "icon": "modern-icon"
+}

@@ -1,0 +1,634 @@
+### Employees API Documentation
+### Complete API documentation for employee management endpoints
+### All operations for creating employees and employee login
+
+@baseUrl = http://localhost:5000/api
+@contentType = application/json
+@token = your-jwt-token-here
+@employeeId = your-employee-uuid-here
+@roleId = your-role-uuid-here
+
+### ============================================
+### VARIABLES SETUP
+### ============================================
+### Replace the variables above with actual values:
+### - @token: JWT token from employee login
+### - @employeeId: UUID of an existing employee
+### - @roleId: UUID of an existing role (required for creating employees)
+
+### ============================================
+### 1. CREATE EMPLOYEE
+### ============================================
+### Create a new employee account
+### Requires roleId to be a valid UUID of an existing role
+### Email and phone must be unique
+### Password is stored as plain text (as per current model implementation)
+
+POST {{baseUrl}}/employees
+Content-Type: {{contentType}}
+
+{
+  "name": "John Doe",
+  "email": "john.doe@example.com",
+  "password": "password123",
+  "phone": "+1234567890",
+  "address": "123 Main Street, City, Country",
+  "roleId": "{{roleId}}"
+}
+
+### Example: Create Employee with FCM Token
+POST {{baseUrl}}/employees
+Content-Type: {{contentType}}
+
+{
+  "name": "Jane Smith",
+  "email": "jane.smith@example.com",
+  "password": "securepassword",
+  "phone": "+9876543210",
+  "address": "456 Oak Avenue, City, Country",
+  "roleId": "{{roleId}}",
+  "fcmToken": "fcm-token-for-push-notifications"
+}
+
+### Example: Create Employee by Another Employee (with createdById)
+POST {{baseUrl}}/employees
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "name": "Bob Johnson",
+  "email": "bob.johnson@example.com",
+  "password": "password456",
+  "phone": "+1122334455",
+  "address": "789 Pine Road, City, Country",
+  "roleId": "{{roleId}}"
+}
+
+### Response Example (201 Created):
+### {
+###   "success": true,
+###   "message": "Employee created successfully",
+###   "data": {
+###     "id": "employee-uuid",
+###     "name": "John Doe",
+###     "email": "john.doe@example.com",
+###     "phone": "+1234567890",
+###     "address": "123 Main Street, City, Country",
+###     "roleId": "role-uuid",
+###     "status": "inactive",
+###     "fcmToken": null,
+###     "createdAt": "2026-02-12T01:00:00.000Z",
+###     "updatedAt": "2026-02-12T01:00:00.000Z"
+###   }
+### }
+
+### ============================================
+### 2. GET ALL EMPLOYEES
+### ============================================
+### Get all employees with pagination and optional search/filter
+### Returns employees ordered by creation date (newest first)
+### Query Parameters:
+###   - page: Page number (default: 1)
+###   - limit: Items per page (default: 100, max: 500)
+###   - search: Search term to filter by name, email, or phone (optional)
+###   - status: Filter by status - active, inactive, or suspended (optional)
+
+### Get All Employees (Default - First Page, 100 items)
+GET {{baseUrl}}/employees
+Content-Type: {{contentType}}
+
+### Get All Employees with Pagination
+GET {{baseUrl}}/employees?page=1&limit=10
+Content-Type: {{contentType}}
+
+### Get All Employees with Search
+GET {{baseUrl}}/employees?page=1&limit=10&search=john
+Content-Type: {{contentType}}
+
+### Get All Active Employees
+GET {{baseUrl}}/employees?status=active&page=1&limit=20
+Content-Type: {{contentType}}
+
+### Get All Employees - Second Page
+GET {{baseUrl}}/employees?page=2&limit=20
+Content-Type: {{contentType}}
+
+### Get All Employees with Search and Status Filter
+GET {{baseUrl}}/employees?search=doe&status=active&page=1&limit=10
+Content-Type: {{contentType}}
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "Employees fetched successfully",
+###   "data": [
+###     {
+###       "id": "employee-uuid",
+###       "name": "John Doe",
+###       "email": "john.doe@example.com",
+###       "phone": "+1234567890",
+###       "address": "123 Main Street, City, Country",
+###       "roleId": "role-uuid",
+###       "status": "active",
+###       "fcmToken": null,
+###       "createdAt": "2026-02-12T01:00:00.000Z",
+###       "updatedAt": "2026-02-12T01:00:00.000Z",
+###       "Role": {
+###         "id": "role-uuid",
+###         "key": "admin",
+###         "name": "Administrator",
+###         "permissions": ["permission-uuid-1", "permission-uuid-2"]
+###       }
+###     }
+###   ],
+###   "pagination": {
+###     "page": 1,
+###     "limit": 10,
+###     "totalPages": 5,
+###     "totalItems": 50,
+###     "hasNextPage": true,
+###     "hasPreviousPage": false
+###   }
+### }
+
+### ============================================
+### 3. EMPLOYEE LOGIN
+### ============================================
+### Login employee with email and password
+### Returns JWT token for authenticated requests
+### Employee must have status "active" to login
+### FCM token is optional and will be updated if provided
+
+POST {{baseUrl}}/employees/login
+Content-Type: {{contentType}}
+
+{
+  "email": "john.doe@example.com",
+  "password": "password123"
+}
+
+### Example: Login with FCM Token
+POST {{baseUrl}}/employees/login
+Content-Type: {{contentType}}
+
+{
+  "email": "john.doe@example.com",
+  "password": "password123",
+  "fcmToken": "fcm-token-for-push-notifications"
+}
+
+### Response Example (200 OK):
+### {
+###   "success": true,
+###   "message": "Login successful",
+###   "data": {
+###     "employee": {
+###       "id": "employee-uuid",
+###       "name": "John Doe",
+###       "email": "john.doe@example.com",
+###       "phone": "+1234567890",
+###       "address": "123 Main Street, City, Country",
+###       "roleId": "role-uuid",
+###       "status": "active",
+###       "fcmToken": "fcm-token-for-push-notifications",
+###       "createdAt": "2026-02-12T01:00:00.000Z",
+###       "updatedAt": "2026-02-12T01:00:00.000Z",
+###       "Role": {
+###         "id": "role-uuid",
+###         "key": "admin",
+###         "name": "Administrator",
+###         "permissions": ["permission-uuid-1", "permission-uuid-2"]
+###       }
+###     },
+###     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+###   }
+### }
+
+### ============================================
+### 4. UPDATE EMPLOYEE
+### ============================================
+### Update an existing employee
+### At least one field must be provided for update
+### Email and phone uniqueness is checked if being updated
+### Role must exist if roleId is being updated
+
+PUT {{baseUrl}}/employees/{{employeeId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "name": "John Updated Doe"
+}
+
+### Example: Update Multiple Fields
+PUT {{baseUrl}}/employees/{{employeeId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "name": "John Updated Doe",
+  "email": "john.updated@example.com",
+  "address": "New Address, City, Country"
+}
+
+### Example: Update Status to Active
+PUT {{baseUrl}}/employees/{{employeeId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "status": "active"
+}
+
+### Example: Update Role
+PUT {{baseUrl}}/employees/{{employeeId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "roleId": "{{roleId}}"
+}
+
+### Example: Update Password
+PUT {{baseUrl}}/employees/{{employeeId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "password": "newpassword123"
+}
+
+### Example: Suspend Employee
+PUT {{baseUrl}}/employees/{{employeeId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "status": "suspended",
+  "suspendedById": "{{employeeId}}",
+  "suspendedReason": "Violation of company policy"
+}
+
+### Response Example (200 OK):
+### {
+###   "success": true,
+###   "message": "Employee updated successfully",
+###   "data": {
+###     "id": "employee-uuid",
+###     "name": "John Updated Doe",
+###     "email": "john.updated@example.com",
+###     "phone": "+1234567890",
+###     "address": "New Address, City, Country",
+###     "roleId": "role-uuid",
+###     "status": "active",
+###     "fcmToken": null,
+###     "updatedById": "updater-employee-uuid",
+###     "createdAt": "2026-02-12T01:00:00.000Z",
+###     "updatedAt": "2026-02-12T02:00:00.000Z",
+###     "Role": {
+###       "id": "role-uuid",
+###       "key": "admin",
+###       "name": "Administrator",
+###       "permissions": ["permission-uuid-1", "permission-uuid-2"]
+###     }
+###   }
+### }
+
+### ============================================
+### COMPREHENSIVE NOTES & GUIDELINES
+### ============================================
+
+### 1. AUTHENTICATION & AUTHORIZATION
+###    - Get All Employees: May require authentication (check your route configuration)
+###    - Create Employee: May require authentication (check your route configuration)
+###    - Update Employee: May require authentication (check your route configuration)
+###    - Login: Public endpoint (no authentication required)
+###    - Use the token from login response for authenticated requests
+###    - Format: Authorization: Bearer {{token}}
+
+### 2. EMPLOYEE STATUS
+###    - New employees are created with status "inactive" by default
+###    - Only employees with status "active" can login
+###    - Other statuses: "inactive", "suspended"
+###    - To activate an employee, update their status to "active" (if update endpoint exists)
+
+### 3. VALIDATION RULES
+###    Create Employee:
+###    - name: Required, string, 1-100 characters
+###    - email: Required, valid email address, unique
+###    - password: Required, string, 6-100 characters
+###    - phone: Required, string, unique
+###    - address: Required, string
+###    - roleId: Required, valid UUID of existing role
+###    - fcmToken: Optional, string, max 255 characters
+###    - createdById: Optional, UUID of employee who created this
+###    
+###    Login:
+###    - email: Required, valid email address
+###    - password: Required, string
+###    - fcmToken: Optional, string, max 255 characters
+###    
+###    Update Employee:
+###    - At least one field must be provided
+###    - name: Optional, string, 1-100 characters if provided
+###    - email: Optional, valid email address if provided
+###    - password: Optional, string, 6-100 characters if provided
+###    - phone: Optional, string if provided
+###    - address: Optional, string if provided
+###    - roleId: Optional, valid UUID of existing role if provided
+###    - status: Optional, enum (active, inactive, suspended) if provided
+###    - fcmToken: Optional, string, max 255 characters
+###    - updatedById: Optional, UUID of employee making the update
+###    - suspendedById: Optional, UUID of employee who suspended this
+###    - suspendedReason: Optional, string, max 500 characters
+
+### 4. PASSWORD SECURITY
+###    ⚠️  IMPORTANT: Currently passwords are stored as plain text
+###    This is a security risk and should be changed to use password hashing (bcrypt, etc.)
+###    The comparePassword method in the Employee model does plain text comparison
+
+### 5. ROLE REQUIREMENTS
+###    - roleId must reference an existing role in the Roles table
+###    - Role information is included in login response if association is available
+###    - Role permissions are included in the JWT token payload
+
+### 6. ERROR RESPONSES
+###    
+###    Validation Error (400):
+###    {
+###      "success": false,
+###      "message": "Validation error message",
+###      "errors": [
+###         {
+###           "field": "email",
+###           "message": "Email must be a valid email address"
+###         }
+###       ]
+###     }
+###    
+###    Conflict (409):
+###    {
+###      "success": false,
+###      "message": "Employee with this email already exists"
+###     }
+###     OR
+###     {
+###       "success": false,
+###       "message": "Employee with this phone already exists"
+###     }
+###    
+###    Not Found (404):
+###    {
+###       "success": false,
+###       "message": "Role not found"
+###     }
+###     OR (for login/update)
+###     {
+###       "success": false,
+###       "message": "Employee not found"
+###     }
+###    
+###    Unauthorized (401):
+###    {
+###       "success": false,
+###       "message": "Invalid password"
+###     }
+###    
+###    Forbidden (403):
+###    {
+###       "success": false,
+###       "message": "Employee account is inactive"
+###     }
+###     OR
+###     {
+###       "success": false,
+###       "message": "Employee account is suspended"
+###     }
+
+### 7. SUCCESS RESPONSES
+###    
+###    Create Employee (201):
+###    {
+###       "success": true,
+###       "message": "Employee created successfully",
+###       "data": { ... }
+###     }
+###    
+###    Get All Employees (200):
+###    {
+###       "success": true,
+###       "message": "Employees fetched successfully",
+###       "data": [ ... ],
+###       "pagination": { ... }
+###     }
+###    
+###    Login (200):
+###    {
+###       "success": true,
+###       "message": "Login successful",
+###       "data": {
+###         "employee": { ... },
+###         "token": "jwt-token-string"
+###       }
+###     }
+###    
+###    Update Employee (200):
+###    {
+###       "success": true,
+###       "message": "Employee updated successfully",
+###       "data": { ... }
+###     }
+
+### 8. JWT TOKEN PAYLOAD
+###    The JWT token contains:
+###    {
+###       "id": "employee-uuid",
+###       "email": "employee@example.com",
+###       "phone": "+1234567890",
+###       "name": "Employee Name",
+###       "role": {
+###         "id": "role-uuid",
+###         "key": "admin",
+###         "name": "Administrator",
+###         "permissions": ["permission-uuid-1", "permission-uuid-2"]
+###       },
+###       "type": "employee"
+###     }
+
+### 9. BEST PRACTICES
+###    - Use strong passwords (minimum 6 characters, but recommend 8+ with mixed case, numbers, symbols)
+###    - Keep employee accounts inactive until they need access
+###    - Update FCM tokens on login to ensure push notifications work
+###    - Use HTTPS in production to protect credentials
+###    - Implement password hashing before production deployment
+###    - Regularly review and update employee roles and permissions
+
+### 10. COMMON USE CASES
+###    
+###     Case 1: Create a new employee account
+###     1. Ensure a role exists in the Roles table
+###     2. POST /api/employees with employee data and roleId
+###     3. Employee is created with status "inactive"
+###     4. Update employee status to "active" (if update endpoint exists)
+###     5. Employee can now login
+###    
+###     Case 2: Employee login
+###     1. POST /api/employees/login with email and password
+###     2. If credentials are correct and status is "active", receive JWT token
+###     3. Use token for authenticated requests
+###     
+###     Case 3: Update FCM token on login
+###     1. Include fcmToken in login request
+###     2. FCM token is saved to employee record
+###     3. Employee can receive push notifications
+###     
+###     Case 4: Get all employees with filters
+###     1. GET /api/employees?status=active&search=john
+###     2. Returns filtered and paginated list of employees
+###     3. Use pagination to navigate through results
+###     
+###     Case 5: Update employee information
+###     1. PUT /api/employees/:id with updated fields
+###     2. Employee record is updated
+###     3. Updated employee is returned with role information
+###     
+###     Case 6: Activate employee account
+###     1. Update employee status to "active"
+###     2. PUT /api/employees/:id with status: "active"
+###     3. Employee can now login
+###     
+###     Case 7: Suspend employee account
+###     1. Update employee status to "suspended"
+###     2. Include suspendedById and suspendedReason
+###     3. Employee cannot login until status is changed back to "active"
+
+### ============================================
+### TESTING EXAMPLES
+### ============================================
+
+### Test: Create Employee with Minimum Required Fields
+POST {{baseUrl}}/employees
+Content-Type: {{contentType}}
+
+{
+  "name": "Test Employee",
+  "email": "test@example.com",
+  "password": "test123",
+  "phone": "+1111111111",
+  "address": "Test Address",
+  "roleId": "{{roleId}}"
+}
+
+### Test: Login with Valid Credentials
+POST {{baseUrl}}/employees/login
+Content-Type: {{contentType}}
+
+{
+  "email": "test@example.com",
+  "password": "test123"
+}
+
+### Test: Login with Invalid Email
+POST {{baseUrl}}/employees/login
+Content-Type: {{contentType}}
+
+{
+  "email": "nonexistent@example.com",
+  "password": "test123"
+}
+
+### Test: Login with Invalid Password
+POST {{baseUrl}}/employees/login
+Content-Type: {{contentType}}
+
+{
+  "email": "test@example.com",
+  "password": "wrongpassword"
+}
+
+### Test: Create Employee with Duplicate Email (Should Fail)
+POST {{baseUrl}}/employees
+Content-Type: {{contentType}}
+
+{
+  "name": "Another Employee",
+  "email": "test@example.com",
+  "password": "password123",
+  "phone": "+2222222222",
+  "address": "Another Address",
+  "roleId": "{{roleId}}"
+}
+
+### Test: Create Employee with Invalid Role ID (Should Fail)
+POST {{baseUrl}}/employees
+Content-Type: {{contentType}}
+
+{
+  "name": "Test Employee",
+  "email": "test2@example.com",
+  "password": "test123",
+  "phone": "+3333333333",
+  "address": "Test Address",
+  "roleId": "invalid-uuid"
+}
+
+### Test: Get All Employees
+GET {{baseUrl}}/employees?page=1&limit=10
+Content-Type: {{contentType}}
+
+### Test: Search Employees by Name
+GET {{baseUrl}}/employees?search=john&page=1&limit=5
+Content-Type: {{contentType}}
+
+### Test: Get Active Employees Only
+GET {{baseUrl}}/employees?status=active&page=1&limit=20
+Content-Type: {{contentType}}
+
+### Test: Update Employee Name Only
+PUT {{baseUrl}}/employees/{{employeeId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "name": "Updated Name"
+}
+
+### Test: Update Employee Status to Active
+PUT {{baseUrl}}/employees/{{employeeId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "status": "active"
+}
+
+### Test: Update Employee Email (Should Check Uniqueness)
+PUT {{baseUrl}}/employees/{{employeeId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "email": "newemail@example.com"
+}
+
+### Test: Update Employee with Multiple Fields
+PUT {{baseUrl}}/employees/{{employeeId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "name": "Updated Name",
+  "address": "Updated Address",
+  "phone": "+9999999999"
+}
+
+### Test: Suspend Employee
+PUT {{baseUrl}}/employees/{{employeeId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "status": "suspended",
+  "suspendedById": "{{employeeId}}",
+  "suspendedReason": "Test suspension reason"
+}

@@ -1,0 +1,355 @@
+### Wallet API Documentation
+### Complete API documentation for wallet and transactions endpoints
+
+@baseUrl = http://localhost:5000/api
+@contentType = application/json
+@token = your-jwt-token-here
+@employeeToken = your-employee-jwt-token-here
+
+### ============================================
+### TOP-UP WALLET
+### ============================================
+### Create a top-up transaction for the authenticated user
+### Requires user JWT token
+
+POST {{baseUrl}}/wallet/top-up
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "amount": 100.50
+}
+
+### Request Body:
+### - amount: Positive number with up to 2 decimal places (required)
+
+### Response Example (201 Created):
+### {
+###   "success": true,
+###   "message": "Top-up transaction created successfully",
+###   "data": {
+###     "id": "transaction-uuid",
+###     "userId": "user-uuid",
+###     "amount": 100.5,
+###     "currency": "SAR",
+###     "type": "TOP_UP",
+###     "status": "PENDING",
+###     "toWalletId": "wallet-uuid",
+###     "createdAt": "2024-01-01T00:00:00.000Z",
+###     "updatedAt": "2024-01-01T00:00:00.000Z"
+###   }
+### }
+
+### ============================================
+### VERIFY TOP-UP TRANSACTION
+### ============================================
+### Verify a top-up transaction for the authenticated user
+### Requires user JWT token
+
+POST {{baseUrl}}/wallet/transactions/:id/verify
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "status": "COMPLETED",
+  "description": "Top-up completed successfully",
+  "trace": "gateway-trace-id",
+  "respondCode": "00",
+  "respondMessage": "Approved",
+  "respondStatus": "SUCCESS",
+  "payResponseReturn": "raw-gateway-response",
+  "token": "card-token-if-any",
+  "paymentInfo": {
+    "cardScheme": "VISA",
+    "cardType": "CREDIT",
+    "paymentDescription": "411111******1111",
+    "expiryMonth": 12,
+    "expiryYear": 2030
+  }
+}
+
+### Path Parameters:
+### - id: Transaction UUID (required)
+
+### Request Body:
+### - status: "COMPLETED" or "FAILED" (required)
+### - description: Optional description (max 500 chars)
+### - trace: Optional trace reference
+### - respondCode: Optional gateway response code
+### - respondMessage: Optional gateway response message
+### - respondStatus: Optional gateway response status
+### - payResponseReturn: Optional raw gateway response
+### - token: Optional card token (required to save card)
+### - paymentInfo: Optional object with card information
+
+### Response Example (200 OK):
+### {
+###   "success": true,
+###   "message": "Transaction verified successfully",
+###   "data": {
+###     "id": "transaction-uuid",
+###     "status": "COMPLETED",
+###     "amount": 100.5,
+###     "currency": "SAR",
+###     "type": "TOP_UP",
+###     "toWalletId": "wallet-uuid",
+###     "createdAt": "2024-01-01T00:00:00.000Z",
+###     "updatedAt": "2024-01-01T00:05:00.000Z"
+###   }
+### }
+
+### ============================================
+### GET MY TRANSACTIONS
+### ============================================
+### Get all wallet transactions for the authenticated user
+### Requires user JWT token
+
+GET {{baseUrl}}/wallet/transactions
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "Transactions fetched successfully",
+###   "data": [
+###     {
+###       "id": "transaction-uuid",
+###       "userId": "user-uuid",
+###       "amount": 100.5,
+###       "currency": "SAR",
+###       "type": "TOP_UP",
+###       "status": "COMPLETED",
+###       "createdAt": "2024-01-01T00:00:00.000Z",
+###       "updatedAt": "2024-01-01T00:05:00.000Z"
+###     }
+###   ]
+### }
+
+### ============================================
+### GET ALL TRANSACTIONS (EMPLOYEE)
+### ============================================
+### Get all wallet transactions in the system
+### Requires employee JWT token
+
+GET {{baseUrl}}/wallet/transactions/all
+Content-Type: {{contentType}}
+Authorization: Bearer {{employeeToken}}
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "All transactions fetched successfully",
+###   "data": [
+###     {
+###       "id": "transaction-uuid",
+###       "userId": "user-uuid",
+###       "amount": 100.5,
+###       "currency": "SAR",
+###       "type": "TOP_UP",
+###       "status": "COMPLETED",
+###       "createdAt": "2024-01-01T00:00:00.000Z",
+###       "updatedAt": "2024-01-01T00:05:00.000Z"
+###     }
+###   ]
+### }
+
+### ============================================
+### GET MY CARDS
+### ============================================
+### Get all saved cards for the authenticated user
+### Requires user JWT token
+
+GET {{baseUrl}}/wallet/cards
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "Cards fetched successfully",
+###   "data": [
+###     {
+###       "id": "card-uuid",
+###       "userId": "user-uuid",
+###       "token": "card-token",
+###       "cardScheme": "VISA",
+###       "cardType": "CREDIT",
+###       "maskedCard": "411111******1111",
+###       "expiryMonth": 12,
+###       "expiryYear": 2030,
+###       "createdAt": "2024-01-01T00:00:00.000Z",
+###       "updatedAt": "2024-01-01T00:00:00.000Z"
+###     }
+###   ]
+### }
+
+### ============================================
+### START CONTRACT TRANSACTION (WALLET)
+### ============================================
+### Start a contract transaction using user wallet balance
+### Requires user JWT token (client must own the contract)
+
+POST {{baseUrl}}/wallet/contracts/:contractId/start-transaction
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "amount": 500.00
+}
+
+### Path Parameters:
+### - contractId: Contract UUID (required)
+
+### Request Body:
+### - amount: Positive number with up to 2 decimal places (required)
+
+### Response Example (200 OK):
+### {
+###   "success": true,
+###   "message": "Transaction started successfully",
+###   "data": {
+###     "id": "transaction-uuid",
+###     "userId": "client-user-uuid",
+###     "amount": 500,
+###     "currency": "SAR",
+###     "type": "CONTRACT",
+###     "status": "PENDING",
+###     "fromWalletId": "client-wallet-uuid",
+###     "toWalletId": "escrow-wallet-uuid",
+###     "createdAt": "2024-01-01T00:00:00.000Z",
+###     "updatedAt": "2024-01-01T00:00:00.000Z"
+###   }
+### }
+
+### ============================================
+### VERIFY CONTRACT TRANSACTION (WALLET)
+### ============================================
+### Verify a contract transaction using wallet balance
+### Requires user JWT token (must own the transaction)
+
+POST {{baseUrl}}/wallet/transactions/:id/verify-contract
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Path Parameters:
+### - id: Transaction UUID (required)
+
+### Request Body:
+### - No body required
+
+### Response Example (200 OK):
+### {
+###   "success": true,
+###   "message": "Transaction verified successfully",
+###   "data": {
+###     "id": "transaction-uuid",
+###     "status": "COMPLETED",
+###     "type": "CONTRACT",
+###     "amount": 500,
+###     "currency": "SAR",
+###     "fromWalletId": "client-wallet-uuid",
+###     "toWalletId": "escrow-wallet-uuid",
+###     "createdAt": "2024-01-01T00:00:00.000Z",
+###     "updatedAt": "2024-01-01T00:10:00.000Z"
+###   }
+### }
+
+### ============================================
+### VERIFY CONTRACT TRANSACTION (CARD)
+### ============================================
+### Verify a contract transaction using a payment card
+### Requires user JWT token (must own the transaction)
+
+POST {{baseUrl}}/wallet/transactions/:id/verify-contract-card
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "status": "COMPLETED",
+  "description": "Contract payment completed",
+  "trace": "gateway-trace-id",
+  "respondCode": "00",
+  "respondMessage": "Approved",
+  "respondStatus": "SUCCESS",
+  "payResponseReturn": "raw-gateway-response",
+  "token": "card-token",
+  "paymentInfo": {
+    "cardScheme": "VISA",
+    "cardType": "CREDIT",
+    "paymentDescription": "411111******1111",
+    "expiryMonth": 12,
+    "expiryYear": 2030
+  }
+}
+
+### Path Parameters:
+### - id: Transaction UUID (required)
+
+### Request Body:
+### - status: "COMPLETED" or "FAILED" (required)
+### - description: Optional description
+### - trace: Optional trace reference
+### - respondCode: Optional gateway response code
+### - respondMessage: Optional gateway response message
+### - respondStatus: Optional gateway response status
+### - payResponseReturn: Optional raw gateway response
+### - token: Optional card token (required to save card)
+### - paymentInfo: Optional object with card information
+
+### Response Example (200 OK):
+### {
+###   "success": true,
+###   "message": "Transaction verified successfully",
+###   "data": {
+###     "id": "transaction-uuid",
+###     "status": "COMPLETED",
+###     "type": "CONTRACT",
+###     "amount": 500,
+###     "currency": "SAR",
+###     "toWalletId": "escrow-wallet-uuid",
+###     "createdAt": "2024-01-01T00:00:00.000Z",
+###     "updatedAt": "2024-01-01T00:10:00.000Z"
+###   }
+### }
+
+### ============================================
+### COMPREHENSIVE NOTES & GUIDELINES
+### ============================================
+
+### 1. AUTHENTICATION & AUTHORIZATION
+###    - User endpoints (requires user JWT token):
+###      * POST /api/wallet/top-up
+###      * POST /api/wallet/transactions/:id/verify
+###      * GET /api/wallet/transactions
+###      * GET /api/wallet/cards
+###      * POST /api/wallet/contracts/:contractId/start-transaction
+###      * POST /api/wallet/transactions/:id/verify-contract
+###      * POST /api/wallet/transactions/:id/verify-contract-card
+###    - Employee-only endpoints (requires employee JWT token):
+###      * GET /api/wallet/transactions/all
+
+### 2. TRANSACTION TYPES
+###    - TOP_UP: User adds funds to their wallet
+###    - CONTRACT: Funds moved from user wallet to escrow for a contract
+
+### 3. STATUSES
+###    - PENDING: Transaction created, waiting for verification
+###    - COMPLETED: Transaction verified and applied
+###    - FAILED: Transaction failed and not applied
+
+### 4. CURRENCY
+###    - All amounts are in SAR (Saudi Riyal)
+
+### 5. ERROR RESPONSES
+###    - 400 Bad Request: Validation errors (amount not positive, invalid status, etc.)
+###    - 401 Unauthorized: Missing or invalid authentication token
+###    - 403 Forbidden: User not authorized for the action (not contract owner, etc.)
+###    - 404 Not Found: Transaction, wallet, contract, or escrow not found
+###    - 500 Internal Server Error: Server error
+
+### 6. BEST PRACTICES
+###    - Always verify top-up transactions after payment gateway callback
+###    - Use contract transactions for escrow-based payments
+###    - Save card tokens securely and reuse them for future payments
+

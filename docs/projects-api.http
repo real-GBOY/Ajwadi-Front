@@ -1,0 +1,660 @@
+### Projects API Documentation
+### Complete API documentation for project management endpoints
+### All operations for creating, reading, updating, and managing projects
+
+@baseUrl = http://localhost:5000/api
+@contentType = application/json
+@token = your-jwt-token-here
+@clientToken = your-client-jwt-token-here
+@freelancerToken = your-freelancer-jwt-token-here
+@employeeToken = your-employee-jwt-token-here
+@projectId = your-project-uuid-here
+
+### ============================================
+### VARIABLES SETUP
+### ============================================
+### Replace the variables above with actual values:
+### - @token: JWT token from /api/auth/verify-otp
+### - @projectId: UUID of an existing project
+### - @clientToken: JWT token for a client user
+### - @freelancerToken: JWT token for a freelancer user
+### - @employeeToken: JWT token for an employee user
+
+### ============================================
+### 1. CREATE PROJECT
+### ============================================
+### Create a new project (requires authentication and client role)
+### Files require upload tokens from /api/s3/upload-url endpoint first
+### Required fields: title, description, specificationId, skills, maxBudget, minBudget, duration
+
+POST {{baseUrl}}/projects
+Content-Type: {{contentType}}
+Authorization: Bearer {{clientToken}}
+
+{
+  "title": "E-commerce Website Development",
+  "description": "Need a full-stack e-commerce website with React frontend and Node.js backend. The project should include user authentication, product catalog, shopping cart, and payment integration.",
+  "specificationId": "550e8400-e29b-41d4-a716-446655440000",
+  "skills": [
+    "660e8400-e29b-41d4-a716-446655440001",
+    "660e8400-e29b-41d4-a716-446655440002"
+  ],
+  "maxBudget": 5000.00,
+  "minBudget": 2000.00,
+  "duration": 30,
+  "status": "openforbids",
+  "files": [
+    {
+      "fileId": "770e8400-e29b-41d4-a716-446655440003",
+      "token": "upload-token-from-s3-upload-url-endpoint",
+      "purpose": "project"
+    }
+  ]
+}
+
+### Create Project Without Files (Optional)
+POST {{baseUrl}}/projects
+Content-Type: {{contentType}}
+Authorization: Bearer {{clientToken}}
+
+{
+  "title": "Mobile App Development",
+  "description": "iOS and Android mobile application with React Native. Features include user profiles, messaging, and push notifications.",
+  "specificationId": "550e8400-e29b-41d4-a716-446655440000",
+  "skills": [
+    "660e8400-e29b-41d4-a716-446655440001"
+  ],
+  "maxBudget": 8000.00,
+  "minBudget": 4000.00,
+  "duration": 60
+}
+
+### ============================================
+### 2. GET ALL PROJECTS (PUBLIC)
+### ============================================
+### Retrieve all projects with pagination and optional search
+### No authentication required - Public access
+
+### Get All Projects (Default - First Page, 10 items)
+GET {{baseUrl}}/projects
+Content-Type: {{contentType}}
+
+### Get All Projects with Pagination
+GET {{baseUrl}}/projects?page=1&limit=20
+Content-Type: {{contentType}}
+
+### Get All Projects with Search
+GET {{baseUrl}}/projects?page=1&limit=10&search=e-commerce
+Content-Type: {{contentType}}
+
+### Get All Projects with Status Filter
+GET {{baseUrl}}/projects?page=1&limit=10&status=openforbids
+Content-Type: {{contentType}}
+
+### Get All Projects - Second Page
+GET {{baseUrl}}/projects?page=2&limit=20
+Content-Type: {{contentType}}
+
+### Get Projects - Multiple Filters
+GET {{baseUrl}}/projects?page=1&limit=10&search=website&status=in_progress
+Content-Type: {{contentType}}
+
+### ============================================
+### 3. GET USER'S PROJECTS (MY PROJECTS)
+### ============================================
+### Get all projects created by the authenticated user
+### Requires authentication and client role
+### Returns additional metrics: views, applicants count, executor name
+
+### Get My Projects (Default - First Page, 10 items)
+GET {{baseUrl}}/projects/my-projects
+Content-Type: {{contentType}}
+Authorization: Bearer {{clientToken}}
+
+### Get My Projects with Pagination
+GET {{baseUrl}}/projects/my-projects?page=1&limit=20
+Content-Type: {{contentType}}
+Authorization: Bearer {{clientToken}}
+
+### Get My Projects with Search
+GET {{baseUrl}}/projects/my-projects?page=1&limit=10&search=website
+Content-Type: {{contentType}}
+Authorization: Bearer {{clientToken}}
+
+### Get My Projects with Status Filter
+GET {{baseUrl}}/projects/my-projects?page=1&limit=10&status=in_progress
+Content-Type: {{contentType}}
+Authorization: Bearer {{clientToken}}
+
+### Get My Completed Projects
+GET {{baseUrl}}/projects/my-projects?page=1&limit=10&status=completed
+Content-Type: {{contentType}}
+Authorization: Bearer {{clientToken}}
+
+### ============================================
+### 4. GET COMPLETED PROJECTS BY FREELANCER
+### ============================================
+### Get all completed projects for the authenticated freelancer
+### Requires authentication and freelancer role
+### Only returns projects where the freelancer has an approved contract
+
+### Get Completed Projects (Default - First Page, 10 items)
+GET {{baseUrl}}/projects/completed/by-freelancer
+Content-Type: {{contentType}}
+Authorization: Bearer {{freelancerToken}}
+
+### Get Completed Projects with Pagination
+GET {{baseUrl}}/projects/completed/by-freelancer?page=1&limit=20
+Content-Type: {{contentType}}
+Authorization: Bearer {{freelancerToken}}
+
+### Get Completed Projects with Search
+GET {{baseUrl}}/projects/completed/by-freelancer?page=1&limit=10&search=website
+Content-Type: {{contentType}}
+Authorization: Bearer {{freelancerToken}}
+
+### ============================================
+### 5. GET PROJECT BY ID (PUBLIC)
+### ============================================
+### Get a specific project by its ID
+### No authentication required - Public access
+### Returns project with executorData and reviewData if available
+### - executorData: Full user information of the executor (freelancer executing the project)
+### - reviewData: Array of all reviews for this project
+### - owner: Project owner information
+### - skillsData: Array of skill objects
+### - filesData: Array of file objects
+
+GET {{baseUrl}}/projects/{{projectId}}
+Content-Type: {{contentType}}
+
+### Get Project with Authentication (tracks view if not owner)
+GET {{baseUrl}}/projects/{{projectId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Example with actual UUID:
+GET {{baseUrl}}/projects/123e4567-e89b-12d3-a456-426614174000
+Content-Type: {{contentType}}
+
+### Example Response Structure:
+### {
+###   "success": true,
+###   "message": "Project fetched successfully",
+###   "data": {
+###     "id": "uuid",
+###     "title": "Project Title",
+###     "description": "Project description",
+###     "excutedBy": "executor-user-uuid",
+###     "executorData": {
+###       "id": "uuid",
+###       "name": "Executor Name",
+###       "phone": "+966...",
+###       "country": "SA",
+###       "jobTitle": "Software Developer",
+###       "overview": "...",
+###       "mode": "freelancer",
+###       "isVerifiedAsFreelancer": true,
+###       "isVerifiedAsClient": false,
+###       "avgRating": "4.50",
+###       "totalReviews": 10,
+###       "available": true,
+###       "profilePicture": { ... }
+###     },
+###     "reviewData": [
+###       {
+###         "id": "review-uuid",
+###         "projectId": "project-uuid",
+###         "contractId": "contract-uuid",
+###         "createdById": "user-uuid",
+###         "userId": "user-uuid",
+###         "review": "Review text...",
+###         "proffeciency": 5,
+###         "communication": 4,
+###         "quality": 5,
+###         "experience": 4,
+###         "onTimeDelivery": 5,
+###         "willHireAgain": 1,
+###         "createdAt": "2026-02-07T..."
+###       }
+###     ],
+###     "owner": { ... },
+###     "skillsData": [ ... ],
+###     "filesData": [ ... ]
+###   }
+### }
+
+### ============================================
+### 6. VIEW PROJECT (TRACK VIEW)
+### ============================================
+### Record a project view for analytics
+### Requires authentication (user or employee)
+### Adds the user's ID to the project's viewedBy array if not already present
+
+POST {{baseUrl}}/projects/{{projectId}}/view
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Example with actual UUID:
+POST {{baseUrl}}/projects/123e4567-e89b-12d3-a456-426614174000/view
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### ============================================
+### 7. UPDATE PROJECT (EDIT PROJECT)
+### ============================================
+### Update/Edit a project (requires authentication and client role)
+### At least one field must be provided
+### Only the project owner can update their project
+### Files require upload tokens from /api/s3/upload-url endpoint
+### All fields are optional - update only what you need
+
+### Update Multiple Fields (Comprehensive Example)
+PATCH {{baseUrl}}/projects/{{projectId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{clientToken}}
+
+{
+  "title": "Updated Project Title",
+  "description": "Updated project description with more details about requirements and expectations.",
+  "maxBudget": 6000.00,
+  "minBudget": 3000.00,
+  "duration": 45,
+  "status": "in_progress",
+  "files": [
+    {
+      "fileId": "770e8400-e29b-41d4-a716-446655440004",
+      "token": "upload-token-from-s3-upload-url-endpoint",
+      "purpose": "project"
+    }
+  ]
+}
+
+### Update Only Title
+PATCH {{baseUrl}}/projects/{{projectId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{clientToken}}
+
+{
+  "title": "New Project Title"
+}
+
+### Update Only Description
+PATCH {{baseUrl}}/projects/{{projectId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{clientToken}}
+
+{
+  "description": "Updated project description with revised requirements and new specifications."
+}
+
+### Update Only Budget
+PATCH {{baseUrl}}/projects/{{projectId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{clientToken}}
+
+{
+  "maxBudget": 7000.00,
+  "minBudget": 3500.00
+}
+
+### Update Only Duration
+PATCH {{baseUrl}}/projects/{{projectId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{clientToken}}
+
+{
+  "duration": 90
+}
+
+### Update Specification
+PATCH {{baseUrl}}/projects/{{projectId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{clientToken}}
+
+{
+  "specificationId": "550e8400-e29b-41d4-a716-446655440001"
+}
+
+### Update Skills
+PATCH {{baseUrl}}/projects/{{projectId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{clientToken}}
+
+{
+  "skills": [
+    "660e8400-e29b-41d4-a716-446655440001",
+    "660e8400-e29b-41d4-a716-446655440002",
+    "660e8400-e29b-41d4-a716-446655440003"
+  ]
+}
+
+### Update Skills (Comma-separated String Format)
+PATCH {{baseUrl}}/projects/{{projectId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{clientToken}}
+
+{
+  "skills": "660e8400-e29b-41d4-a716-446655440001, 660e8400-e29b-41d4-a716-446655440002"
+}
+
+### Update Files Only
+PATCH {{baseUrl}}/projects/{{projectId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{clientToken}}
+
+{
+  "files": [
+    {
+      "fileId": "770e8400-e29b-41d4-a716-446655440005",
+      "token": "upload-token-from-s3-upload-url-endpoint",
+      "purpose": "project"
+    },
+    {
+      "fileId": "770e8400-e29b-41d4-a716-446655440006",
+      "token": "upload-token-from-s3-upload-url-endpoint",
+      "purpose": "project"
+    }
+  ]
+}
+
+### Update Title and Description Together
+PATCH {{baseUrl}}/projects/{{projectId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{clientToken}}
+
+{
+  "title": "Revised Project Title",
+  "description": "Updated description with new requirements."
+}
+
+### Update Budget and Duration Together
+PATCH {{baseUrl}}/projects/{{projectId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{clientToken}}
+
+{
+  "maxBudget": 8000.00,
+  "minBudget": 4000.00,
+  "duration": 60
+}
+
+### ============================================
+### 8. UPDATE PROJECT STATUS
+### ============================================
+### Update project status (requires authentication and client role)
+### Only the project owner can update the status
+### Valid status values: openforbids, closedforbids, in_progress, cancelled, completed
+
+PATCH {{baseUrl}}/projects/{{projectId}}/status
+Content-Type: {{contentType}}
+Authorization: Bearer {{clientToken}}
+
+{
+  "status": "in_progress"
+}
+
+### Close Project for Bids
+PATCH {{baseUrl}}/projects/{{projectId}}/status
+Content-Type: {{contentType}}
+Authorization: Bearer {{clientToken}}
+
+{
+  "status": "closedforbids"
+}
+
+### Mark Project as Completed
+PATCH {{baseUrl}}/projects/{{projectId}}/status
+Content-Type: {{contentType}}
+Authorization: Bearer {{clientToken}}
+
+{
+  "status": "completed"
+}
+
+### Cancel Project
+PATCH {{baseUrl}}/projects/{{projectId}}/status
+Content-Type: {{contentType}}
+Authorization: Bearer {{clientToken}}
+
+{
+  "status": "cancelled"
+}
+
+### Reopen Project for Bids
+PATCH {{baseUrl}}/projects/{{projectId}}/status
+Content-Type: {{contentType}}
+Authorization: Bearer {{clientToken}}
+
+{
+  "status": "openforbids"
+}
+
+### ============================================
+### 9. DELETE PROJECT
+### ============================================
+### Delete a project (requires authentication and client role)
+### Only the project owner can delete their project
+### This is a permanent deletion - cannot be undone
+
+DELETE {{baseUrl}}/projects/{{projectId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{clientToken}}
+
+### ============================================
+### 10. REVIEW PROJECT (EMPLOYEE ONLY)
+### ============================================
+### Review project (approve/reject) - employee only
+### Requires authentication and employee role
+### Valid reviewedStatus values: approved, rejected
+
+### Approve Project
+PATCH {{baseUrl}}/projects/{{projectId}}/review
+Content-Type: {{contentType}}
+Authorization: Bearer {{employeeToken}}
+
+{
+  "reviewedStatus": "approved",
+  "reviewedNote": "Project meets all requirements and is approved for publication."
+}
+
+### Reject Project
+PATCH {{baseUrl}}/projects/{{projectId}}/review
+Content-Type: {{contentType}}
+Authorization: Bearer {{employeeToken}}
+
+{
+  "reviewedStatus": "rejected",
+  "reviewedNote": "Project does not meet our quality standards. Please revise the description and resubmit."
+}
+
+### Approve Without Note
+PATCH {{baseUrl}}/projects/{{projectId}}/review
+Content-Type: {{contentType}}
+Authorization: Bearer {{employeeToken}}
+
+{
+  "reviewedStatus": "approved"
+}
+
+### ============================================
+### COMPREHENSIVE NOTES & GUIDELINES
+### ============================================
+
+### 1. AUTHENTICATION & AUTHORIZATION
+###    - Most endpoints require JWT token in Authorization header
+###    - Format: Authorization: Bearer <token>
+###    - Get token from: POST /api/auth/verify-otp
+###    
+###    Public endpoints (no auth required):
+###    - GET /api/projects (list all projects)
+###    - GET /api/projects/:id (get project by ID)
+###    
+###    Client-only endpoints (requires client role):
+###    - POST /api/projects (create project)
+###    - GET /api/projects/my-projects (get user's projects)
+###    - PATCH /api/projects/:id (update/edit project)
+###    - DELETE /api/projects/:id (delete project)
+###    - PATCH /api/projects/:id/status (update status)
+###    
+###    Freelancer-only endpoints:
+###    - GET /api/projects/completed/by-freelancer (get completed projects)
+###    
+###    Employee-only endpoints:
+###    - PATCH /api/projects/:id/review (review project)
+###    
+###    User/Employee endpoints:
+###    - POST /api/projects/:id/view (view project)
+
+### 2. FILE UPLOADS
+###    - Files require upload tokens from /api/s3/upload-url endpoint first
+###    - File purpose must be "project" for project files
+###    - File format: [{ fileId: "uuid", token: "upload-token", purpose: "project" }]
+###    - Files must be uploaded to S3 before they can be used in project creation/update
+###    - Upload flow:
+###      1. POST /api/s3/upload-url with filePurpose: "project"
+###      2. Upload file to S3 using the returned uploadUrl
+###      3. Use fileId and token in project creation/update request
+
+### 3. PROJECT STATUS VALUES
+###    - "openforbids" - Project is open for proposals (default)
+###    - "closedforbids" - Project is closed for new proposals
+###    - "in_progress" - Project is currently in progress
+###    - "cancelled" - Project has been cancelled
+###    - "completed" - Project has been completed
+
+### 4. REVIEW STATUS VALUES
+###    - "approved" - Project has been approved by employee
+###    - "rejected" - Project has been rejected by employee
+
+### 5. BUDGET VALIDATION
+###    - minBudget must be less than or equal to maxBudget
+###    - Both values must be positive numbers
+###    - Budget values are stored as DECIMAL(14, 2)
+###    - Example: 5000.00, 2000.50
+
+### 6. SKILLS FORMAT
+###    - Can be provided as array: ["uuid-1", "uuid-2"]
+###    - Can be provided as JSON string: '["uuid-1", "uuid-2"]'
+###    - Can be provided as comma-separated string: "uuid-1, uuid-2"
+###    - At least one skill is required for creation
+###    - Skills must be valid UUIDs that exist in the Skills table
+
+### 7. PAGINATION
+###    - page: Page number (starts from 1, default: 1)
+###    - limit: Number of items per page (default: 10, max: 100)
+###    - search: Optional search term (searches in title and description, case-insensitive)
+###    - status: Optional status filter (openforbids, closedforbids, in_progress, cancelled, completed)
+###    - Pagination response includes:
+###      * currentPage: Current page number
+###      * totalPages: Total number of pages
+###      * totalItems: Total number of items
+###      * itemsPerPage: Number of items per page
+###      * hasNextPage: Boolean indicating if there's a next page
+###      * hasPreviousPage: Boolean indicating if there's a previous page
+
+### 8. QUERY PARAMETERS FOR LIST ENDPOINTS
+###    - GET /api/projects?page=1&limit=10&search=keyword&status=openforbids
+###    - GET /api/projects/my-projects?page=1&limit=10&search=keyword&status=in_progress
+###    - GET /api/projects/completed/by-freelancer?page=1&limit=10&search=keyword
+
+### 9. REQUIRED FIELDS FOR CREATE
+###    - title: String (1-255 characters, required)
+###    - description: String (min 1 character, required)
+###    - specificationId: UUID (required, must exist in Specifications table)
+###    - skills: Array of UUIDs (min 1 skill, required)
+###    - maxBudget: Positive number (required)
+###    - minBudget: Positive number (required, must be <= maxBudget)
+###    - duration: Positive integer in days (required)
+###    - status: Optional enum (defaults to "openforbids")
+###    - files: Optional array of file references
+
+### 10. UPDATE PROJECT (EDIT PROJECT)
+###     - Endpoint: PATCH /api/projects/:id
+###     - At least one field must be provided
+###     - All fields are optional - you can update any combination of fields
+###     - Editable fields:
+###       * title: String (1-255 characters)
+###       * description: String (min 1 character)
+###       * specificationId: UUID (must exist in Specifications table)
+###       * skills: Array of UUIDs or comma-separated string
+###       * maxBudget: Positive number
+###       * minBudget: Positive number (must be <= maxBudget)
+###       * duration: Positive integer (in days)
+###       * status: Enum (openforbids, closedforbids, in_progress, cancelled, completed)
+###       * files: Array of file references with upload tokens
+###     - Files can be updated by providing new file references
+###     - Files require upload tokens from /api/s3/upload-url endpoint first
+###     - Only the project owner can update their project
+###     - Returns 401 Unauthorized if user is not the project owner
+###     - Returns 404 Not Found if project doesn't exist
+###     - Returns 404 Not Found if specificationId doesn't exist (when updating specification)
+###     - Budget validation: minBudget must be <= maxBudget
+###     - Skills can be provided as:
+###       * Array: ["uuid-1", "uuid-2"]
+###       * Comma-separated string: "uuid-1, uuid-2"
+###     - When updating files, provide array of objects with fileId, token, and purpose
+
+### 11. VIEW PROJECT
+###     - Records a view count for analytics
+###     - Requires authentication (user or employee)
+###     - Does not require any request body
+###     - Adds user ID to viewedBy array if not already present
+###     - Project owner viewing their own project does not increment views
+
+### 12. GET USER'S PROJECTS (MY PROJECTS) - SPECIAL FEATURES
+###     - Returns additional metrics not available in other endpoints:
+###       * views: Number of unique views (from viewedBy array length)
+###       * applicants: Number of proposals submitted for the project
+###       * executorName: Name of the user executing the project (null if none)
+###     - Response structure is optimized for dashboard/listing views
+###     - Only returns projects created by the authenticated user
+###     - Supports pagination, search, and status filtering
+
+### 13. ERROR RESPONSES
+###     - 400 Bad Request: Invalid input data or validation errors
+###     - 401 Unauthorized: Missing or invalid authentication token
+###     - 403 Forbidden: User doesn't have required role (client/freelancer/employee)
+###     - 404 Not Found: Project not found
+###     - 500 Internal Server Error: Server error
+
+### 14. EXAMPLE WORKFLOW
+###     1. Authenticate: POST /api/auth/verify-otp (get token)
+###     2. Get upload URL: POST /api/s3/upload-url (if files needed)
+###     3. Upload file to S3 using uploadUrl
+###     4. Create project: POST /api/projects (with fileId and token)
+###     5. View project: POST /api/projects/:id/view
+###     6. Edit/Update project: PATCH /api/projects/:id
+###        - Update title: { "title": "New Title" }
+###        - Update budget: { "maxBudget": 6000, "minBudget": 3000 }
+###        - Update multiple fields: { "title": "...", "description": "...", "duration": 45 }
+###     7. Update status: PATCH /api/projects/:id/status
+###     8. (Employee) Review: PATCH /api/projects/:id/review
+
+### 15. DATA RELATIONSHIPS
+###     - Projects belong to a Specification (specificationId)
+###     - Projects have multiple Skills (skills array)
+###     - Projects are created by a User (createdById)
+###     - Projects can have an executor User (executedBy)
+###     - Projects can have multiple Proposals (applicants count)
+###     - Projects track views via viewedBy array
+###     - Projects can be reviewed by Employees (reviewedById)
+###     - Projects have files (files array of UUIDs) and filesData (array of FileHub objects)
+
+### 16. GET PROJECT BY ID - RESPONSE DATA
+###     - executorData: Object containing full executor (freelancer) information
+###       * Included when project has an executor (excutedBy field is set)
+###       * Contains: id, name, phone, country, jobTitle, overview, mode
+###       * Contains: isVerifiedAsFreelancer, isVerifiedAsClient
+###       * Contains: avgRating, totalReviews, available
+###       * Contains: profilePicture object with file details
+###       * Returns null if no executor is assigned
+###     - reviewData: Array of review objects for this project
+###       * Each review contains: id, projectId, contractId, createdById, userId
+###       * Each review contains: review (text), proffeciency, communication, quality
+###       * Each review contains: experience, onTimeDelivery, willHireAgain
+###       * Each review contains: createdAt timestamp
+###       * Returns empty array [] if no reviews exist
+###     - owner: Object containing project owner (creator) information
+###     - skillsData: Array of skill objects with full skill details
+###     - filesData: Array of file objects with full file details

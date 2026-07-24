@@ -1,0 +1,404 @@
+### Project Files API Documentation
+### Complete API documentation for project files management endpoints
+### All operations for creating, updating, approving, and rejecting project files
+
+@baseUrl = http://localhost:5000/api
+@contentType = application/json
+@token = your-jwt-token-here
+@freelancerToken = your-freelancer-jwt-token-here
+@clientToken = your-client-jwt-token-here
+@projectFilesId = your-project-files-uuid-here
+@projectId = your-project-uuid-here
+@contractId = your-contract-uuid-here
+
+### ============================================
+### VARIABLES SETUP
+### ============================================
+### Replace the variables above with actual values:
+### - @token: JWT token from /api/auth/verify-otp
+### - @freelancerToken: JWT token for a freelancer user
+### - @clientToken: JWT token for a client user
+### - @projectFilesId: UUID of an existing project files record
+### - @projectId: UUID of an existing project
+### - @contractId: UUID of an existing contract
+
+### ============================================
+### 1. CREATE PROJECT FILES
+### ============================================
+### Create project files for a contract (requires authentication and freelancer role)
+### Only the freelancer who created the proposal (and has the contract) can create project files
+### Files require upload tokens from /api/s3/upload-url endpoint first
+### Required fields: projectId, contractId
+### Optional fields: files, notes
+
+POST {{baseUrl}}/project-files
+Content-Type: {{contentType}}
+Authorization: Bearer {{freelancerToken}}
+
+{
+  "projectId": "fbf62ddc-2136-43d6-911f-b062e606a808",
+  "contractId": "cb2cf78f-2c0f-4698-a183-14b4f9d2f5a7",
+  "files": [
+    {
+      "fileId": "770e8400-e29b-41d4-a716-446655440003",
+      "token": "upload-token-from-s3-upload-url-endpoint",
+      "purpose": "projectfiles"
+    },
+    {
+      "fileId": "770e8400-e29b-41d4-a716-446655440004",
+      "token": "upload-token-from-s3-upload-url-endpoint",
+      "purpose": "projectfiles"
+    }
+  ],
+  "notes": [
+    {
+      "text": "Initial project files submission",
+      "createdAt": "2026-02-07T12:00:00.000Z"
+    }
+  ]
+}
+
+### Create Project Files Without Files (Optional)
+POST {{baseUrl}}/project-files
+Content-Type: {{contentType}}
+Authorization: Bearer {{freelancerToken}}
+
+{
+  "projectId": "fbf62ddc-2136-43d6-911f-b062e606a808",
+  "contractId": "cb2cf78f-2c0f-4698-a183-14b4f9d2f5a7",
+  "notes": []
+}
+
+### Create Project Files with Notes Only
+POST {{baseUrl}}/project-files
+Content-Type: {{contentType}}
+Authorization: Bearer {{freelancerToken}}
+
+{
+  "projectId": "fbf62ddc-2136-43d6-911f-b062e606a808",
+  "contractId": "cb2cf78f-2c0f-4698-a183-14b4f9d2f5a7",
+  "files": [],
+  "notes": [
+    {
+      "text": "Project files will be uploaded soon",
+      "createdAt": "2026-02-07T12:00:00.000Z"
+    }
+  ]
+}
+
+### ============================================
+### 2. UPDATE PROJECT FILES
+### ============================================
+### Update project files (requires authentication and freelancer role)
+### Only the freelancer who created the project files can update them
+### Files require upload tokens from /api/s3/upload-url endpoint first
+### At least one field must be provided: files or status
+### All fields are optional - update only what you need
+
+### Update Files Only
+PATCH {{baseUrl}}/project-files/{{projectFilesId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{freelancerToken}}
+
+{
+  "files": [
+    {
+      "fileId": "770e8400-e29b-41d4-a716-446655440005",
+      "token": "upload-token-from-s3-upload-url-endpoint",
+      "purpose": "projectfiles"
+    },
+    {
+      "fileId": "770e8400-e29b-41d4-a716-446655440006",
+      "token": "upload-token-from-s3-upload-url-endpoint",
+      "purpose": "projectfiles"
+    }
+  ]
+}
+
+### Update Status Only (Freelancer can reset to pending)
+PATCH {{baseUrl}}/project-files/{{projectFilesId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{freelancerToken}}
+
+{
+  "status": "pending"
+}
+
+### Update Both Files and Status
+PATCH {{baseUrl}}/project-files/{{projectFilesId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{freelancerToken}}
+
+{
+  "files": [
+    {
+      "fileId": "770e8400-e29b-41d4-a716-446655440007",
+      "token": "upload-token-from-s3-upload-url-endpoint",
+      "purpose": "projectfiles"
+    }
+  ],
+  "status": "pending"
+}
+
+### ============================================
+### 3. ADD NOTES TO PROJECT FILES
+### ============================================
+### Add notes to project files (requires authentication and freelancer role)
+### Only the freelancer who created the project files can add notes
+### Notes are appended to the existing notes array
+### At least one note is required
+
+PATCH {{baseUrl}}/project-files/{{projectFilesId}}/notes
+Content-Type: {{contentType}}
+Authorization: Bearer {{freelancerToken}}
+
+{
+  "notes": [
+    {
+      "text": "Updated project files with latest changes",
+      "createdAt": "2026-02-07T14:00:00.000Z"
+    },
+    {
+      "text": "Fixed bugs in the implementation",
+      "createdAt": "2026-02-07T14:05:00.000Z"
+    }
+  ]
+}
+
+### Add Single Note
+PATCH {{baseUrl}}/project-files/{{projectFilesId}}/notes
+Content-Type: {{contentType}}
+Authorization: Bearer {{freelancerToken}}
+
+{
+  "notes": [
+    {
+      "text": "Project files updated",
+      "createdAt": "2026-02-07T15:00:00.000Z"
+    }
+  ]
+}
+
+### ============================================
+### 4. REJECT PROJECT FILES
+### ============================================
+### Reject project files (requires authentication and client role)
+### Only the project owner (client) can reject project files
+### Sets status to "rejected"
+### No request body required
+
+PATCH {{baseUrl}}/project-files/{{projectFilesId}}/reject
+Content-Type: {{contentType}}
+Authorization: Bearer {{clientToken}}
+
+### ============================================
+### 5. APPROVE PROJECT FILES
+### ============================================
+### Approve project files (requires authentication and client role)
+### Only the project owner (client) can approve project files
+### Sets status to "approved"
+### Automatically:
+###   - Updates project status to "completed"
+###   - Updates contract status to "completed"
+###   - Releases escrow wallet funds to freelancer
+###   - Transfers funds from escrow to freelancer's wallet
+### No request body required
+
+PATCH {{baseUrl}}/project-files/{{projectFilesId}}/approve
+Content-Type: {{contentType}}
+Authorization: Bearer {{clientToken}}
+
+### Approve with Optional Body (projectId and contractId are optional)
+PATCH {{baseUrl}}/project-files/{{projectFilesId}}/approve
+Content-Type: {{contentType}}
+Authorization: Bearer {{clientToken}}
+
+{
+  "projectId": "fbf62ddc-2136-43d6-911f-b062e606a808",
+  "contractId": "cb2cf78f-2c0f-4698-a183-14b4f9d2f5a7"
+}
+
+### ============================================
+### COMPREHENSIVE NOTES & GUIDELINES
+### ============================================
+
+### 1. AUTHENTICATION & AUTHORIZATION
+###    - All endpoints require JWT token in Authorization header
+###    - Format: Authorization: Bearer <token>
+###    - Get token from: POST /api/auth/verify-otp
+###    
+###    Freelancer-only endpoints (requires freelancer role):
+###    - POST /api/project-files (create project files)
+###    - PATCH /api/project-files/:id (update project files)
+###    - PATCH /api/project-files/:id/notes (add notes)
+###    
+###    Client-only endpoints (requires client role):
+###    - PATCH /api/project-files/:id/reject (reject project files)
+###    - PATCH /api/project-files/:id/approve (approve project files)
+
+### 2. FILE UPLOADS
+###    - Files require upload tokens from /api/s3/upload-url endpoint first
+###    - File purpose must be "projectfiles" for project files
+###    - File format: [{ fileId: "uuid", token: "upload-token", purpose: "projectfiles" }]
+###    - Files must be uploaded to S3 before they can be used
+###    - Upload flow:
+###      1. POST /api/s3/upload-url with filePurpose: "projectfiles"
+###      2. Upload file to S3 using the returned uploadUrl
+###      3. Use fileId and token in project files creation/update request
+
+### 3. PROJECT FILES STATUS VALUES
+###    - "pending" - Project files are pending review (default)
+###    - "approved" - Project files have been approved by client
+###    - "rejected" - Project files have been rejected by client
+
+### 4. NOTES FORMAT
+###    - Notes are stored as an array of objects
+###    - Each note object can contain any fields (typically: text, createdAt)
+###    - Notes are appended to existing notes when using add notes endpoint
+###    - Example note structure:
+###      {
+###        "text": "Note content here",
+###        "createdAt": "2026-02-07T12:00:00.000Z"
+###      }
+
+### 5. REQUIRED FIELDS FOR CREATE
+###    - projectId: UUID (required, must exist in Projects table)
+###    - contractId: UUID (required, must exist in Contracts table)
+###    - files: Array of file references (optional, defaults to empty array)
+###    - notes: Array of note objects (optional, defaults to empty array)
+
+### 6. UPDATE PROJECT FILES
+###    - Endpoint: PATCH /api/project-files/:id
+###    - At least one field must be provided
+###    - Editable fields:
+###      * files: Array of file references with upload tokens
+###      * status: Enum (pending, approved, rejected)
+###    - Only the freelancer who created the project files can update them
+###    - Returns 403 Forbidden if user is not the creator
+###    - Returns 404 Not Found if project files don't exist
+
+### 7. ADD NOTES TO PROJECT FILES
+###    - Endpoint: PATCH /api/project-files/:id/notes
+###    - At least one note is required
+###    - Notes are appended to existing notes array
+###    - Only the freelancer who created the project files can add notes
+###    - Returns 403 Forbidden if user is not the creator
+###    - Returns 404 Not Found if project files don't exist
+
+### 8. REJECT PROJECT FILES
+###    - Endpoint: PATCH /api/project-files/:id/reject
+###    - No request body required
+###    - Sets status to "rejected"
+###    - Only the project owner (client) can reject project files
+###    - Returns 403 Forbidden if user is not the project owner
+###    - Returns 404 Not Found if project files don't exist
+
+### 9. APPROVE PROJECT FILES
+###    - Endpoint: PATCH /api/project-files/:id/approve
+###    - No request body required (projectId and contractId are optional)
+###    - Sets project files status to "approved"
+###    - Automatically updates:
+###      * Project status to "completed"
+###      * Contract status to "completed"
+###      * Releases escrow wallet funds to freelancer
+###      * Transfers funds from escrow to freelancer's wallet
+###    - Only the project owner (client) can approve project files
+###    - Returns 403 Forbidden if user is not the project owner
+###    - Returns 404 Not Found if project files don't exist
+###    - Returns 400 Bad Request if escrow wallet or contract issues occur
+
+### 10. DATA RELATIONSHIPS
+###     - Project files belong to a Project (projectId)
+###     - Project files belong to a Contract (contractId)
+###     - Project files are created by a User (createdById - freelancer)
+###     - Project files have multiple Files (files array of UUIDs)
+###     - Project files have filesData (array of FileHub objects with full file details)
+###     - Project files have notes (array of note objects)
+###     - Contract must belong to the project (validated on creation)
+###     - Only one project files record can exist per contract
+
+### 11. AUTHORIZATION RULES
+###     - CREATE: Only freelancer who created the proposal (and has the contract) can create
+###     - UPDATE: Only freelancer who created the project files can update
+###     - ADD NOTES: Only freelancer who created the project files can add notes
+###     - REJECT: Only project owner (client) can reject
+###     - APPROVE: Only project owner (client) can approve
+
+### 12. VALIDATION RULES
+###     - projectId must be a valid UUID and exist in Projects table
+###     - contractId must be a valid UUID and exist in Contracts table
+###     - Contract must belong to the project (validated)
+###     - Only one project files record per contract (validated)
+###     - Files must have valid upload tokens
+###     - File purpose must be "projectfiles"
+
+### 13. ERROR RESPONSES
+###     - 400 Bad Request: Invalid input data, validation errors, or business logic errors
+###     - 401 Unauthorized: Missing or invalid authentication token
+###     - 403 Forbidden: User doesn't have required role or is not authorized
+###     - 404 Not Found: Project files, project, or contract not found
+###     - 500 Internal Server Error: Server error
+
+### 14. EXAMPLE WORKFLOW
+###     1. Authenticate: POST /api/auth/verify-otp (get token)
+###     2. Create contract: POST /api/contracts (client creates contract)
+###     3. Get upload URL: POST /api/s3/upload-url (freelancer gets upload URL)
+###     4. Upload file to S3 using uploadUrl
+###     5. Create project files: POST /api/project-files (freelancer submits files)
+###     6. Add notes: PATCH /api/project-files/:id/notes (freelancer adds notes)
+###     7. Update files: PATCH /api/project-files/:id (freelancer updates files)
+###     8. (Client) Review and approve: PATCH /api/project-files/:id/approve
+###        OR
+###     (Client) Reject: PATCH /api/project-files/:id/reject
+
+### 15. RESPONSE STRUCTURE
+###     - All endpoints return: { success: boolean, message: string, data: object }
+###     - Project files data includes:
+###       * id: UUID
+###       * projectId: UUID
+###       * contractId: UUID
+###       * createdById: UUID (freelancer who created)
+###       * files: Array of file UUIDs
+###       * filesData: Array of file objects with full details (id, url, fileName, etc.)
+###       * notes: Array of note objects
+###       * status: Enum (pending, approved, rejected)
+###       * createdAt: DateTime
+###       * updatedAt: DateTime
+
+### 16. FILES DATA STRUCTURE
+###     - filesData is automatically populated from files array
+###     - Each file object contains:
+###       * id: UUID
+###       * url: String (file URL)
+###       * fileName: String
+###       * fileType: String
+###       * filePurpose: String
+###       * mimeType: String
+###       * fileSize: Number
+###       * status: String
+###       * createdAt: DateTime
+###       * updatedAt: DateTime
+
+### 17. ESCROW WALLET RELEASE (On Approval)
+###     - When project files are approved:
+###       1. Escrow wallet balance is transferred to freelancer's wallet
+###       2. Transaction is created to record the transfer
+###       3. Project status is set to "completed"
+###       4. Contract status is set to "completed"
+###     - If escrow wallet or transaction fails, approval fails with error
+
+### 18. NOTES ARRAY STRUCTURE
+###     - Notes are stored as an array of objects
+###     - Each note can have any structure (typically includes text and createdAt)
+###     - Notes are appended when using add notes endpoint
+###     - Example notes array:
+###       [
+###         {
+###           "text": "Initial submission",
+###           "createdAt": "2026-02-07T12:00:00.000Z"
+###         },
+###         {
+###           "text": "Updated with fixes",
+###           "createdAt": "2026-02-07T14:00:00.000Z"
+###         }
+###       ]

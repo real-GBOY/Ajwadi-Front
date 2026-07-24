@@ -1,0 +1,388 @@
+### Experience Demands Management API
+### Base URL: http://localhost:5000/api
+
+### Variables
+@baseUrl = http://localhost:5000/api
+@token = your_jwt_token_here
+@experienceDemandId = your_experience_demand_id_here
+
+############################################################
+# CREATE EXPERIENCE DEMAND
+############################################################
+
+### Create a New Experience Demand
+# Create an experience demand with a file
+# Requires: User authentication
+# Body Parameters:
+#   - userId: ID of the user (optional, uses authenticated user if not provided)
+#   - ExFile: ID of the file from FileHub (required)
+POST {{baseUrl}}/experience-demands
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "ExFile": "file-uuid-from-filehub"
+}
+
+############################################################
+# GET EXPERIENCE DEMANDS
+############################################################
+
+### Get All Experience Demands
+# Get all experience demands with optional filters and pagination
+# Requires: User authentication
+# Query Parameters:
+#   - page: Page number (default: 1)
+#   - limit: Items per page (default: 10)
+#   - userId: Filter by user ID
+#   - isUnderReview: Filter by under review status (true/false)
+#   - reviewStatus: Filter by review status ('pending', 'approved', 'rejected')
+#   - sortBy: Field to sort by (default: 'createdAt')
+#   - sortOrder: 'asc' or 'desc' (default: 'DESC')
+GET {{baseUrl}}/experience-demands?page=1&limit=10
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Experience Demands - Filter by User ID
+GET {{baseUrl}}/experience-demands?page=1&limit=10&userId=0ed09547-b0bc-43e7-af16-4cfd56aca6c0
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Experience Demands - Filter by Under Review Status
+GET {{baseUrl}}/experience-demands?page=1&limit=10&isUnderReview=true
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Experience Demands - Filter by Review Status
+GET {{baseUrl}}/experience-demands?page=1&limit=10&reviewStatus=pending
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Experience Demands - Multiple Filters
+GET {{baseUrl}}/experience-demands?page=1&limit=10&isUnderReview=true&reviewStatus=pending&sortBy=createdAt&sortOrder=desc
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+############################################################
+# GET EXPERIENCE DEMANDS UNDER REVIEW
+############################################################
+
+### Get Experience Demands Under Review
+# Get all experience demands that are currently under review
+# Requires: User authentication
+# Query Parameters:
+#   - page: Page number (default: 1)
+#   - limit: Items per page (default: 10)
+#   - sortBy: Field to sort by (default: 'createdAt')
+#   - sortOrder: 'asc' or 'desc' (default: 'DESC')
+GET {{baseUrl}}/experience-demands/under-review?page=1&limit=10
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Experience Demands Under Review - Sorted
+GET {{baseUrl}}/experience-demands/under-review?page=1&limit=10&sortBy=createdAt&sortOrder=asc
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+############################################################
+# GET EXPERIENCE DEMAND BY ID
+############################################################
+
+### Get Experience Demand by ID
+# Get a specific experience demand by its ID
+# Requires: User authentication
+GET {{baseUrl}}/experience-demands/{{experienceDemandId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+############################################################
+# UPDATE EXPERIENCE DEMAND
+############################################################
+
+### Update Experience Demand
+# Update experience demand details
+# Requires: User authentication
+# Body Parameters (all optional):
+#   - isUnderReview: true/false
+#   - reviewStatus: 'pending', 'approved', or 'rejected'
+#   - reviewNote: Review note or rejection reason
+#   - ExFile: Updated file ID
+PUT {{baseUrl}}/experience-demands/{{experienceDemandId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "isUnderReview": false,
+  "reviewStatus": "approved",
+  "reviewNote": "Experience verified and approved"
+}
+
+### Update Experience Demand - Change File
+PUT {{baseUrl}}/experience-demands/{{experienceDemandId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "ExFile": "new-file-uuid-from-filehub"
+}
+
+############################################################
+# APPROVE EXPERIENCE DEMAND
+############################################################
+
+### Approve Experience Demand
+# Approve an experience demand
+# Requires: User authentication
+# Body Parameters:
+#   - reviewNote: Optional review note
+PATCH {{baseUrl}}/experience-demands/{{experienceDemandId}}/approve
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "reviewNote": "Experience verified and approved. All requirements met."
+}
+
+### Approve Experience Demand - Without Note
+PATCH {{baseUrl}}/experience-demands/{{experienceDemandId}}/approve
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{}
+
+############################################################
+# REJECT EXPERIENCE DEMAND
+############################################################
+
+### Reject Experience Demand
+# Reject an experience demand (reviewNote is required)
+# Requires: User authentication
+# Body Parameters:
+#   - reviewNote: Rejection reason (required)
+PATCH {{baseUrl}}/experience-demands/{{experienceDemandId}}/reject
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "reviewNote": "File does not meet the requirements. Please upload a valid experience certificate."
+}
+
+############################################################
+# DELETE EXPERIENCE DEMAND
+############################################################
+
+### Delete Experience Demand
+# Delete an experience demand by ID
+# Requires: User authentication
+DELETE {{baseUrl}}/experience-demands/{{experienceDemandId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+############################################################
+# GET EXPERIENCE DEMANDS COUNT
+############################################################
+
+### Get Experience Demands Count
+# Get the total count of experience demands with optional filters
+# Requires: User authentication
+# Query Parameters (all optional):
+#   - userId: Filter by user ID
+#   - isUnderReview: Filter by under review status (true/false)
+#   - reviewStatus: Filter by review status ('pending', 'approved', 'rejected')
+GET {{baseUrl}}/experience-demands/count
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Experience Demands Count - Filter by User ID
+GET {{baseUrl}}/experience-demands/count?userId=0ed09547-b0bc-43e7-af16-4cfd56aca6c0
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Experience Demands Count - Filter by Under Review
+GET {{baseUrl}}/experience-demands/count?isUnderReview=true
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Experience Demands Count - Filter by Review Status
+GET {{baseUrl}}/experience-demands/count?reviewStatus=pending
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Experience Demands Count - Multiple Filters
+GET {{baseUrl}}/experience-demands/count?isUnderReview=true&reviewStatus=pending
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+############################################################
+# RESPONSE FORMATS
+############################################################
+
+### Success Response - Create Experience Demand (201 Created):
+# {
+#   "success": true,
+#   "message": "Experience demand created successfully",
+#   "data": {
+#     "id": "uuid",
+#     "userId": "uuid",
+#     "ExFile": "uuid",
+#     "isUnderReview": true,
+#     "reviewStatus": "pending",
+#     "reviewNote": null,
+#     "createdAt": "2026-02-14T00:00:00.000Z",
+#     "updatedAt": "2026-02-14T00:00:00.000Z"
+#   }
+# }
+
+### Success Response - Get All Experience Demands (200 OK):
+# {
+#   "success": true,
+#   "message": "Experience demands fetched successfully",
+#   "data": [
+#     {
+#       "id": "uuid",
+#       "userId": "uuid",
+#       "ExFile": "uuid",
+#       "isUnderReview": true,
+#       "reviewStatus": "pending",
+#       "reviewNote": null,
+#       "createdAt": "2026-02-14T00:00:00.000Z",
+#       "updatedAt": "2026-02-14T00:00:00.000Z",
+#       "user": {
+#         "id": "uuid",
+#         "name": "User Name",
+#         "phone": "+1234567890",
+#         "profilePicture": "uuid"
+#       },
+#       "exFile": {
+#         "id": "uuid",
+#         "fileName": "experience-certificate.pdf",
+#         "url": "https://example.com/files/experience-certificate.pdf",
+#         "fileType": "document",
+#         "mimeType": "application/pdf",
+#         "fileSize": 102400
+#       }
+#     }
+#   ],
+#   "pagination": {
+#     "currentPage": 1,
+#     "itemsPerPage": 10,
+#     "totalItems": 25,
+#     "totalPages": 3
+#   }
+# }
+
+### Success Response - Get Experience Demand by ID (200 OK):
+# {
+#   "success": true,
+#   "message": "Experience demand fetched successfully",
+#   "data": {
+#     "id": "uuid",
+#     "userId": "uuid",
+#     "ExFile": "uuid",
+#     "isUnderReview": true,
+#     "reviewStatus": "pending",
+#     "reviewNote": null,
+#     "createdAt": "2026-02-14T00:00:00.000Z",
+#     "updatedAt": "2026-02-14T00:00:00.000Z",
+#     "user": {
+#       "id": "uuid",
+#       "name": "User Name",
+#       "phone": "+1234567890",
+#       "profilePicture": "uuid"
+#     },
+#     "exFile": {
+#       "id": "uuid",
+#       "fileName": "experience-certificate.pdf",
+#       "url": "https://example.com/files/experience-certificate.pdf",
+#       "fileType": "document",
+#       "mimeType": "application/pdf",
+#       "fileSize": 102400
+#     }
+#   }
+# }
+
+### Success Response - Approve Experience Demand (200 OK):
+# {
+#   "success": true,
+#   "message": "Experience demand approved successfully",
+#   "data": {
+#     "id": "uuid",
+#     "userId": "uuid",
+#     "ExFile": "uuid",
+#     "isUnderReview": false,
+#     "reviewStatus": "approved",
+#     "reviewNote": "Experience verified and approved",
+#     "createdAt": "2026-02-14T00:00:00.000Z",
+#     "updatedAt": "2026-02-14T01:00:00.000Z"
+#   }
+# }
+
+### Success Response - Reject Experience Demand (200 OK):
+# {
+#   "success": true,
+#   "message": "Experience demand rejected successfully",
+#   "data": {
+#     "id": "uuid",
+#     "userId": "uuid",
+#     "ExFile": "uuid",
+#     "isUnderReview": false,
+#     "reviewStatus": "rejected",
+#     "reviewNote": "File does not meet the requirements",
+#     "createdAt": "2026-02-14T00:00:00.000Z",
+#     "updatedAt": "2026-02-14T01:00:00.000Z"
+#   }
+# }
+
+### Success Response - Get Count (200 OK):
+# {
+#   "success": true,
+#   "message": "Experience demands count fetched successfully",
+#   "data": {
+#     "count": 25
+#   }
+# }
+
+### Error Response - Bad Request (400):
+# {
+#   "success": false,
+#   "message": "userId and ExFile are required"
+# }
+
+### Error Response - Bad Request - Invalid Status (400):
+# {
+#   "success": false,
+#   "message": "Invalid reviewStatus. Must be 'pending', 'approved', or 'rejected'"
+# }
+
+### Error Response - Bad Request - Missing Review Note (400):
+# {
+#   "success": false,
+#   "message": "Review note is required when rejecting"
+# }
+
+### Error Response - Not Found (404):
+# {
+#   "success": false,
+#   "message": "Experience demand not found"
+# }
+
+### Error Response - Unauthorized (401):
+# {
+#   "success": false,
+#   "message": "Unauthorized access"
+# }
+
+############################################################
+# NOTES
+############################################################
+
+# 1. All endpoints require authentication via Bearer token
+# 2. The userId in create request is optional - if not provided, it uses the authenticated user's ID
+# 3. When an experience demand is approved or rejected, isUnderReview is automatically set to false
+# 4. Review note is required when rejecting an experience demand
+# 5. Review status can only be 'pending', 'approved', or 'rejected'
+# 6. ExFile must reference a valid file in FileHub
+# 7. All timestamps are in ISO 8601 format (UTC)
+# 8. Pagination defaults: page=1, limit=10
+# 9. Sorting defaults: sortBy='createdAt', sortOrder='DESC'
+# 10. When creating a new experience demand, isUnderReview is automatically set to true and reviewStatus to 'pending'

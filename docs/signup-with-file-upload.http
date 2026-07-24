@@ -1,0 +1,295 @@
+### Signup with File Upload Documentation
+### This file demonstrates the complete flow for user signup with file uploads (profile picture and identity picture)
+
+@baseUrl = http://localhost:3000/api
+@contentType = application/json
+
+### ============================================
+### STEP 1: Get Upload URL for Profile Picture
+### ============================================
+### Request a signed URL to upload the profile picture
+### Purpose must be "profile" for profile pictures
+
+POST {{baseUrl}}/s3/upload-url
+Content-Type: {{contentType}}
+
+{
+  "fileName": "profile-picture.jpg",
+  "fileType": "image",
+  "filePurpose": "profile"
+}
+
+### Response Example:
+### {
+###   "success": true,
+###   "data": {
+###     "uploadUrl": "https://ajwadi.s3.us-east-1.amazonaws.com/profile/...",
+###     "file": {
+###       "id": "uuid-here",
+###       "fileName": "profile-picture.jpg",
+###       "fileType": "image",
+###       "filePurpose": "profile",
+###       "url": "https://ajwadi.s3.us-east-1.amazonaws.com/profile/...",
+###       ...
+###     },
+###     "uploadToken": "token-string-here"
+###   }
+### }
+
+### ============================================
+### STEP 2: Upload Profile Picture to S3
+### ============================================
+### Use the uploadUrl from Step 1 to upload the actual file
+### This is a PUT request to the signed URL (not to our API)
+### Note: Replace {{uploadUrl}} with the actual URL from Step 1 response
+
+PUT {{uploadUrl}}
+Content-Type: image/jpeg
+
+< ./path/to/your/profile-picture.jpg
+
+### ============================================
+### STEP 3: Get Upload URL for Identity Picture
+### ============================================
+### Request a signed URL to upload the identity picture
+### Purpose must be "identity" for identity verification documents
+
+POST {{baseUrl}}/s3/upload-url
+Content-Type: {{contentType}}
+
+{
+  "fileName": "identity-front.jpg",
+  "fileType": "image",
+  "filePurpose": "identity"
+}
+
+### Response Example:
+### {
+###   "success": true,
+###   "data": {
+###     "uploadUrl": "https://ajwadi.s3.us-east-1.amazonaws.com/identity/...",
+###     "file": {
+###       "id": "uuid-here",
+###       "fileName": "identity-front.jpg",
+###       "fileType": "image",
+###       "filePurpose": "identity",
+###       "url": "https://ajwadi.s3.us-east-1.amazonaws.com/identity/...",
+###       ...
+###     },
+###     "uploadToken": "token-string-here"
+###   }
+### }
+
+### ============================================
+### STEP 4: Upload Identity Picture to S3
+### ============================================
+### Use the uploadUrl from Step 3 to upload the actual file
+### Note: Replace {{uploadUrl}} with the actual URL from Step 3 response
+
+PUT {{uploadUrl}}
+Content-Type: image/jpeg
+
+< ./path/to/your/identity-front.jpg
+
+### ============================================
+### STEP 5: Register as Client with File Uploads
+### ============================================
+### After uploading files to S3, use the fileId, uploadToken, and purpose from Steps 1 and 3
+### IMPORTANT: Both profilePicture and identityPicture must be arrays, even for single files
+### Note: profilePicture is optional, identityPicture is required
+
+POST {{baseUrl}}/auth/register/client
+Content-Type: {{contentType}}
+
+{
+  "name": "John Doe",
+  "phone": "+1234567890",
+  "country": "United States",
+  "jobTitle": "Software Engineer",
+  "overview": "Experienced software engineer with 5+ years in web development",
+  "profilePicture": [
+    {
+      "fileId": "uuid-from-step-1-file-id",
+      "token": "token-from-step-1-upload-token",
+      "purpose": "profile"
+    }
+  ],
+  "identityPicture": [
+    {
+      "fileId": "uuid-from-step-3-file-id",
+      "token": "token-from-step-3-upload-token",
+      "purpose": "identity"
+    }
+  ]
+}
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "Client registered successfully",
+###   "data": {
+###     "user": {
+###       "id": "user-uuid",
+###       "name": "John Doe",
+###       "country": "United States",
+###       "jobTitle": "Software Engineer",
+###       "overview": "Experienced software engineer with 5+ years in web development",
+###       "phone": "+1234567890",
+###       "mode": "client",
+###       "profilePicture": "https://ajwadi.s3.us-east-1.amazonaws.com/profile/...",
+###       "createdAt": "2024-01-01T00:00:00.000Z",
+###       "updatedAt": "2024-01-01T00:00:00.000Z"
+###     },
+###     "wallet": {
+###       "id": "wallet-uuid",
+###       "userId": "user-uuid",
+###       "balance": 0,
+###       "currency": "USD"
+###     },
+###     "identity": {
+###       "id": "identity-uuid",
+###       "userId": "user-uuid",
+###       "isVerified": false,
+###       "images": ["https://ajwadi.s3.us-east-1.amazonaws.com/identity/..."]
+###     }
+###   }
+### }
+
+### ============================================
+### STEP 6: Register as Freelancer with File Uploads
+### ============================================
+### Freelancer registration requires additional fields: specificationId and skills
+### Note: profilePicture is optional, identityPicture is required
+
+POST {{baseUrl}}/auth/register/freelancer
+Content-Type: {{contentType}}
+
+{
+  "name": "Jane Smith",
+  "phone": "+1234567891",
+  "country": "United States",
+  "jobTitle": "Full Stack Developer",
+  "overview": "Full stack developer specializing in React and Node.js",
+  "specificationId": "specification-uuid-here",
+  "skills": [
+    "skill-uuid-1",
+    "skill-uuid-2"
+  ],
+  "profilePicture": [
+    {
+      "fileId": "uuid-from-step-1-file-id",
+      "token": "token-from-step-1-upload-token",
+      "purpose": "profile"
+    }
+  ],
+  "identityPicture": [
+    {
+      "fileId": "uuid-from-step-3-file-id",
+      "token": "token-from-step-3-upload-token",
+      "purpose": "identity",
+      "fileName": "identity-front.jpg"
+    }
+  ],
+  "previousWorks": [
+    {
+      "name": "E-commerce Platform",
+      "description": "Built a full-featured e-commerce platform with React and Node.js",
+      "link": "https://example.com/project",
+      "image": "https://example.com/image.jpg",
+      "gallery": [
+        "https://example.com/gallery1.jpg",
+        "https://example.com/gallery2.jpg"
+      ]
+    }
+  ]
+}
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "Freelancer registered successfully",
+###   "data": {
+###     "user": {
+###       "id": "user-uuid",
+###       "name": "Jane Smith",
+###       "country": "United States",
+###       "jobTitle": "Full Stack Developer",
+###       "overview": "Full stack developer specializing in React and Node.js",
+###       "phone": "+1234567891",
+###       "mode": "freelancer",
+###       "skills": ["skill-uuid-1", "skill-uuid-2"],
+###       "specificationId": "specification-uuid-here",
+###       "profilePicture": "https://ajwadi.s3.us-east-1.amazonaws.com/profile/...",
+###       "createdAt": "2024-01-01T00:00:00.000Z",
+###       "updatedAt": "2024-01-01T00:00:00.000Z"
+###     },
+###     "wallet": {
+###       "id": "wallet-uuid",
+###       "userId": "user-uuid",
+###       "balance": 0,
+###       "currency": "USD"
+###     },
+###     "identity": {
+###       "id": "identity-uuid",
+###       "userId": "user-uuid",
+###       "isVerified": false,
+###       "images": ["https://ajwadi.s3.us-east-1.amazonaws.com/identity/..."]
+###     },
+###     "portfolio": {
+###       "id": "portfolio-uuid",
+###       "userId": "user-uuid",
+###       "previousWorks": []
+###     },
+###     "previousWorks": [...]
+###   }
+### }
+
+### ============================================
+### NOTES:
+### ============================================
+### 1. File Upload Flow:
+###    - Step 1: Get upload URL from /api/s3/upload-url (returns fileId, uploadUrl, uploadToken)
+###    - Step 2: Upload file directly to S3 using the signed uploadUrl (PUT request to S3, not our API)
+###    - Step 3: Use the fileId, token, and purpose in the registration request
+###    - The file reference format must be: [{ fileId: "...", token: "...", purpose: "..." }]
+###    - Files must be uploaded to S3 before they can be used in registration
+###
+### 2. File Purposes:
+###    - "profile" - For profile pictures
+###    - "identity" - For identity verification documents
+###
+### 3. File Types:
+###    - "image" - For images (jpg, png, etc.)
+###    - "document" - For documents (pdf, doc, etc.)
+###    - "video" - For videos
+###    - "audio" - For audio files
+###    - "other" - For other file types
+###
+### 4. Required Fields:
+###    Client Registration:
+###    - name, phone, country, jobTitle, overview, identityPicture
+###    - profilePicture is optional
+###
+###    Freelancer Registration:
+###    - name, phone, jobTitle, overview, specificationId, skills, identityPicture
+###    - country and profilePicture are optional
+###    - previousWorks is optional
+###
+### 5. File Reference Format:
+###    - profilePicture: Array format [{ fileId, token, purpose }] (optional, max 1 item)
+###    - identityPicture: Array format [{ fileId, token, purpose }] (required, min 1 item)
+###    - The "purpose" field is REQUIRED and must match: "profile" or "identity"
+###    - Both fields must be arrays, even for single files
+###
+### 6. Upload Token:
+###    - Each upload URL comes with an uploadToken
+###    - This token MUST be included in the registration request
+###    - Tokens are stored in Valkey/Redis with TTL (default: 20 minutes)
+###    - Tokens are single-use only (consumed after successful registration)
+###    - Token must match the fileId and purpose exactly
+###
+### 7. File Status:
+###    - Files are created with status "uploading" when upload URL is generated
+###    - After uploading to S3, the file should have a URL set
+###    - The middleware validates that file has a URL and is not "failed"
+###    - Files are automatically linked to the user after successful registration

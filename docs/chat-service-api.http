@@ -1,0 +1,624 @@
+### Chat Service API Documentation
+### Complete API documentation for chat service proxy endpoints
+
+@baseUrl = http://localhost:5000/api/chat
+@contentType = application/json
+@token = your-jwt-token-here
+@internalSecret = your-internal-secret-here
+
+### ============================================
+### HEALTH CHECK
+### ============================================
+### Check chat service health status
+### No authentication required
+
+GET {{baseUrl}}/health
+Content-Type: {{contentType}}
+
+### Response Example:
+### {
+###   "status": "ok",
+###   "timestamp": "2024-01-01T00:00:00.000Z"
+### }
+
+### ============================================
+### USERS - SYNC (INTERNAL)
+### ============================================
+### Sync a single user profile to the chat service
+### Internal endpoint - uses X-Internal-Secret header
+### Called automatically by backend on user create/update
+
+POST {{baseUrl}}/users/sync
+Content-Type: {{contentType}}
+X-Internal-Secret: {{internalSecret}}
+
+{
+  "externalUserId": "user_123",
+  "displayName": "Jane Doe",
+  "avatarUrl": "https://example.com/avatar.png",
+  "metadata": {
+    "phone": "+1234567890",
+    "mode": "freelancer",
+    "country": "US"
+  }
+}
+
+### Response: 200 OK
+
+### ============================================
+### USERS - BATCH SYNC (INTERNAL)
+### ============================================
+### Sync multiple users in a single request
+### Internal endpoint - uses X-Internal-Secret header
+### More efficient for bulk operations
+
+POST {{baseUrl}}/users/sync/batch
+Content-Type: {{contentType}}
+X-Internal-Secret: {{internalSecret}}
+
+{
+  "users": [
+    {
+      "externalUserId": "user_1",
+      "displayName": "User One",
+      "avatarUrl": "https://example.com/avatar1.png",
+      "metadata": {}
+    },
+    {
+      "externalUserId": "user_2",
+      "displayName": "User Two",
+      "avatarUrl": null,
+      "metadata": {}
+    }
+  ]
+}
+
+### Response: 200 OK
+### Note: Use npm run chat:sync for bulk operations
+
+### ============================================
+### GET USER FROM CHAT SERVICE
+### ============================================
+### Get user information from chat service
+### Requires JWT Bearer token
+
+GET {{baseUrl}}/users/:externalUserId
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Replace :externalUserId with actual user ID
+### Example: GET {{baseUrl}}/users/user_123
+
+### ============================================
+### DELETE USER FROM CHAT SERVICE
+### ============================================
+### Delete a user from the chat service
+### Requires JWT Bearer token
+
+DELETE {{baseUrl}}/users/:externalUserId
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Replace :externalUserId with actual user ID
+### Example: DELETE {{baseUrl}}/users/user_123
+
+### ============================================
+### CREATE CONVERSATION
+### ============================================
+### Create a new conversation (direct or group)
+### Requires JWT Bearer token
+
+POST {{baseUrl}}/conversations
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "type": "direct",
+  "participantIds": ["user_1", "user_2"]
+}
+
+### Request Body Fields:
+### - type: "direct" or "group" (required)
+### - participantIds: Array of user IDs (required, min 2 for direct)
+
+### Response Example (201 Created):
+### {
+###   "id": "conv_123",
+###   "type": "direct",
+###   "participants": [...],
+###   "createdAt": "2024-01-01T00:00:00.000Z"
+### }
+
+### ============================================
+### GET CONVERSATIONS
+### ============================================
+### List conversations for the authenticated user
+### Requires JWT Bearer token
+
+GET {{baseUrl}}/conversations?limit=20&type=direct&cursor=
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Query Parameters:
+### - limit: Number of results to return (optional, number)
+### - cursor: Pagination cursor (optional, string)
+### - type: Filter by conversation type - "direct" or "group" (optional)
+
+### ============================================
+### GET CONVERSATION BY ID
+### ============================================
+### Get conversation details
+### Requires JWT Bearer token
+
+GET {{baseUrl}}/conversations/:id
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Replace :id with actual conversation ID
+### Example: GET {{baseUrl}}/conversations/conv_123
+
+### ============================================
+### DELETE/LEAVE CONVERSATION
+### ============================================
+### Delete or leave a conversation
+### Requires JWT Bearer token
+
+DELETE {{baseUrl}}/conversations/:id?mode=leave
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Replace :id with actual conversation ID
+### Query Parameters:
+### - mode: "leave" or "delete" (optional, default: "leave")
+
+### ============================================
+### ADD PARTICIPANT TO CONVERSATION
+### ============================================
+### Add a participant to a conversation
+### Requires JWT Bearer token
+
+POST {{baseUrl}}/conversations/:id/participants
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "externalUserId": "user_3",
+  "role": "member"
+}
+
+### Replace :id with actual conversation ID
+### Request Body Fields:
+### - externalUserId: User ID to add (required, string)
+### - role: Participant role (optional, string, e.g., "member", "admin")
+
+### ============================================
+### UPDATE PARTICIPANT ROLE
+### ============================================
+### Update a participant's role in a conversation
+### Requires JWT Bearer token
+
+PATCH {{baseUrl}}/conversations/:id/participants/:userId
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "role": "admin"
+}
+
+### Replace :id with conversation ID and :userId with user ID
+### Request Body Fields:
+### - role: New role for participant (required, string)
+
+### ============================================
+### REMOVE PARTICIPANT FROM CONVERSATION
+### ============================================
+### Remove a participant from a conversation
+### Requires JWT Bearer token
+
+DELETE {{baseUrl}}/conversations/:id/participants/:userId
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Replace :id with conversation ID and :userId with user ID
+
+### ============================================
+### SEND MESSAGE
+### ============================================
+### Send a message in a conversation
+### Requires JWT Bearer token
+
+POST {{baseUrl}}/conversations/:conversationId/messages
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "content": "Hello, how are you?",
+  "attachments": [
+    {
+      "externalFileId": "file_123",
+      "type": "image",
+      "url": "https://example.com/file.jpg"
+    }
+  ]
+}
+
+### Replace :conversationId with actual conversation ID
+### Request Body Fields:
+### - content: Message text content (required, string)
+### - attachments: Array of attachment objects (optional)
+
+### Attachment Object:
+### {
+###   "externalFileId": "file_123",
+###   "type": "image" | "file" | "video" | etc.,
+###   "url": "https://example.com/file.jpg"
+### }
+
+### ============================================
+### GET MESSAGES FROM CONVERSATION
+### ============================================
+### Get messages from a conversation
+### Requires JWT Bearer token
+
+GET {{baseUrl}}/conversations/:conversationId/messages?limit=50&after=msg_456&before=&includeDeleted=false
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Replace :conversationId with actual conversation ID
+### Query Parameters:
+### - limit: Number of messages to return (optional, number)
+### - before: Get messages before this message ID (optional, string)
+### - after: Get messages after this message ID (optional, string)
+### - includeDeleted: Include deleted messages (optional, boolean, default: false)
+
+### ============================================
+### GET MESSAGE BY ID
+### ============================================
+### Get a specific message by ID
+### Requires JWT Bearer token
+
+GET {{baseUrl}}/messages/:id
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Replace :id with actual message ID
+### Example: GET {{baseUrl}}/messages/msg_123
+
+### ============================================
+### EDIT MESSAGE
+### ============================================
+### Edit a message
+### Requires JWT Bearer token
+
+PATCH {{baseUrl}}/messages/:id
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "content": "Edited message content"
+}
+
+### Replace :id with actual message ID
+### Request Body Fields:
+### - content: Updated message content (required, string)
+
+### ============================================
+### DELETE MESSAGE
+### ============================================
+### Delete a message
+### Requires JWT Bearer token
+
+DELETE {{baseUrl}}/messages/:id
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Replace :id with actual message ID
+### Example: DELETE {{baseUrl}}/messages/msg_123
+
+### ============================================
+### ADD REACTION TO MESSAGE
+### ============================================
+### Add a reaction to a message
+### Requires JWT Bearer token
+
+POST {{baseUrl}}/messages/:messageId/reactions
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "emoji": "👍"
+}
+
+### Replace :messageId with actual message ID
+### Request Body Fields:
+### - emoji: Emoji to add as reaction (required, string)
+
+### ============================================
+### REMOVE REACTION FROM MESSAGE
+### ============================================
+### Remove a reaction from a message
+### Requires JWT Bearer token
+
+DELETE {{baseUrl}}/messages/:messageId/reactions/:emoji
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Replace :messageId with message ID and :emoji with emoji to remove
+### Note: Emoji should be URL encoded
+### Example: DELETE {{baseUrl}}/messages/msg_123/reactions/%F0%9F%91%8D
+
+### ============================================
+### GET MESSAGE REACTIONS
+### ============================================
+### Get all reactions for a message
+### Requires JWT Bearer token
+
+GET {{baseUrl}}/messages/:messageId/reactions
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Replace :messageId with actual message ID
+### Example: GET {{baseUrl}}/messages/msg_123/reactions
+
+### ============================================
+### MARK MESSAGE AS READ
+### ============================================
+### Mark a message as read
+### Requires JWT Bearer token
+
+PUT {{baseUrl}}/messages/:messageId/read
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Replace :messageId with actual message ID
+### No request body required
+### Example: PUT {{baseUrl}}/messages/msg_123/read
+
+### ============================================
+### MARK CONVERSATION AS READ
+### ============================================
+### Mark all messages up to a certain point as read in a conversation
+### Requires JWT Bearer token
+
+PUT {{baseUrl}}/conversations/:conversationId/read
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "upToMessageId": "msg_456"
+}
+
+### Replace :conversationId with actual conversation ID
+### Request Body Fields:
+### - upToMessageId: Message ID to mark as read up to (optional, string)
+
+### ============================================
+### GET MESSAGE READ RECEIPTS
+### ============================================
+### Get read receipt information for a message
+### Requires JWT Bearer token
+
+GET {{baseUrl}}/messages/:messageId/read
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Replace :messageId with actual message ID
+### Example: GET {{baseUrl}}/messages/msg_123/read
+
+### ============================================
+### GET UNREAD COUNT
+### ============================================
+### Get unread message count for a conversation
+### Requires JWT Bearer token
+
+GET {{baseUrl}}/conversations/:conversationId/unread-count
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Replace :conversationId with actual conversation ID
+### Example: GET {{baseUrl}}/conversations/conv_123/unread-count
+
+### ============================================
+### GET USER PRESENCE
+### ============================================
+### Get user presence status
+### Requires JWT Bearer token
+
+GET {{baseUrl}}/users/:userId/presence
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Replace :userId with actual user ID
+### Example: GET {{baseUrl}}/users/user_123/presence
+
+### ============================================
+### GET CONVERSATION PRESENCE
+### ============================================
+### Get presence status for all participants in a conversation
+### Requires JWT Bearer token
+
+GET {{baseUrl}}/conversations/:conversationId/presence
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Replace :conversationId with actual conversation ID
+### Example: GET {{baseUrl}}/conversations/conv_123/presence
+
+### ============================================
+### GET BATCH PRESENCE
+### ============================================
+### Get presence status for multiple users
+### Requires JWT Bearer token
+
+POST {{baseUrl}}/presence/batch
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "userIds": ["user_1", "user_2", "user_3"]
+}
+
+### Request Body Fields:
+### - userIds: Array of user IDs to get presence for (required, array of strings)
+
+### ============================================
+### COMPREHENSIVE NOTES & GUIDELINES
+### ============================================
+
+### 1. AUTHENTICATION & AUTHORIZATION
+###    - Public endpoints (no auth required):
+###      * GET /api/chat/health (health check)
+###    - User endpoints (requires JWT Bearer token):
+###      * All other endpoints require Authorization: Bearer <token>
+###    - Internal endpoints (uses X-Internal-Secret header):
+###      * POST /api/chat/users/sync (sync single user)
+###      * POST /api/chat/users/sync/batch (sync multiple users)
+
+### 2. BASE URL
+###    - Development: http://localhost:5000/api/chat
+###    - Production: https://api.example.com/api/chat
+
+### 3. ERROR RESPONSES
+###    - 400 Bad Request: Invalid request data or parameters
+###    - 401 Unauthorized: Missing or invalid JWT token
+###    - 403 Forbidden: Insufficient permissions or invalid internal secret
+###    - 404 Not Found: Resource not found
+###    - 500 Internal Server Error: Server error
+###    - 503 Service Unavailable: Chat service unavailable
+
+### Example Error Response:
+### {
+###   "statusCode": 400,
+###   "message": "Validation failed",
+###   "error": "Bad Request",
+###   "details": {
+###     "field": "participantIds",
+###     "message": "At least 2 participants required for direct conversation"
+###   }
+### }
+
+### 4. CONVERSATION TYPES
+###    - "direct": One-on-one conversation between two users
+###    - "group": Group conversation with multiple participants
+
+### 5. MESSAGE ATTACHMENTS
+###    - Attachments can include files, images, videos, etc.
+###    - Each attachment requires:
+###      * externalFileId: Reference to file in external system
+###      * type: Type of attachment (image, file, video, etc.)
+###      * url: URL to access the file
+
+### 6. REACTIONS
+###    - Reactions are emoji-based
+###    - Multiple users can react with the same emoji
+###    - Emoji should be URL encoded when used in DELETE requests
+
+### 7. READ RECEIPTS
+###    - Messages can be marked as read individually
+###    - Conversations can be marked as read up to a specific message
+###    - Read receipts track which users have read which messages
+
+### 8. PRESENCE
+###    - Presence indicates user online/offline status
+###    - Can be checked for individual users or all participants in a conversation
+###    - Batch presence check available for multiple users
+
+### 9. PAGINATION
+###    - Conversations and messages support cursor-based pagination
+###    - Use "cursor" parameter for conversations
+###    - Use "before" and "after" parameters for messages
+###    - "limit" parameter controls number of results
+
+### 10. USER SYNC
+###     - Users are automatically synced when created or updated
+###     - Manual sync available via npm run chat:sync
+###     - Batch sync more efficient for bulk operations
+
+### 11. WEBSOCKET CONNECTION
+###     - For real-time messaging, connect directly to chat service WebSocket
+###     - Use JWT token in Socket.IO handshake:
+###       const socket = io('ws://chat.example.com', {
+###         auth: {
+###           token: 'your-jwt-token'
+###         }
+###       });
+
+### 12. CONFIGURATION
+###     - Ensure .env file has:
+###       CHAT_SERVICE_URL=http://localhost:3000
+###       CHAT_INTERNAL_API_SECRET=your-secret-here
+###       CHAT_SERVICE_ENABLED=true
+###     - CHAT_INTERNAL_API_SECRET must match chat service's INTERNAL_API_SECRET
+
+### 13. USAGE EXAMPLES
+
+### Example 1: Create Direct Conversation
+POST {{baseUrl}}/conversations
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "type": "direct",
+  "participantIds": ["user_1", "user_2"]
+}
+
+### Example 2: Send Message with Attachment
+POST {{baseUrl}}/conversations/conv_123/messages
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "content": "Check out this image!",
+  "attachments": [
+    {
+      "externalFileId": "file_123",
+      "type": "image",
+      "url": "https://example.com/image.jpg"
+    }
+  ]
+}
+
+### Example 3: Get Messages with Pagination
+GET {{baseUrl}}/conversations/conv_123/messages?limit=50&after=msg_456
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Example 4: Add Reaction
+POST {{baseUrl}}/messages/msg_123/reactions
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "emoji": "❤️"
+}
+
+### Example 5: Mark Conversation as Read
+PUT {{baseUrl}}/conversations/conv_123/read
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "upToMessageId": "msg_789"
+}
+
+### Example 6: Check Multiple Users Presence
+POST {{baseUrl}}/presence/batch
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "userIds": ["user_1", "user_2", "user_3"]
+}
+
+### 14. BEST PRACTICES
+###     - Always include Authorization header for protected endpoints
+###     - Use pagination for large result sets
+###     - Handle errors appropriately
+###     - Use WebSocket for real-time features
+###     - Cache presence data appropriately
+###     - Implement proper retry logic for failed requests
+
+### 15. RATE LIMITING
+###     - Rate limiting is handled by the chat service
+###     - Proxy forwards all requests to chat service
+###     - Check chat service documentation for rate limits

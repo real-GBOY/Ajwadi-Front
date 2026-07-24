@@ -1,0 +1,118 @@
+### Freelancer Dashboard Statistics API
+
+@baseUrl = http://localhost:5000/api
+@contentType = application/json
+@token = your-jwt-token-here
+
+### ============================================
+### GET FREELANCER DASHBOARD STATISTICS
+### ============================================
+### Get statistics for the authenticated freelancer including:
+### - Offers (عروض): Total proposals and percentage of accepted proposals
+### - Ratings (تقييمات): Total reviews received and completion percentage
+### - Projects (مشاريع): Total projects and percentage of completed projects
+### - Contracts (عقود): Total contracts and percentage of approved/completed contracts
+### 
+### Requires: User authentication (JWT token)
+### Returns: Dashboard statistics with counts and percentages
+
+GET {{baseUrl}}/users/me/dashboard-stats
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+### Example with actual token:
+GET {{baseUrl}}/users/me/dashboard-stats
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Content-Type: {{contentType}}
+
+### ============================================
+### RESPONSE FORMAT
+### ============================================
+
+### Success Response (200 OK):
+### {
+###   "success": true,
+###   "message": "Freelancer dashboard stats fetched successfully",
+###   "data": {
+###     "offers": {
+###       "count": 12,
+###       "percentage": 80
+###     },
+###     "ratings": {
+###       "count": 8,
+###       "percentage": 90
+###     },
+###     "projects": {
+###       "count": 5,
+###       "percentage": 60
+###     },
+###     "contracts": {
+###       "count": 3,
+###       "percentage": 40
+###     }
+###   }
+### }
+
+### Error Response - Unauthorized (401):
+### {
+###   "success": false,
+###   "message": "Unauthorized"
+### }
+
+### Error Response - User Not Found (404):
+### {
+###   "success": false,
+###   "message": "User not found"
+### }
+
+### ============================================
+### STATISTICS EXPLANATION
+### ============================================
+
+### 1. OFFERS (عروض)
+###    - count: Total number of proposals created by the freelancer
+###    - percentage: Percentage of proposals that were accepted
+###    - Calculation: (accepted proposals / total proposals) * 100
+
+### 2. RATINGS (تقييمات)
+###    - count: Total number of reviews received by the freelancer
+###    - percentage: Percentage of completed contracts that have reviews
+###    - Calculation: (reviews received / completed contracts) * 100
+###    - Capped at 100%
+
+### 3. PROJECTS (مشاريع)
+###    - count: Total number of unique projects the freelancer is working on (through contracts)
+###    - percentage: Percentage of projects that are completed
+###    - Calculation: (completed projects / total projects) * 100
+
+### 4. CONTRACTS (عقود)
+###    - count: Total number of contracts for the freelancer
+###    - percentage: Percentage of contracts that are approved and completed
+###    - Calculation: (approved contracts / total contracts) * 100
+###    - Approved contracts require: status='approved', clientapproval=true, freelancerapproval=true
+
+### ============================================
+### NOTES & GUIDELINES
+### ============================================
+
+### 1. AUTHENTICATION
+###    - This endpoint requires a valid JWT token in the Authorization header
+###    - Format: Authorization: Bearer <your-jwt-token>
+###    - Get token from: POST /api/auth/verify-otp
+
+### 2. USER CONTEXT
+###    - Statistics are calculated for the authenticated user (from JWT token)
+###    - No need to pass user ID in the request
+###    - Works for any authenticated user, but designed for freelancers
+
+### 3. DATA ACCURACY
+###    - All statistics are calculated in real-time from the database
+###    - Percentages are rounded to the nearest integer
+###    - Zero counts return 0% percentage (except ratings which may show 100% if reviews exist)
+
+### 4. PERFORMANCE
+###    - The endpoint performs multiple database queries
+###    - Consider caching if this endpoint is called frequently
+###    - Response time depends on the number of proposals, contracts, and projects
+
+###

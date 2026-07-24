@@ -1,0 +1,617 @@
+### Contracts API Documentation
+### Complete API documentation for contract management endpoints
+### All operations for creating, reading, and managing contracts
+### Reviewed and verified against implementation
+
+@baseUrl = http://localhost:5000/api
+@contentType = application/json
+@token = your-jwt-token-here
+@clientToken = your-client-jwt-token-here
+@freelancerToken = your-freelancer-jwt-token-here
+@contractId = your-contract-uuid-here
+@projectId = your-project-uuid-here
+@clientId = your-client-uuid-here
+@freelancerId = your-freelancer-uuid-here
+@proposalId = your-proposal-uuid-here
+
+### ============================================
+### VARIABLES SETUP
+### ============================================
+### Replace the variables above with actual values:
+### - @token: JWT token from /api/auth/verify-otp
+### - @clientToken: JWT token for a client user
+### - @freelancerToken: JWT token for a freelancer user
+### - @contractId: UUID of an existing contract
+### - @projectId: UUID of an existing project
+### - @clientId: UUID of an existing client user
+### - @freelancerId: UUID of an existing freelancer user
+### - @proposalId: UUID of an existing proposal
+
+### ============================================
+### 1. CREATE CONTRACT
+### ============================================
+### Create a new contract from a proposal (requires authentication)
+### Contract is created based on a proposal that was accepted
+### All fields are required
+### Contract links a proposal to a client with agreed terms
+### Contract status defaults to "pending" until both parties approve
+
+POST {{baseUrl}}/contracts
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "proposalId": "{{proposalId}}",
+  "clientId": "{{clientId}}",
+  "termsAndConditions": "The freelancer agrees to deliver the project according to the specifications. Payment will be released upon completion and client approval. Any disputes will be resolved through the platform's dispute resolution process.",
+  "value": 5000.00,
+  "duration": 30,
+  "emergencyduration": 15,
+  "startdate": "2024-02-01T00:00:00.000Z"
+}
+
+### Example with actual values:
+POST {{baseUrl}}/contracts
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "proposalId": "123e4567-e89b-12d3-a456-426614174000",
+  "clientId": "123e4567-e89b-12d3-a456-426614174001",
+  "termsAndConditions": "Project deliverables include: 1) Complete website with responsive design, 2) Admin dashboard, 3) API documentation. Payment terms: 50% upfront, 50% on completion. Timeline: 30 days with milestone reviews every 10 days.",
+  "value": 7500.50,
+  "duration": 30,
+  "emergencyduration": 15,
+  "startdate": "2024-02-15T08:00:00.000Z"
+}
+
+### ============================================
+### 2. GET CONTRACT BY ID
+### ============================================
+### Get a specific contract by its ID (requires authentication)
+### Returns contract with related data (client, proposal, freelancer)
+### Includes contractData, proposalData, and freelancerData in response
+### Returns 404 if contract not found
+
+GET {{baseUrl}}/contracts/{{contractId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Example with actual UUID:
+GET {{baseUrl}}/contracts/123e4567-e89b-12d3-a456-426614174000
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### ============================================
+### 3. UPDATE CONTRACT
+### ============================================
+### Update/Edit a contract (requires authentication)
+### At least one field must be provided
+### All fields are optional - update only what you need
+### Returns updated contract with related data
+
+### Update Multiple Fields (Comprehensive Example)
+PATCH {{baseUrl}}/contracts/{{contractId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "termsAndConditions": "Updated terms and conditions with revised payment schedule and milestone reviews.",
+  "value": 5500.00,
+  "duration": 35,
+  "emergencyduration": 18,
+  "startdate": "2024-02-20T00:00:00.000Z",
+  "clientapproval": true,
+  "freelancerapproval": false,
+  "status": "pending"
+}
+
+### Update Only Terms and Conditions
+PATCH {{baseUrl}}/contracts/{{contractId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "termsAndConditions": "Revised terms: Payment will be released in three milestones - 30% upfront, 40% at midpoint, 30% on completion."
+}
+
+### Update Only Value
+PATCH {{baseUrl}}/contracts/{{contractId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "value": 6000.00
+}
+
+### Update Only Duration
+PATCH {{baseUrl}}/contracts/{{contractId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "duration": 40,
+  "emergencyduration": 20
+}
+
+### Update Only Start Date
+PATCH {{baseUrl}}/contracts/{{contractId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "startdate": "2024-03-01T00:00:00.000Z"
+}
+
+### Update Approval Status
+PATCH {{baseUrl}}/contracts/{{contractId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "clientapproval": true,
+  "freelancerapproval": true
+}
+
+### Update Contract Status
+PATCH {{baseUrl}}/contracts/{{contractId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "status": "approved"
+}
+
+### Update Review Information
+PATCH {{baseUrl}}/contracts/{{contractId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "reviewedStatus": "approved",
+  "reviewedNote": "Contract reviewed and approved. All terms are acceptable."
+}
+
+### Update Client Rejection Reason
+PATCH {{baseUrl}}/contracts/{{contractId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "status": "rejected",
+  "clientRejectionReason": "Budget exceeds project requirements. Need to negotiate terms."
+}
+
+### Example with actual UUID:
+PATCH {{baseUrl}}/contracts/123e4567-e89b-12d3-a456-426614174000
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "value": 5500.00,
+  "duration": 35
+}
+
+### ============================================
+### 4. GET CONTRACTS BY PROJECT ID
+### ============================================
+### Get all contracts for a specific project (requires authentication)
+### Contracts are linked to projects through proposals
+### Useful for project owners to see all contracts related to their project
+### Returns array of contracts with related data
+
+GET {{baseUrl}}/contracts/project/{{projectId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Example with actual UUID:
+GET {{baseUrl}}/contracts/project/123e4567-e89b-12d3-a456-426614174000
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### ============================================
+### 5. GET CONTRACTS BY CLIENT ID
+### ============================================
+### Get all contracts for a specific client (requires authentication)
+### Useful for clients to see all their contracts
+### Returns array of contracts with related data (proposal, freelancer)
+### Contracts are ordered by creation date
+
+GET {{baseUrl}}/contracts/client/{{clientId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Example with actual UUID:
+GET {{baseUrl}}/contracts/client/123e4567-e89b-12d3-a456-426614174000
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### ============================================
+### 6. GET CONTRACTS BY FREELANCER ID
+### ============================================
+### Get all contracts for a specific freelancer (requires authentication)
+### Contracts are linked to freelancers through proposals
+### Useful for freelancers to see all their contracts
+### Returns array of contracts with related data (proposal, client)
+### Contracts are ordered by creation date
+
+GET {{baseUrl}}/contracts/freelancer/{{freelancerId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Example with actual UUID:
+GET {{baseUrl}}/contracts/freelancer/123e4567-e89b-12d3-a456-426614174000
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### ============================================
+### 7. GET CONTRACT HISTORY FOR PROJECT
+### ============================================
+### Get contract history for a specific project (requires authentication)
+### Returns all contracts (including previous versions) for a project
+### Contracts are ordered by creation date (newest first)
+### Useful for tracking contract changes and revisions
+### Includes version information if contracts were updated
+
+GET {{baseUrl}}/contracts/project/{{projectId}}/history
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Example with actual UUID:
+GET {{baseUrl}}/contracts/project/123e4567-e89b-12d3-a456-426614174000/history
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### ============================================
+### COMPREHENSIVE NOTES & GUIDELINES
+### ============================================
+
+### 1. AUTHENTICATION & AUTHORIZATION
+###    - All endpoints require JWT token in Authorization header
+###    - Format: Authorization: Bearer <token>
+###    - Get token from: POST /api/auth/verify-otp
+###    - All contract endpoints require user authentication (no public endpoints)
+###    - Users can view contracts they're involved in (as client or freelancer)
+
+### 2. CONTRACT CREATION
+###    - Contract is created from an accepted proposal
+###    - proposalId: Must be a valid UUID of an existing proposal
+###    - clientId: Must be a valid UUID of an existing client user
+###    - termsAndConditions: Required string (1-2000 characters)
+###    - value: Required positive number (contract value in currency)
+###    - duration: Required positive integer (contract duration in days)
+###    - emergencyduration: Required positive integer (emergency duration in days)
+###    - startdate: Required ISO 8601 date (contract start date)
+###    - Contract status defaults to "pending"
+###    - Both clientapproval and freelancerapproval default to false
+###    - Contract version defaults to 1
+
+### 3. CONTRACT STATUS VALUES
+###    - "pending" - Contract is pending approval (default)
+###    - "approved" - Contract has been approved by both parties
+###    - "rejected" - Contract has been rejected
+###    - Status is managed through the contract approval process
+
+### 4. CONTRACT APPROVAL
+###    - clientapproval: Boolean (default: false)
+###    - freelancerapproval: Boolean (default: false)
+###    - Both parties must approve for contract to be fully active
+###    - Approval status is managed through separate approval endpoints (if implemented)
+
+### 5. CONTRACT VALUE & PAYMENT
+###    - value: Contract total value (DECIMAL(14, 2))
+###    - paidValue: Amount paid so far (defaults to 0)
+###    - Payment is tracked through transactions linked to contract
+###    - transactionIds: Array of transaction UUIDs related to this contract
+###    - Escrow wallet is created for contract payments
+
+### 6. CONTRACT DURATION
+###    - duration: Normal contract duration in days (required, positive integer)
+###    - emergencyduration: Emergency duration in days (required, positive integer)
+###    - Both durations must be positive integers
+###    - Duration represents the timeline for project completion
+
+### 7. CONTRACT TERMS & CONDITIONS
+###    - termsAndConditions: Required string field (1-2000 characters)
+###    - Should include project scope, deliverables, payment terms, timeline
+###    - Can include dispute resolution procedures
+###    - Trimmed automatically (leading/trailing whitespace removed)
+###    - Maximum length: 2000 characters
+
+### 8. CONTRACT VERSIONING
+###    - version: Integer field (defaults to 1)
+###    - previousContractId: UUID reference to previous contract version
+###    - Allows tracking of contract revisions and changes
+###    - Contract history endpoint shows all versions
+
+### 9. CONTRACT REVIEW
+###    - reviewedById: UUID of user who reviewed the contract (optional)
+###    - reviewedAt: Date when contract was reviewed (optional)
+###    - reviewedStatus: Enum ("approved", "rejected") - defaults to "approved"
+###    - reviewedNote: String (max 500 characters) - optional review notes
+###    - clientRejectionReason: String (max 500 characters) - reason for client rejection
+
+### 10. CONTRACT RELATIONSHIPS
+###     - Contract belongs to a Proposal (proposalId, foreign key)
+###     - Contract belongs to a Client (clientId, foreign key to Users)
+###     - Contract links to Freelancer through Proposal (proposal.userId)
+###     - Contract can have an Escrow Wallet (escrowWalletId, foreign key)
+###     - Contract can have multiple Transactions (transactionIds array)
+###     - Contract can reference previous version (previousContractId)
+###     - Contract can have a Reviewer (reviewedById, foreign key to Users)
+
+### 11. RESPONSE DATA STRUCTURE
+###     - All GET endpoints return contracts with related data
+###     - Contract response includes:
+###       * id: UUID
+###       * proposalId: UUID
+###       * clientId: UUID
+###       * termsAndConditions: String
+###       * value: Decimal
+###       * paidValue: Decimal
+###       * duration: Integer
+###       * emergencyduration: Integer
+###       * startdate: Date
+###       * clientapproval: Boolean
+###       * freelancerapproval: Boolean
+###       * escrowWalletId: UUID (optional)
+###       * transactionIds: Array of UUIDs
+###       * reviewedById: UUID (optional)
+###       * reviewedAt: Date (optional)
+###       * reviewedStatus: Enum
+###       * reviewedNote: String (optional)
+###       * clientRejectionReason: String (optional)
+###       * previousContractId: UUID (optional)
+###       * status: Enum (pending, approved, rejected)
+###       * version: Integer
+###       * createdAt: Timestamp
+###       * updatedAt: Timestamp
+###     - clientData: Formatted client user information (if included)
+###     - proposalData: Formatted proposal information (if included)
+###     - freelancerData: Formatted freelancer information (if included, from proposal)
+###     - reviewerData: Formatted reviewer information (if included)
+
+### 12. CLIENT DATA STRUCTURE (in response)
+###     - id: UUID
+###     - name: String
+###     - country: String
+###     - phone: String
+###     - mode: Enum (freelancer, client)
+###     - overview: String
+###     - jobTitle: String
+###     - isVerifiedAsFreelancer: Boolean
+###     - isVerifiedAsClient: Boolean
+###     - avgRating: Decimal
+###     - totalReviews: Integer
+###     - available: Boolean
+###     - profilePicture: Object (file information) or null
+
+### 13. PROPOSAL DATA STRUCTURE (in response)
+###     - id: UUID
+###     - projectId: UUID
+###     - description: String
+###     - budget: Decimal
+###     - duration: Integer
+###     - status: Enum
+###     - FavoriteProposal: Boolean
+###     - createdAt: Timestamp
+
+### 14. FREELANCER DATA STRUCTURE (in response)
+###     - id: UUID
+###     - name: String
+###     - country: String
+###     - phone: String
+###     - mode: Enum (freelancer, client)
+###     - overview: String
+###     - jobTitle: String
+###     - isVerifiedAsFreelancer: Boolean
+###     - isVerifiedAsClient: Boolean
+###     - avgRating: Decimal
+###     - totalReviews: Integer
+###     - available: Boolean
+###     - profilePicture: Object (file information) or null
+
+### 15. REQUIRED FIELDS FOR CREATE
+###     - proposalId: UUID (required, must exist in Proposals table)
+###     - clientId: UUID (required, must exist in Users table, must be active)
+###     - termsAndConditions: String (required, 1-2000 characters)
+###     - value: Positive number (required, 2 decimal places)
+###     - duration: Positive integer (required, in days)
+###     - emergencyduration: Positive integer (required, in days)
+###     - startdate: ISO 8601 date (required)
+
+### 16. UPDATE CONTRACT (EDIT CONTRACT)
+###     - Endpoint: PATCH /api/contracts/:id
+###     - At least one field must be provided
+###     - All fields are optional - you can update any combination of fields
+###     - Editable fields:
+###       * termsAndConditions: String (1-2000 characters)
+###       * value: Positive number (2 decimal places)
+###       * duration: Positive integer (in days)
+###       * emergencyduration: Positive integer (in days)
+###       * startdate: ISO 8601 date
+###       * clientapproval: Boolean
+###       * freelancerapproval: Boolean
+###       * status: Enum (pending, approved, rejected)
+###       * reviewedStatus: Enum (approved, rejected)
+###       * reviewedNote: String (max 500 characters, optional, can be null)
+###       * clientRejectionReason: String (max 500 characters, optional, can be null)
+###     - Returns 404 Not Found if contract doesn't exist
+###     - Returns 400 Bad Request if validation fails or no fields provided
+
+### 17. VALIDATION RULES
+###     - proposalId: Must be valid UUID format
+###     - clientId: Must be valid UUID format
+###     - termsAndConditions: 
+###       * Required
+###       * Must be non-empty string after trimming
+###       * Maximum 2000 characters
+###     - value: 
+###       * Required
+###       * Must be positive number
+###       * Supports 2 decimal places
+###     - duration: 
+###       * Required
+###       * Must be positive integer
+###     - emergencyduration: 
+###       * Required
+###       * Must be positive integer
+###     - startdate: 
+###       * Required
+###       * Must be valid ISO 8601 date format
+
+### 18. ERROR RESPONSES
+###     - 400 Bad Request: Invalid input data, validation errors
+###     - 401 Unauthorized: Missing or invalid authentication token
+###     - 404 Not Found: Contract, proposal, client, or project not found
+###     - 500 Internal Server Error: Server error
+###     - Error response format:
+###       {
+###         "success": false,
+###         "message": "Error message description"
+###       }
+
+### 19. SUCCESS RESPONSES
+###     - 200 OK: Successful GET request
+###     - 201 Created: Successful contract creation
+###     - Success response format:
+###       {
+###         "success": true,
+###         "message": "Success message",
+###         "data": { ...contract data... }
+###       }
+###     - For list endpoints, data is an array:
+###       {
+###         "success": true,
+###         "message": "Contracts fetched successfully",
+###         "data": [ ...contracts array... ]
+###       }
+
+### 20. BUSINESS RULES
+###     - Contract must be created from an existing proposal
+###     - Client must be an active (non-deleted) user
+###     - Contract links proposal to client with agreed terms
+###     - Contract status starts as "pending"
+###     - Both parties must approve for contract to be active
+###     - Contract can have multiple versions (tracked via previousContractId)
+###     - Contract can be reviewed by platform administrators
+###     - Contract payments are tracked through transactions
+###     - Escrow wallet is created for secure payment handling
+
+### 21. DATA RELATIONSHIPS
+###     - Contracts belong to a Proposal (proposalId, foreign key)
+###     - Contracts belong to a Client (clientId, foreign key to Users)
+###     - Contracts link to Freelancer through Proposal (proposal.userId)
+###     - Contracts can have an Escrow Wallet (escrowWalletId, foreign key)
+###     - Contracts can have multiple Transactions (transactionIds array)
+###     - Contracts can reference previous version (previousContractId, self-reference)
+###     - Contracts can have a Reviewer (reviewedById, foreign key to Users)
+###     - Database indexes on: (proposalId, clientId), (clientId, status), escrowWalletId, (status, createdAt), (clientId, createdAt), version, (clientapproval, freelancerapproval, status, createdAt)
+
+### 22. CONTRACT WORKFLOW
+###     1. Freelancer submits proposal for a project
+###     2. Client accepts proposal
+###     3. Client creates contract: POST /api/contracts
+###     4. Contract status is "pending"
+###     5. Both parties review and approve contract
+###     6. Contract status changes to "approved"
+###     7. Escrow wallet is created for payments
+###     8. Client initiates payment transaction
+###     9. Work begins according to contract terms
+###     10. Contract completion and payment release
+
+### 23. EXAMPLE WORKFLOW
+###     1. Authenticate: POST /api/auth/verify-otp (get token)
+###     2. Create contract: POST /api/contracts
+###        {
+###          "proposalId": "...",
+###          "clientId": "...",
+###          "termsAndConditions": "...",
+###          "value": 5000.00,
+###          "duration": 30,
+###          "emergencyduration": 15,
+###          "startdate": "2024-02-01T00:00:00.000Z"
+###        }
+###     3. View contract: GET /api/contracts/:contractId
+###     4. View all contracts for project: GET /api/contracts/project/:projectId
+###     5. View all contracts for client: GET /api/contracts/client/:clientId
+###     6. View all contracts for freelancer: GET /api/contracts/freelancer/:freelancerId
+###     7. View contract history: GET /api/contracts/project/:projectId/history
+
+### 24. IMPLEMENTATION NOTES
+###     - Service layer handles contract creation and retrieval
+###     - Repository pattern used for data access
+###     - DTO pattern used for data transformation
+###     - Contracts are linked to projects through proposals (indirect relationship)
+###     - Contracts are linked to freelancers through proposals (indirect relationship)
+###     - Related data (client, proposal, freelancer) is included in responses
+###     - Error handling with proper status codes
+###     - Model hooks validate client is active before contract creation
+
+### 25. SECURITY CONSIDERATIONS
+###     - Authentication required for all endpoints
+###     - Client must be active (non-deleted) user (validated by model hook)
+###     - Contract data is only accessible to involved parties
+###     - Proposal must exist before contract creation
+###     - UUID validation prevents injection attacks
+
+### 26. PERFORMANCE NOTES
+###     - Database indexes on commonly queried fields
+###     - Composite indexes for common query patterns
+###     - Related data is fetched efficiently using includes
+###     - Contracts linked to projects/freelancers through proposals (requires join)
+
+### 27. INTEGRATION NOTES
+###     - Contracts are created after proposal acceptance
+###     - Contracts link to escrow wallets for payment handling
+###     - Contracts track transactions for payment history
+###     - Contract approval workflow (clientapproval, freelancerapproval)
+###     - Contract versioning for tracking changes
+###     - Contract review by platform administrators
+
+### 28. DATE FORMAT
+###     - startdate: Must be in ISO 8601 format
+###     - Example: "2024-02-01T00:00:00.000Z"
+###     - Example: "2024-02-15T08:00:00.000Z"
+###     - Date represents when the contract work should begin
+
+### 29. VALUE PRECISION
+###     - value: DECIMAL(14, 2) - supports up to 14 digits with 2 decimal places
+###     - Example: 5000.00, 7500.50, 10000.99
+###     - Must be positive number
+###     - Represents contract total value in currency
+
+### 30. DURATION FIELDS
+###     - duration: Normal contract duration in days (positive integer)
+###     - emergencyduration: Emergency duration in days (positive integer)
+###     - Both must be positive integers
+###     - Example: duration: 30, emergencyduration: 15
+###     - Represents timeline for project completion
+
+### 31. UPDATE CONTRACT FIELDS
+###     - All update fields are optional
+###     - At least one field must be provided
+###     - Fields that can be updated:
+###       * termsAndConditions: String (1-2000 characters)
+###       * value: Positive number (2 decimal places)
+###       * duration: Positive integer (in days)
+###       * emergencyduration: Positive integer (in days)
+###       * startdate: ISO 8601 date
+###       * clientapproval: Boolean
+###       * freelancerapproval: Boolean
+###       * status: Enum (pending, approved, rejected)
+###       * reviewedStatus: Enum (approved, rejected)
+###       * reviewedNote: String (max 500 characters, can be null or empty)
+###       * clientRejectionReason: String (max 500 characters, can be null or empty)
+###     - Update returns the updated contract with all related data
+###     - Contract must exist (returns 404 if not found)
+
+### 32. TERMS AND CONDITIONS
+###     - Maximum length: 2000 characters
+###     - Should include:
+###       * Project scope and deliverables
+###       * Payment terms and schedule
+###       * Timeline and milestones
+###       * Dispute resolution procedures
+###       * Any special conditions or requirements
+###     - Trimmed automatically (leading/trailing whitespace removed)

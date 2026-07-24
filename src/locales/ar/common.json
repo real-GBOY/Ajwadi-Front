@@ -1,0 +1,15 @@
+{
+  "pagination": {
+    "page": "صفحة",
+    "of": "من",
+    "perPage": "لكل صفحة",
+    "rowsPerPage": "عدد الصفوف لكل صفحة"
+  },
+  "table": {
+    "noResults": "لا توجد نتائج",
+    "loading": "جاري التحميل..."
+  },
+  "loading": {
+    "general": "جاري التحميل..."
+  }
+}

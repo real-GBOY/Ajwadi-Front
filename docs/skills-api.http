@@ -1,0 +1,325 @@
+### Skills API Documentation
+### Complete API documentation for skills management endpoints
+### All operations for creating, reading, updating, and deleting skills
+
+@baseUrl = http://localhost:5000/api
+@contentType = application/json
+@token = your-jwt-token-here
+@skillId = your-skill-uuid-here
+@specificationId = your-specification-uuid-here
+
+### ============================================
+### VARIABLES SETUP
+### ============================================
+### Replace the variables above with actual values:
+### - @token: JWT token from /api/auth/verify-otp (if authentication is required)
+### - @skillId: UUID of an existing skill
+### - @specificationId: UUID of an existing specification (optional)
+
+### ============================================
+### 1. CREATE SKILL
+### ============================================
+### Create a new skill
+### Public endpoint (authentication may be required based on your setup)
+### specificationId is optional - skills can exist without being linked to a specification
+
+POST {{baseUrl}}/skills
+Content-Type: {{contentType}}
+
+{
+  "name": "JavaScript",
+  "specificationId": null
+}
+
+### Example: Create Skill with Specification
+POST {{baseUrl}}/skills
+Content-Type: {{contentType}}
+
+{
+  "name": "React",
+  "specificationId": "{{specificationId}}"
+}
+
+### Example: Create Skill without Specification
+POST {{baseUrl}}/skills
+Content-Type: {{contentType}}
+
+{
+  "name": "Node.js"
+}
+
+### Response Example (201 Created):
+### {
+###   "success": true,
+###   "message": "Skill created successfully",
+###   "data": {
+###     "id": "skill-uuid",
+###     "name": "JavaScript",
+###     "specificationId": null,
+###     "createdAt": "2026-02-12T01:00:00.000Z",
+###     "updatedAt": "2026-02-12T01:00:00.000Z"
+###   }
+### }
+
+### ============================================
+### 2. GET ALL SKILLS
+### ============================================
+### Get all skills with pagination and optional search
+### Public endpoint (no authentication required)
+### Query Parameters:
+###   - page: Page number (default: 1)
+###   - limit: Items per page (default: 100, max: 500)
+###   - search: Search term to filter skills by name (optional)
+
+### Get All Skills (Default - First Page, 100 items)
+GET {{baseUrl}}/skills
+Content-Type: {{contentType}}
+
+### Get All Skills with Pagination
+GET {{baseUrl}}/skills?page=1&limit=10
+Content-Type: {{contentType}}
+
+### Get All Skills with Search
+GET {{baseUrl}}/skills?page=1&limit=10&search=javascript
+Content-Type: {{contentType}}
+
+### Get All Skills - Second Page
+GET {{baseUrl}}/skills?page=2&limit=20
+Content-Type: {{contentType}}
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "Skills fetched successfully",
+###   "data": [
+###     {
+###       "id": "skill-uuid",
+###       "name": "JavaScript",
+###       "specificationId": "spec-uuid",
+###       "createdAt": "2026-02-12T01:00:00.000Z",
+###       "updatedAt": "2026-02-12T01:00:00.000Z"
+###     }
+###   ],
+###   "pagination": {
+###     "page": 1,
+###     "limit": 10,
+###     "totalPages": 5,
+###     "totalItems": 50,
+###     "hasNextPage": true,
+###     "hasPreviousPage": false
+###   }
+### }
+
+### ============================================
+### 3. GET SKILL BY ID
+### ============================================
+### Get a specific skill by its ID
+### Public endpoint (no authentication required)
+
+GET {{baseUrl}}/skills/{{skillId}}
+Content-Type: {{contentType}}
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "Skill fetched successfully",
+###   "data": {
+###     "id": "skill-uuid",
+###     "name": "JavaScript",
+###     "specificationId": "spec-uuid",
+###     "createdAt": "2026-02-12T01:00:00.000Z",
+###     "updatedAt": "2026-02-12T01:00:00.000Z"
+###   }
+### }
+
+### ============================================
+### 4. UPDATE SKILL
+### ============================================
+### Update an existing skill
+### Public endpoint (authentication may be required based on your setup)
+### At least one field must be provided for update
+
+PUT {{baseUrl}}/skills/{{skillId}}
+Content-Type: {{contentType}}
+
+{
+  "name": "JavaScript ES6+"
+}
+
+### Example: Update Skill Name and Specification
+PUT {{baseUrl}}/skills/{{skillId}}
+Content-Type: {{contentType}}
+
+{
+  "name": "React.js",
+  "specificationId": "{{specificationId}}"
+}
+
+### Example: Remove Specification Link
+PUT {{baseUrl}}/skills/{{skillId}}
+Content-Type: {{contentType}}
+
+{
+  "specificationId": null
+}
+
+### Response Example (200 OK):
+### {
+###   "success": true,
+###   "message": "Skill updated successfully",
+###   "data": {
+###     "id": "skill-uuid",
+###     "name": "JavaScript ES6+",
+###     "specificationId": "spec-uuid",
+###     "createdAt": "2026-02-12T01:00:00.000Z",
+###     "updatedAt": "2026-02-12T02:00:00.000Z"
+###   }
+### }
+
+### ============================================
+### 5. DELETE SKILL
+### ============================================
+### Delete a skill by ID
+### Public endpoint (authentication may be required based on your setup)
+
+DELETE {{baseUrl}}/skills/{{skillId}}
+Content-Type: {{contentType}}
+
+### Response Example (200 OK):
+### {
+###   "success": true,
+###   "message": "Skill deleted successfully"
+### }
+
+### ============================================
+### COMPREHENSIVE NOTES & GUIDELINES
+### ============================================
+
+### 1. AUTHENTICATION & AUTHORIZATION
+###    - Check your route configuration to see if authentication is required
+###    - If authentication is required, use: Authorization: Bearer {{token}}
+###    - Get token from: POST /api/auth/verify-otp
+
+### 2. VALIDATION RULES
+###    Create Skill:
+###    - name: Required, string, 1-100 characters
+###    - specificationId: Optional, must be valid UUID or null
+###    
+###    Update Skill:
+###    - At least one field must be provided
+###    - name: Optional, string, 1-100 characters if provided
+###    - specificationId: Optional, must be valid UUID or null if provided
+
+### 3. PAGINATION
+###    - Default page: 1
+###    - Default limit: 100
+###    - Maximum limit: 500
+###    - Search is case-insensitive and searches skill names
+
+### 4. ERROR RESPONSES
+###    
+###    Validation Error (400):
+###    {
+###      "success": false,
+###      "message": "Validation error message",
+###      "errors": [
+###        {
+###          "field": "name",
+###          "message": "Skill name must be at least 1 character long"
+###        }
+###      ]
+###    }
+###    
+###    Not Found (404):
+###    {
+###      "success": false,
+###      "message": "Skill not found"
+###    }
+
+### 5. SUCCESS RESPONSES
+###    
+###    Create Skill (201):
+###    {
+###      "success": true,
+###      "message": "Skill created successfully",
+###      "data": { ... }
+###    }
+###    
+###    Get Skills (200):
+###    {
+###      "success": true,
+###      "message": "Skills fetched successfully",
+###      "data": [ ... ],
+###      "pagination": { ... }
+###    }
+###    
+###    Update Skill (200):
+###    {
+###      "success": true,
+###      "message": "Skill updated successfully",
+###      "data": { ... }
+###    }
+###    
+###    Delete Skill (200):
+###    {
+###      "success": true,
+###      "message": "Skill deleted successfully"
+###    }
+
+### 6. BEST PRACTICES
+###    - Use descriptive skill names
+###    - Link skills to specifications when appropriate
+###    - Use search functionality to find existing skills before creating duplicates
+###    - Update skills rather than creating duplicates
+###    - Delete unused skills to keep the database clean
+
+### 7. COMMON USE CASES
+###    
+###    Case 1: Create a new skill
+###    1. POST /api/skills with name and optional specificationId
+###    2. Skill is created and returned
+###    
+###    Case 2: Search for skills
+###    1. GET /api/skills?search=javascript
+###    2. Returns matching skills with pagination
+###    
+###    Case 3: Link skill to specification
+###    1. PUT /api/skills/:id with specificationId
+###    2. Skill is updated with specification link
+###    
+###    Case 4: Remove specification link
+###    1. PUT /api/skills/:id with specificationId: null
+###    2. Skill is updated to remove specification link
+
+### ============================================
+### TESTING EXAMPLES
+### ============================================
+
+### Test: Create Skill with Long Name
+POST {{baseUrl}}/skills
+Content-Type: {{contentType}}
+
+{
+  "name": "Full Stack Web Development with React and Node.js",
+  "specificationId": null
+}
+
+### Test: Search Skills
+GET {{baseUrl}}/skills?search=react&page=1&limit=5
+Content-Type: {{contentType}}
+
+### Test: Update Only Name
+PUT {{baseUrl}}/skills/{{skillId}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Updated Skill Name"
+}
+
+### Test: Update Only Specification
+PUT {{baseUrl}}/skills/{{skillId}}
+Content-Type: {{contentType}}
+
+{
+  "specificationId": "{{specificationId}}"
+}

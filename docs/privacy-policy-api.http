@@ -1,0 +1,438 @@
+### Privacy Policy API Documentation
+### Complete API documentation for privacy policy management endpoints
+### All operations for creating, reading, updating, and deleting privacy policies
+### Note: This API may not be fully implemented yet. Check your routes configuration.
+
+@baseUrl = http://localhost:5000/api
+@contentType = application/json
+@token = your-jwt-token-here
+@policyId = your-policy-uuid-here
+
+### ============================================
+### VARIABLES SETUP
+### ============================================
+### Replace the variables above with actual values:
+### - @token: JWT token from /api/auth/verify-otp (if authentication is required)
+### - @policyId: UUID of an existing privacy policy
+
+### ============================================
+### 1. CREATE PRIVACY POLICY
+### ============================================
+### Create a new privacy policy
+### Language defaults to "en" if not specified
+### Supported languages: en, ar, fr, es
+
+POST {{baseUrl}}/privacy-policies
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "title": "Privacy Policy",
+  "content": "This is the privacy policy content. It explains how we collect, use, and protect your personal information...",
+  "language": "en"
+}
+
+### Example: Create Privacy Policy in Arabic
+POST {{baseUrl}}/privacy-policies
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "title": "سياسة الخصوصية",
+  "content": "هذا هو محتوى سياسة الخصوصية. يشرح كيفية جمع واستخدام وحماية معلوماتك الشخصية...",
+  "language": "ar"
+}
+
+### Example: Create Privacy Policy in French
+POST {{baseUrl}}/privacy-policies
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "title": "Politique de Confidentialité",
+  "content": "Ceci est le contenu de la politique de confidentialité. Il explique comment nous collectons, utilisons et protégeons vos informations personnelles...",
+  "language": "fr"
+}
+
+### Example: Create Privacy Policy in Spanish
+POST {{baseUrl}}/privacy-policies
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "title": "Política de Privacidad",
+  "content": "Este es el contenido de la política de privacidad. Explica cómo recopilamos, usamos y protegemos su información personal...",
+  "language": "es"
+}
+
+### Response Example (201 Created):
+### {
+###   "success": true,
+###   "message": "Privacy policy created successfully",
+###   "data": {
+###     "id": "policy-uuid",
+###     "title": "Privacy Policy",
+###     "content": "This is the privacy policy content...",
+###     "language": "en",
+###     "createdAt": "2026-02-12T01:00:00.000Z",
+###     "updatedAt": "2026-02-12T01:00:00.000Z"
+###   }
+### }
+
+### ============================================
+### 2. GET ALL PRIVACY POLICIES
+### ============================================
+### Get all privacy policies
+### Returns policies ordered by creation date (newest first)
+### Public endpoint (no authentication required)
+
+GET {{baseUrl}}/privacy-policies
+Content-Type: {{contentType}}
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "Privacy policies fetched successfully",
+###   "data": [
+###     {
+###       "id": "policy-uuid",
+###       "title": "Privacy Policy",
+###       "content": "This is the privacy policy content...",
+###       "language": "en",
+###       "createdAt": "2026-02-12T01:00:00.000Z",
+###       "updatedAt": "2026-02-12T01:00:00.000Z"
+###     }
+###   ]
+### }
+
+### ============================================
+### 3. GET PRIVACY POLICY BY ID
+### ============================================
+### Get a specific privacy policy by its ID
+### Public endpoint (no authentication required)
+
+GET {{baseUrl}}/privacy-policies/{{policyId}}
+Content-Type: {{contentType}}
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "Privacy policy fetched successfully",
+###   "data": {
+###     "id": "policy-uuid",
+###     "title": "Privacy Policy",
+###     "content": "This is the privacy policy content...",
+###     "language": "en",
+###     "createdAt": "2026-02-12T01:00:00.000Z",
+###     "updatedAt": "2026-02-12T01:00:00.000Z"
+###   }
+### }
+
+### ============================================
+### 4. GET PRIVACY POLICY BY LANGUAGE
+### ============================================
+### Get the latest privacy policy for a specific language
+### Returns the most recent policy for the specified language
+### Public endpoint (no authentication required)
+### Supported languages: en, ar, fr, es
+
+### Get Latest English Privacy Policy
+GET {{baseUrl}}/privacy-policies/language/en
+Content-Type: {{contentType}}
+
+### Get Latest Arabic Privacy Policy
+GET {{baseUrl}}/privacy-policies/language/ar
+Content-Type: {{contentType}}
+
+### Get Latest French Privacy Policy
+GET {{baseUrl}}/privacy-policies/language/fr
+Content-Type: {{contentType}}
+
+### Get Latest Spanish Privacy Policy
+GET {{baseUrl}}/privacy-policies/language/es
+Content-Type: {{contentType}}
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "Privacy policy fetched successfully",
+###   "data": {
+###     "id": "policy-uuid",
+###     "title": "Privacy Policy",
+###     "content": "This is the privacy policy content...",
+###     "language": "en",
+###     "createdAt": "2026-02-12T01:00:00.000Z",
+###     "updatedAt": "2026-02-12T01:00:00.000Z"
+###   }
+### }
+
+### ============================================
+### 5. UPDATE PRIVACY POLICY
+### ============================================
+### Update an existing privacy policy
+### Requires authentication
+### At least one field must be provided for update
+
+PUT {{baseUrl}}/privacy-policies/{{policyId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "title": "Updated Privacy Policy",
+  "content": "This is the updated privacy policy content..."
+}
+
+### Example: Update Only Title
+PUT {{baseUrl}}/privacy-policies/{{policyId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "title": "New Privacy Policy Title"
+}
+
+### Example: Update Only Content
+PUT {{baseUrl}}/privacy-policies/{{policyId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "content": "This is the completely updated privacy policy content with new terms and conditions..."
+}
+
+### Example: Update Title, Content, and Language
+PUT {{baseUrl}}/privacy-policies/{{policyId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "title": "Updated Privacy Policy",
+  "content": "Updated content...",
+  "language": "en"
+}
+
+### Response Example (200 OK):
+### {
+###   "success": true,
+###   "message": "Privacy policy updated successfully",
+###   "data": {
+###     "id": "policy-uuid",
+###     "title": "Updated Privacy Policy",
+###     "content": "This is the updated privacy policy content...",
+###     "language": "en",
+###     "createdAt": "2026-02-12T01:00:00.000Z",
+###     "updatedAt": "2026-02-12T02:00:00.000Z"
+###   }
+### }
+
+### ============================================
+### 6. DELETE PRIVACY POLICY
+### ============================================
+### Delete a privacy policy by ID
+### Requires authentication
+
+DELETE {{baseUrl}}/privacy-policies/{{policyId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Response Example (200 OK):
+### {
+###   "success": true,
+###   "message": "Privacy policy deleted successfully"
+### }
+
+### ============================================
+### COMPREHENSIVE NOTES & GUIDELINES
+### ============================================
+
+### 1. AUTHENTICATION & AUTHORIZATION
+###    - Create, Update, and Delete endpoints typically require authentication
+###    - Use: Authorization: Bearer {{token}}
+###    - Get token from: POST /api/auth/verify-otp
+###    
+###    Public endpoints (no auth required):
+###    - GET /api/privacy-policies (get all policies)
+###    - GET /api/privacy-policies/:id (get policy by ID)
+###    - GET /api/privacy-policies/language/:language (get latest by language)
+
+### 2. LANGUAGE SUPPORT
+###    - Supported languages: en (English), ar (Arabic), fr (French), es (Spanish)
+###    - Default language: en
+###    - Language is case-sensitive in the enum
+###    - You can have multiple policies per language (latest is returned by language endpoint)
+
+### 3. VALIDATION RULES
+###    Create Privacy Policy:
+###    - title: Required, string, max 200 characters
+###    - content: Required, text (no length limit)
+###    - language: Optional, enum (en, ar, fr, es), defaults to "en"
+###    
+###    Update Privacy Policy:
+###    - At least one field must be provided
+###    - title: Optional, string, max 200 characters if provided
+###    - content: Optional, text if provided
+###    - language: Optional, enum (en, ar, fr, es) if provided
+
+### 4. VERSIONING
+###    - Multiple policies can exist for the same language
+###    - Policies are ordered by creation date (newest first)
+###    - GET /api/privacy-policies/language/:language returns the latest policy
+###    - This allows for policy versioning and updates
+
+### 5. ERROR RESPONSES
+###    
+###    Validation Error (400):
+###    {
+###      "success": false,
+###      "message": "Validation error message",
+###      "errors": [
+###        {
+###          "field": "title",
+###          "message": "Title is required"
+###        }
+###      ]
+###    }
+###    
+###    Unauthorized (401):
+###    {
+###      "success": false,
+###      "message": "Unauthorized"
+###    }
+###    
+###    Not Found (404):
+###    {
+###      "success": false,
+###      "message": "Privacy policy not found"
+###    }
+
+### 6. SUCCESS RESPONSES
+###    
+###    Create Policy (201):
+###    {
+###       "success": true,
+###       "message": "Privacy policy created successfully",
+###       "data": { ... }
+###     }
+###    
+###    Get Policies (200):
+###    {
+###       "success": true,
+###       "message": "Privacy policies fetched successfully",
+###       "data": [ ... ]
+###     }
+###    
+###    Update Policy (200):
+###    {
+###       "success": true,
+###       "message": "Privacy policy updated successfully",
+###       "data": { ... }
+###     }
+###    
+###    Delete Policy (200):
+###    {
+###       "success": true,
+###       "message": "Privacy policy deleted successfully"
+###     }
+
+### 7. BEST PRACTICES
+###    - Create separate policies for each supported language
+###    - Keep policy content clear and comprehensive
+###    - Update policies when terms change (creates new version)
+###    - Use the language endpoint to get the latest policy for users
+###    - Keep titles concise but descriptive
+###    - Ensure content complies with legal requirements (GDPR, etc.)
+
+### 8. COMMON USE CASES
+###    
+###    Case 1: Display privacy policy to user
+###    1. Get user's preferred language
+###    2. GET /api/privacy-policies/language/:language
+###    3. Display the latest policy for that language
+###    
+###    Case 2: Update privacy policy
+###    1. Create new policy version: POST /api/privacy-policies
+###    2. New policy becomes the latest for that language
+###    3. Old policies remain in database for history
+###    
+###    Case 3: Multi-language support
+###    1. Create policies for each language
+###    2. Users can switch languages and see appropriate policy
+###    3. Each language has its own latest version
+###    
+###    Case 4: Policy history
+###    1. GET /api/privacy-policies to see all policies
+###    2. Filter by language if needed
+###    3. View historical versions
+
+### ============================================
+### TESTING EXAMPLES
+### ============================================
+
+### Test: Create Privacy Policy with Long Content
+POST {{baseUrl}}/privacy-policies
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "title": "Comprehensive Privacy Policy",
+  "content": "This is a very long privacy policy content that explains in detail how we collect, use, store, and protect your personal information. It includes information about cookies, third-party services, data retention, user rights, and more...",
+  "language": "en"
+}
+
+### Test: Get Latest Policy for Language
+GET {{baseUrl}}/privacy-policies/language/en
+Content-Type: {{contentType}}
+
+### Test: Update Policy Content
+PUT {{baseUrl}}/privacy-policies/{{policyId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "content": "Updated privacy policy content with new terms effective from 2026-02-12..."
+}
+
+### Test: Create Policy in All Supported Languages
+### English
+POST {{baseUrl}}/privacy-policies
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "title": "Privacy Policy",
+  "content": "English content...",
+  "language": "en"
+}
+
+### Arabic
+POST {{baseUrl}}/privacy-policies
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "title": "سياسة الخصوصية",
+  "content": "المحتوى بالعربية...",
+  "language": "ar"
+}
+
+### French
+POST {{baseUrl}}/privacy-policies
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "title": "Politique de Confidentialité",
+  "content": "Contenu en français...",
+  "language": "fr"
+}
+
+### Spanish
+POST {{baseUrl}}/privacy-policies
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "title": "Política de Privacidad",
+  "content": "Contenido en español...",
+  "language": "es"
+}

@@ -1,0 +1,380 @@
+### Reviews API Documentation
+### Complete API documentation for reviews management endpoints
+### All operations for creating, updating, and retrieving reviews
+
+@baseUrl = http://localhost:5000/api
+@contentType = application/json
+@token = your-jwt-token-here
+@reviewId = your-review-uuid-here
+@userId = your-user-uuid-here
+@projectId = your-project-uuid-here
+@contractId = your-contract-uuid-here
+
+### ============================================
+### VARIABLES SETUP
+### ============================================
+### Replace the variables above with actual values:
+### - @token: JWT token from /api/auth/verify-otp
+### - @reviewId: UUID of an existing review
+### - @userId: UUID of a user (for getting reviews by user)
+### - @projectId: UUID of a project (for getting reviews by project)
+### - @contractId: UUID of a contract (required for creating reviews)
+
+### ============================================
+### 1. CREATE REVIEW
+### ============================================
+### Create a new review for a completed project/contract
+### Requires authentication (user token)
+### All ratings must be integers between 1 and 5
+### Required fields: projectId, contractId, userId, review, and all rating fields
+
+POST {{baseUrl}}/reviews
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "projectId": "f8c46c12-3636-4191-b114-61b9343c1d39",
+  "contractId": "b7fa214c-6fd7-430b-a2af-3f390668f39e",
+  "userId": "eef045d7-71cd-423c-9b39-8d22b29ded0f",
+  "review": "Excellent work! The freelancer delivered high-quality work on time and communicated effectively throughout the project.",
+  "proffeciency": 5,
+  "communication": 5,
+  "quality": 5,
+  "experience": 4,
+  "onTimeDelivery": 5,
+  "willHireAgain": 5
+}
+
+### Example: Create Review with Lower Ratings
+POST {{baseUrl}}/reviews
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "projectId": "f8c46c12-3636-4191-b114-61b9343c1d39",
+  "contractId": "b7fa214c-6fd7-430b-a2af-3f390668f39e",
+  "userId": "eef045d7-71cd-423c-9b39-8d22b29ded0f",
+  "review": "Good work overall, but there were some communication delays.",
+  "proffeciency": 4,
+  "communication": 3,
+  "quality": 4,
+  "experience": 4,
+  "onTimeDelivery": 4,
+  "willHireAgain": 4
+}
+
+### ============================================
+### 2. UPDATE/EDIT REVIEW
+### ============================================
+### Update an existing review (requires authentication)
+### Only the user who created the review can update it
+### At least one field must be provided for update
+### All rating fields are optional and must be integers between 1 and 5
+
+PATCH {{baseUrl}}/reviews/{{reviewId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "review": "Updated review text - The work was even better than expected!",
+  "proffeciency": 5,
+  "communication": 5
+}
+
+### Example: Update Only Review Text
+PATCH {{baseUrl}}/reviews/{{reviewId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "review": "After further consideration, I want to add that the freelancer was very professional and responsive."
+}
+
+### Example: Update Only Ratings
+PATCH {{baseUrl}}/reviews/{{reviewId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "proffeciency": 5,
+  "communication": 5,
+  "quality": 5,
+  "experience": 5,
+  "onTimeDelivery": 5,
+  "willHireAgain": 5
+}
+
+### ============================================
+### 3. GET REVIEWS BY USER ID
+### ============================================
+### Get all reviews for a specific user
+### Public endpoint (no authentication required)
+### Returns all reviews where the user was reviewed
+
+GET {{baseUrl}}/reviews/user/{{userId}}
+
+### Example Response:
+### {
+###   "success": true,
+###   "message": "Reviews fetched successfully",
+###   "data": [
+###     {
+###       "id": "review-uuid",
+###       "projectId": "project-uuid",
+###       "contractId": "contract-uuid",
+###       "userId": "user-uuid",
+###       "review": "Great work!",
+###       "proffeciency": 5,
+###       "communication": 5,
+###       "quality": 5,
+###       "experience": 4,
+###       "onTimeDelivery": 5,
+###       "willHireAgain": 5,
+###       "createdAt": "2026-02-12T01:00:00.000Z",
+###       "updatedAt": "2026-02-12T01:00:00.000Z"
+###     }
+###   ]
+### }
+
+### ============================================
+### 4. GET REVIEWS BY PROJECT ID
+### ============================================
+### Get all reviews for a specific project
+### Public endpoint (no authentication required)
+### Returns all reviews associated with the project
+
+GET {{baseUrl}}/reviews/project/{{projectId}}
+
+### Example Response:
+### {
+###   "success": true,
+###   "message": "Reviews fetched successfully",
+###   "data": [
+###     {
+###       "id": "review-uuid",
+###       "projectId": "project-uuid",
+###       "contractId": "contract-uuid",
+###       "userId": "user-uuid",
+###       "review": "Excellent work!",
+###       "proffeciency": 5,
+###       "communication": 5,
+###       "quality": 5,
+###       "experience": 5,
+###       "onTimeDelivery": 5,
+###       "willHireAgain": 5,
+###       "createdAt": "2026-02-12T01:00:00.000Z",
+###       "updatedAt": "2026-02-12T01:00:00.000Z"
+###     }
+###   ]
+### }
+
+### ============================================
+### COMPREHENSIVE NOTES & GUIDELINES
+### ============================================
+
+### 1. AUTHENTICATION & AUTHORIZATION
+###    - Create and Update endpoints require JWT token
+###    - Format: Authorization: Bearer <token>
+###    - Get token from: POST /api/auth/verify-otp
+###    
+###    Public endpoints (no auth required):
+###    - GET /api/reviews/user/:userid (get reviews by user)
+###    - GET /api/reviews/project/:project (get reviews by project)
+###    
+###    Authenticated endpoints:
+###    - POST /api/reviews (create review)
+###    - PATCH /api/reviews/:id (update review - only by creator)
+
+### 2. RATING SYSTEM
+###    - All ratings must be integers between 1 and 5
+###    - Rating fields:
+###      * proffeciency: Technical skills and expertise (1-5)
+###      * communication: Communication quality (1-5)
+###      * quality: Work quality (1-5)
+###      * experience: Overall experience (1-5)
+###      * onTimeDelivery: Punctuality (1-5)
+###      * willHireAgain: Likelihood to hire again (1-5)
+###    
+###    Example ratings:
+###    - 5: Excellent
+###    - 4: Very Good
+###    - 3: Good
+###    - 2: Fair
+###    - 1: Poor
+
+### 3. VALIDATION RULES
+###    Create Review:
+###    - projectId: Required, must be valid UUID
+###    - contractId: Required, must be valid UUID
+###    - userId: Required, must be valid UUID (user being reviewed)
+###    - review: Required, non-empty string
+###    - All rating fields: Required, integer 1-5
+###    
+###    Update Review:
+###    - At least one field must be provided
+###    - review: Optional, non-empty string if provided
+###    - All rating fields: Optional, integer 1-5 if provided
+
+### 4. ERROR RESPONSES
+###    
+###    Validation Error (400):
+###    {
+###      "success": false,
+###      "message": "Validation error message",
+###      "errors": [
+###        {
+###          "field": "proffeciency",
+###          "message": "Rating must be at most 5"
+###        }
+###      ]
+###    }
+###    
+###    Unauthorized (401):
+###    {
+###      "success": false,
+###      "message": "Unauthorized"
+###    }
+###    
+###    Not Found (404):
+###    {
+###      "success": false,
+###      "message": "Review not found"
+###    }
+###    
+###    Forbidden (403):
+###    {
+###      "success": false,
+###      "message": "You are not authorized to update this review"
+###    }
+
+### 5. SUCCESS RESPONSES
+###    
+###    Create Review (201):
+###    {
+###      "success": true,
+###      "message": "Review created successfully",
+###      "data": {
+###        "id": "review-uuid",
+###        "projectId": "project-uuid",
+###        "contractId": "contract-uuid",
+###        "userId": "user-uuid",
+###        "review": "Review text",
+###        "proffeciency": 5,
+###        "communication": 5,
+###        "quality": 5,
+###        "experience": 4,
+###        "onTimeDelivery": 5,
+###        "willHireAgain": 5,
+###        "createdAt": "2026-02-12T01:00:00.000Z",
+###        "updatedAt": "2026-02-12T01:00:00.000Z"
+###      }
+###    }
+###    
+###    Update Review (200):
+###    {
+###      "success": true,
+###      "message": "Review updated successfully",
+###      "data": {
+###        "id": "review-uuid",
+###        ... (updated fields)
+###      }
+###    }
+###    
+###    Get Reviews (200):
+###    {
+###      "success": true,
+###      "message": "Reviews fetched successfully",
+###      "data": [
+###        ... (array of review objects)
+###      ]
+###    }
+
+### 6. BEST PRACTICES
+###    - Create reviews only after project completion
+###    - Be honest and constructive in review text
+###    - Rate all categories fairly
+###    - Update reviews if circumstances change
+###    - Use reviews to help other users make informed decisions
+
+### 7. COMMON USE CASES
+###    
+###    Case 1: Client reviews freelancer after project completion
+###    1. Project is completed
+###    2. Client creates review via POST /api/reviews
+###    3. Review is associated with project, contract, and freelancer (userId)
+###    
+###    Case 2: View freelancer's review history
+###    1. Get all reviews for a freelancer: GET /api/reviews/user/:userid
+###    2. Calculate average ratings from all reviews
+###    
+###    Case 3: View project reviews
+###    1. Get all reviews for a project: GET /api/reviews/project/:project
+###    2. Display reviews to help future clients make decisions
+###    
+###    Case 4: Update review after reflection
+###    1. User realizes they were too harsh/lenient
+###    2. Update review via PATCH /api/reviews/:id
+###    3. Only the creator can update their review
+
+### ============================================
+### TESTING EXAMPLES
+### ============================================
+
+### Test: Create Review with All Maximum Ratings
+POST {{baseUrl}}/reviews
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "projectId": "{{projectId}}",
+  "contractId": "{{contractId}}",
+  "userId": "{{userId}}",
+  "review": "Outstanding work in every aspect! Highly recommended.",
+  "proffeciency": 5,
+  "communication": 5,
+  "quality": 5,
+  "experience": 5,
+  "onTimeDelivery": 5,
+  "willHireAgain": 5
+}
+
+### Test: Create Review with Minimum Ratings
+POST {{baseUrl}}/reviews
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "projectId": "{{projectId}}",
+  "contractId": "{{contractId}}",
+  "userId": "{{userId}}",
+  "review": "Needs improvement in several areas.",
+  "proffeciency": 1,
+  "communication": 1,
+  "quality": 1,
+  "experience": 1,
+  "onTimeDelivery": 1,
+  "willHireAgain": 1
+}
+
+### Test: Update Review - Improve Ratings
+PATCH {{baseUrl}}/reviews/{{reviewId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "proffeciency": 5,
+  "communication": 5,
+  "quality": 5,
+  "experience": 5,
+  "onTimeDelivery": 5,
+  "willHireAgain": 5
+}
+
+### Test: Update Review - Add More Detail
+PATCH {{baseUrl}}/reviews/{{reviewId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "review": "After working together more, I can confirm this freelancer is exceptional. They went above and beyond expectations, delivered ahead of schedule, and maintained excellent communication throughout. I would definitely hire again!"
+}

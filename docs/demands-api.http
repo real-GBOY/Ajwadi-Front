@@ -1,0 +1,250 @@
+### Demand Management API
+### Base URL: http://localhost:5000/api
+
+### Variables
+@baseUrl = http://localhost:5000/api
+@token = your_employee_jwt_token_here
+
+############################################################
+# VERIFICATION DEMANDS
+############################################################
+
+### Get Users Currently Under Review
+# Get all users that are currently under review for verification
+# Requires: Employee authentication
+# Query Parameters:
+#   - page: Page number (default: 1)
+#   - limit: Items per page (default: 10)
+#   - search: Search by name
+#   - sortBy: Field to sort by (default: 'createdAt')
+#   - sortOrder: 'asc' or 'desc' (default: 'desc')
+#   - mode: Filter by mode ('freelancer' or 'client')
+GET {{baseUrl}}/demands/verification?page=1&limit=10
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Users Under Review - With Search
+GET {{baseUrl}}/demands/verification?page=1&limit=10&search=john
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Users Under Review - Filter by Mode
+GET {{baseUrl}}/demands/verification?page=1&limit=10&mode=freelancer
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Users Under Review - Sorted by Name
+GET {{baseUrl}}/demands/verification?page=1&limit=10&sortBy=name&sortOrder=asc
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+############################################################
+# COUNT ENDPOINT
+############################################################
+
+### Get Count of Users Under Review
+# Get the total count of users currently under review
+# Requires: Employee authentication
+# Query Parameters:
+#   - search: Search by name (optional)
+#   - mode: Filter by mode ('freelancer' or 'client') (optional)
+GET {{baseUrl}}/demands/verification/count
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Count of Users Under Review - With Search
+GET {{baseUrl}}/demands/verification/count?search=john
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Count of Users Under Review - Filter by Mode
+GET {{baseUrl}}/demands/verification/count?mode=freelancer
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Count of Users Under Review - With Search and Mode
+GET {{baseUrl}}/demands/verification/count?search=john&mode=freelancer
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+############################################################
+# Response Format
+############################################################
+
+# Success Response (200 OK):
+# {
+#   "success": true,
+#   "message": "Users under review fetched successfully",
+#   "data": [
+#     {
+#       "id": "uuid",
+#       "name": "User Name",
+#       "phone": "+1234567890",
+#       "mode": "freelancer",
+#       "isCurrentlyUnderReview": true,
+#       "isVerifiedAsFreelancer": false,
+#       "isVerifiedAsClient": false,
+#       "profilePictureFile": {
+#         "id": "uuid",
+#         "url": "https://...",
+#         "fileName": "profile.jpg",
+#         ...
+#       },
+#       "createdAt": "2026-02-14T00:00:00.000Z",
+#       ...
+#     }
+#   ],
+#   "pagination": {
+#     "currentPage": 1,
+#     "itemsPerPage": 10,
+#     "totalItems": 25,
+#     "totalPages": 3,
+#     "hasNextPage": true,
+#     "hasPreviousPage": false
+#   }
+# }
+
+# Error Response (401 Unauthorized):
+# {
+#   "success": false,
+#   "message": "Unauthorized"
+# }
+
+# Error Response (403 Forbidden):
+# {
+#   "success": false,
+#   "message": "Forbidden - Employee access required"
+# }
+
+############################################################
+# Count Response Format
+############################################################
+
+# Success Response (200 OK):
+# {
+#   "success": true,
+#   "message": "Users under review count fetched successfully",
+#   "data": {
+#     "count": 25
+#   }
+# }
+
+# Error Response (401 Unauthorized):
+# {
+#   "success": false,
+#   "message": "Unauthorized"
+# }
+
+# Error Response (403 Forbidden):
+# {
+#   "success": false,
+#   "message": "Forbidden - Employee access required"
+# }
+
+############################################################
+# TAG ATTACHMENT DEMANDS
+############################################################
+
+### Get Tag Attachments Currently Under Review
+# Get all tag attachments that are currently under review (status = "pending")
+# Requires: Employee authentication
+# Query Parameters:
+#   - page: Page number (default: 1)
+#   - limit: Items per page (default: 10)
+#   - tagId: Filter by tag ID (optional)
+#   - userId: Filter by user ID (optional)
+#   - sortBy: Field to sort by (default: 'createdAt')
+#   - sortOrder: 'asc' or 'desc' (default: 'desc')
+GET {{baseUrl}}/demands/tag-attachments?page=1&limit=10
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Tag Attachments Under Review - Filter by Tag
+GET {{baseUrl}}/demands/tag-attachments?page=1&limit=10&tagId=uuid-here
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Tag Attachments Under Review - Filter by User
+GET {{baseUrl}}/demands/tag-attachments?page=1&limit=10&userId=uuid-here
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Tag Attachments Under Review - Sorted by Created Date
+GET {{baseUrl}}/demands/tag-attachments?page=1&limit=10&sortBy=createdAt&sortOrder=asc
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+############################################################
+# TAG ATTACHMENT COUNT ENDPOINT
+############################################################
+
+### Get Count of Tag Attachments Under Review
+# Get the total count of tag attachments currently under review
+# Requires: Employee authentication
+# Query Parameters:
+#   - tagId: Filter by tag ID (optional)
+#   - userId: Filter by user ID (optional)
+GET {{baseUrl}}/demands/tag-attachments/count
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Count of Tag Attachments Under Review - Filter by Tag
+GET {{baseUrl}}/demands/tag-attachments/count?tagId=uuid-here
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Count of Tag Attachments Under Review - Filter by User
+GET {{baseUrl}}/demands/tag-attachments/count?userId=uuid-here
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+############################################################
+# Tag Attachment Response Format
+############################################################
+
+# Success Response (200 OK):
+# {
+#   "success": true,
+#   "message": "Tag attachments under review fetched successfully",
+#   "data": [
+#     {
+#       "id": "uuid",
+#       "userId": "uuid",
+#       "tagId": "uuid",
+#       "fileUrl": "https://...",
+#       "status": "pending",
+#       "rejectionReason": null,
+#       "createdAt": "2026-02-14T00:00:00.000Z",
+#       "updatedAt": "2026-02-14T00:00:00.000Z"
+#     }
+#   ],
+#   "pagination": {
+#     "currentPage": 1,
+#     "itemsPerPage": 10,
+#     "totalItems": 25,
+#     "totalPages": 3,
+#     "hasNextPage": true,
+#     "hasPreviousPage": false
+#   }
+# }
+
+# Tag Attachment Count Response (200 OK):
+# {
+#   "success": true,
+#   "message": "Tag attachments under review count fetched successfully",
+#   "data": {
+#     "count": 15
+#   }
+# }
+
+# Error Response (401 Unauthorized):
+# {
+#   "success": false,
+#   "message": "Unauthorized"
+# }
+
+# Error Response (403 Forbidden):
+# {
+#   "success": false,
+#   "message": "Forbidden - Employee access required"
+# }

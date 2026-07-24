@@ -1,0 +1,411 @@
+### Push Notifications API
+### Base URL: http://localhost:5000/api
+
+### Variables
+@baseUrl = http://localhost:5000/api
+@token = your_jwt_token_here
+@employeeToken = your_employee_jwt_token_here
+
+############################################################
+# DEVICE REGISTRATION
+############################################################
+
+### Register Device for Push Notifications
+# Register a device to receive push notifications
+# Requires: User or Employee authentication
+# Body Parameters:
+#   - platform: Device platform ('web', 'android', 'ios') (required)
+#   - deviceId: Unique device identifier (required)
+#   - token: Push notification token (required)
+POST {{baseUrl}}/push/register
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "platform": "android",
+  "deviceId": "device-unique-id-123",
+  "token": "fcm-token-or-apns-token-here"
+}
+
+### Register Web Device
+POST {{baseUrl}}/push/register
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "platform": "web",
+  "deviceId": "web-device-id-456",
+  "token": "web-push-token-here"
+}
+
+### Register iOS Device
+POST {{baseUrl}}/push/register
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "platform": "ios",
+  "deviceId": "ios-device-id-789",
+  "token": "apns-token-here"
+}
+
+############################################################
+# DEVICE REVOCATION
+############################################################
+
+### Revoke Device Registration
+# Remove a device from receiving push notifications
+# Requires: User or Employee authentication
+# Body Parameters:
+#   - platform: Device platform ('web', 'android', 'ios') (required)
+#   - deviceId: Unique device identifier (required)
+POST {{baseUrl}}/push/revoke
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "platform": "android",
+  "deviceId": "device-unique-id-123"
+}
+
+############################################################
+# TEST PUSH NOTIFICATION
+############################################################
+
+### Send Test Push Notification
+# Send a test push notification to the authenticated user/employee
+# Requires: User or Employee authentication
+# Body Parameters:
+#   - title: Notification title (required)
+#   - body: Notification body (required)
+#   - source_event_key: Optional source event key
+POST {{baseUrl}}/push/test
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Test Notification",
+  "body": "This is a test push notification",
+  "source_event_key": "test:notification:2026-02-14"
+}
+
+############################################################
+# SEND NOTIFICATION (EMPLOYEE ONLY)
+############################################################
+
+### Send Notification to Specific Users/Employees
+# Send a notification to specific users or employees by their IDs
+# Requires: Employee authentication
+# Body Parameters:
+#   - userIds: Array of user IDs (optional)
+#   - employeeIds: Array of employee IDs (optional)
+#   - type: Notification type (required)
+#   - title: Notification title (required)
+#   - body: Notification body (required)
+#   - source_event_key: Optional source event key
+#   - payload: Optional payload object
+#   - actions: Optional actions array (max 2)
+#   - targets: Optional platform targets array
+POST {{baseUrl}}/push/notify
+Authorization: Bearer {{employeeToken}}
+Content-Type: application/json
+
+{
+  "userIds": [
+    "0ed09547-b0bc-43e7-af16-4cfd56aca6c0",
+    "7f040b8f-6111-4d4f-a544-acdba48509ff"
+  ],
+  "type": "custom_notification",
+  "title": "Custom Notification",
+  "body": "This is a custom notification sent to specific users",
+  "source_event_key": "custom:notification:2026-02-14",
+  "payload": {
+    "customData": "value"
+  }
+}
+
+### Send Notification to Employees Only
+POST {{baseUrl}}/push/notify
+Authorization: Bearer {{employeeToken}}
+Content-Type: application/json
+
+{
+  "employeeIds": [
+    "employee-uuid-1",
+    "employee-uuid-2"
+  ],
+  "type": "task_assignment",
+  "title": "New Task",
+  "body": "You have been assigned a new task",
+  "source_event_key": "task:assigned:2026-02-14"
+}
+
+############################################################
+# BROADCAST NOTIFICATIONS (EMPLOYEE ONLY)
+############################################################
+
+### Send Notification to All Clients
+# Send a notification to all clients (users with mode='client')
+# Requires: Employee authentication
+POST {{baseUrl}}/push/broadcast
+Authorization: Bearer {{employeeToken}}
+Content-Type: application/json
+
+{
+  "targetType": "clients",
+  "type": "announcement",
+  "title": "New Feature Available",
+  "body": "We've just released a new feature that you might find useful!",
+  "sourceEventKey": "announcement:new-feature:2026-02-14",
+  "payload": {
+    "featureId": "feature-123",
+    "link": "/features/new-feature"
+  },
+  "actions": [
+    {
+      "action": "view",
+      "title": "View Feature",
+      "url": "/features/new-feature"
+    }
+  ]
+}
+
+### Send Notification to All Employees
+# Send a notification to all active employees
+# Requires: Employee authentication
+POST {{baseUrl}}/push/broadcast
+Authorization: Bearer {{employeeToken}}
+Content-Type: application/json
+
+{
+  "targetType": "employees",
+  "type": "system_alert",
+  "title": "System Maintenance",
+  "body": "Scheduled maintenance will occur tonight from 2 AM to 4 AM.",
+  "sourceEventKey": "system:maintenance:2026-02-14"
+}
+
+### Send Notification to Specific Users
+# Send a notification to specific users by their IDs
+# Requires: Employee authentication
+POST {{baseUrl}}/push/broadcast
+Authorization: Bearer {{employeeToken}}
+Content-Type: application/json
+
+{
+  "targetType": "specific",
+  "userIds": [
+    "0ed09547-b0bc-43e7-af16-4cfd56aca6c0",
+    "7f040b8f-6111-4d4f-a544-acdba48509ff"
+  ],
+  "type": "personal_message",
+  "title": "Important Update",
+  "body": "You have an important update regarding your account.",
+  "sourceEventKey": "personal:update:2026-02-14"
+}
+
+### Send Notification to Specific Employees
+POST {{baseUrl}}/push/broadcast
+Authorization: Bearer {{employeeToken}}
+Content-Type: application/json
+
+{
+  "targetType": "specific",
+  "employeeIds": [
+    "employee-uuid-1",
+    "employee-uuid-2"
+  ],
+  "type": "task_assignment",
+  "title": "New Task Assigned",
+  "body": "You have been assigned a new task. Please review it.",
+  "sourceEventKey": "task:assigned:2026-02-14"
+}
+
+### Send Notification with Platform Targets
+# Send notification only to specific platforms
+POST {{baseUrl}}/push/broadcast
+Authorization: Bearer {{employeeToken}}
+Content-Type: application/json
+
+{
+  "targetType": "clients",
+  "type": "mobile_only_announcement",
+  "title": "Mobile App Update",
+  "body": "A new version of our mobile app is available!",
+  "targets": ["android", "ios"],
+  "sourceEventKey": "mobile:update:2026-02-14"
+}
+
+############################################################
+# RESPONSE FORMATS
+############################################################
+
+### Success Response - Register Device (200 OK):
+# {
+#   "success": true,
+#   "data": {
+#     "platform": "android",
+#     "deviceId": "device-unique-id-123",
+#     "endpointArn": "arn:aws:sns:region:account:endpoint/GCM/..."
+#   }
+# }
+
+### Success Response - Test Push (200 OK):
+# {
+#   "success": true,
+#   "data": {
+#     "enqueued": 1,
+#     "skipped": 0
+#   }
+# }
+
+### Success Response - Notify (200 OK):
+# {
+#   "success": true,
+#   "data": {
+#     "enqueued": 2,
+#     "skipped": 0
+#   }
+# }
+
+### Success Response - Broadcast to Clients (200 OK):
+# {
+#   "success": true,
+#   "message": "Notifications sent successfully",
+#   "data": {
+#     "targetType": "clients",
+#     "totalRecipients": 150,
+#     "userCount": 150,
+#     "employeeCount": 0,
+#     "enqueued": 148,
+#     "skipped": 2
+#   }
+# }
+
+### Success Response - Broadcast to Employees (200 OK):
+# {
+#   "success": true,
+#   "message": "Notifications sent successfully",
+#   "data": {
+#     "targetType": "employees",
+#     "totalRecipients": 25,
+#     "userCount": 0,
+#     "employeeCount": 25,
+#     "enqueued": 25,
+#     "skipped": 0
+#   }
+# }
+
+### Success Response - Broadcast to Specific Users (200 OK):
+# {
+#   "success": true,
+#   "message": "Notifications sent successfully",
+#   "data": {
+#     "targetType": "specific",
+#     "totalRecipients": 5,
+#     "userCount": 3,
+#     "employeeCount": 2,
+#     "enqueued": 5,
+#     "skipped": 0
+#   }
+# }
+
+### Error Response - Missing Required Fields (400 Bad Request):
+# {
+#   "success": false,
+#   "message": "targetType, type, title, and body are required"
+# }
+
+### Error Response - Invalid Target Type (400 Bad Request):
+# {
+#   "success": false,
+#   "message": "Invalid targetType. Must be 'clients', 'employees', or 'specific'"
+# }
+
+### Error Response - No Recipients (400 Bad Request):
+# {
+#   "success": false,
+#   "message": "userIds or employeeIds are required when targetType is 'specific'"
+# }
+
+### Error Response - No Recipients Found (404 Not Found):
+# {
+#   "success": false,
+#   "message": "No recipients found for the specified target type"
+# }
+
+### Error Response - Unauthorized (401 Unauthorized):
+# {
+#   "success": false,
+#   "message": "Unauthorized"
+# }
+
+### Error Response - Employee Access Required (401 Unauthorized):
+# {
+#   "success": false,
+#   "message": "Unauthorized - Employee access required"
+# }
+
+############################################################
+# NOTES
+############################################################
+
+# 1. DEVICE REGISTRATION
+#    - Users and employees can register their devices to receive push notifications
+#    - Each device must have a unique deviceId per platform
+#    - Platform must be one of: 'web', 'android', 'ios'
+#    - Token format depends on platform (FCM for Android/Web, APNS for iOS)
+
+# 2. TEST PUSH
+#    - Sends a test notification to the authenticated user/employee
+#    - Useful for testing push notification setup
+#    - Available to both users and employees
+
+# 3. NOTIFY ENDPOINT
+#    - Employee-only endpoint
+#    - Sends notifications to specific users/employees by IDs
+#    - Requires userIds and/or employeeIds arrays
+
+# 4. BROADCAST ENDPOINT
+#    - Employee-only endpoint
+#    - Can send to all clients, all employees, or specific users
+#    - targetType options:
+#      * 'clients': All users with mode='client'
+#      * 'employees': All active employees
+#      * 'specific': Specific users/employees by IDs
+#    - Automatically finds recipients based on targetType
+
+# 5. NOTIFICATION PROPERTIES
+#    - type: Notification type identifier (e.g., 'announcement', 'task_assignment')
+#    - title: Notification title (max 200 chars)
+#    - body: Notification body (max 1000 chars)
+#    - sourceEventKey: Optional key for deduplication
+#    - payload: Optional JSON object with additional data
+#    - actions: Optional array of action buttons (max 2)
+#    - targets: Optional platform filter (e.g., ['web', 'android', 'ios'])
+
+# 6. RATE LIMITING & DEDUPLICATION
+#    - Notifications are automatically rate-limited (20 per minute per recipient)
+#    - Duplicate notifications are prevented within 10 minutes
+#    - Skipped notifications are due to rate limiting or deduplication
+
+# 7. NOTIFICATION DELIVERY
+#    - Notifications are queued via SQS
+#    - Delivered asynchronously by push worker
+#    - Status tracked in Notifications table (queued, sent, failed)
+
+# 8. PLATFORM TARGETS
+#    - Can filter notifications to specific platforms
+#    - Useful for platform-specific announcements
+#    - Options: 'web', 'android', 'ios'
+
+# 9. ACTIONS
+#    - Can include up to 2 action buttons
+#    - Each action has: action, title, url
+#    - Actions appear as buttons in the notification
+
+# 10. AUTHENTICATION
+#     - Device registration: User or Employee
+#     - Test push: User or Employee
+#     - Notify: Employee only
+#     - Broadcast: Employee only

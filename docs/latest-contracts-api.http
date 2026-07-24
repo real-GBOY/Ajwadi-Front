@@ -1,0 +1,146 @@
+### Latest Contracts API (آخر الصفقات)
+
+@baseUrl = http://localhost:5000/api
+@contentType = application/json
+@token = your-jwt-token-here
+
+### ============================================
+### GET LATEST CONTRACTS (آخر الصفقات)
+### ============================================
+### Get the most recent contracts in the system
+### Returns contracts ordered by creation date (newest first)
+### 
+### Requires: User authentication (JWT token)
+### Query Parameters:
+###   - limit: Number of contracts to return (default: 10, max: 100, min: 1)
+
+GET {{baseUrl}}/contracts/latest?limit=10
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+### Example with custom limit:
+GET {{baseUrl}}/contracts/latest?limit=20
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+### Example with default limit (10):
+GET {{baseUrl}}/contracts/latest
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+### ============================================
+### RESPONSE FORMAT
+### ============================================
+
+### Success Response (200 OK):
+### {
+###   "success": true,
+###   "message": "Latest contracts fetched successfully",
+###   "data": [
+###     {
+###       "id": "contract-uuid",
+###       "proposalId": "proposal-uuid",
+###       "clientId": "client-uuid",
+###       "freelancerId": "freelancer-uuid",
+###       "termsAndConditions": "Contract terms...",
+###       "value": 5000.00,
+###       "paidValue": 0.00,
+###       "duration": 30,
+###       "emergencyduration": 15,
+###       "startdate": "2024-01-15T00:00:00.000Z",
+###       "clientapproval": true,
+###       "freelancerapproval": true,
+###       "status": "approved",
+###       "version": 1,
+###       "createdAt": "2024-01-10T12:00:00.000Z",
+###       "updatedAt": "2024-01-10T12:00:00.000Z",
+###       "client": {
+###         "id": "client-uuid",
+###         "name": "Client Name",
+###         "country": "SA",
+###         "phone": "+966500000000",
+###         "mode": "client",
+###         "profilePicture": "file-uuid",
+###         "profilePictureFile": {
+###           "id": "file-uuid",
+###           "url": "https://example.com/profile.jpg",
+###           "fileName": "profile.jpg"
+###         }
+###       },
+###       "proposal": {
+###         "id": "proposal-uuid",
+###         "projectId": "project-uuid",
+###         "userId": "freelancer-uuid",
+###         "description": "Proposal description",
+###         "budget": 5000.00,
+###         "duration": 30,
+###         "status": "accepted",
+###         "freelancer": {
+###           "id": "freelancer-uuid",
+###           "name": "Freelancer Name",
+###           "country": "SA",
+###           "phone": "+966500000001",
+###           "mode": "freelancer",
+###           "profilePicture": "file-uuid",
+###           "profilePictureFile": {
+###             "id": "file-uuid",
+###             "url": "https://example.com/freelancer.jpg",
+###             "fileName": "freelancer.jpg"
+###           }
+###         }
+###       }
+###     }
+###   ]
+### }
+
+### Error Response - Unauthorized (401):
+### {
+###   "success": false,
+###   "message": "Unauthorized"
+### }
+
+### Error Response - Invalid Limit (400):
+### {
+###   "success": false,
+###   "message": "Invalid limit parameter"
+### }
+
+### ============================================
+### NOTES & GUIDELINES
+### ============================================
+
+### 1. AUTHENTICATION
+###    - This endpoint requires a valid JWT token in the Authorization header
+###    - Format: Authorization: Bearer <your-jwt-token>
+###    - Get token from: POST /api/auth/verify-otp
+
+### 2. QUERY PARAMETERS
+###    - limit: Optional parameter to specify number of contracts to return
+###      * Default: 10
+###      * Minimum: 1
+###      * Maximum: 100
+###      * Values outside this range will be clamped to min/max
+
+### 3. ORDERING
+###    - Contracts are ordered by creation date in descending order (newest first)
+###    - Uses the "createdAt" field for ordering
+
+### 4. INCLUDED DATA
+###    - Each contract includes:
+###      * Client information with profile picture
+###      * Proposal information
+###      * Freelancer information with profile picture
+###      * Reviewer information (if applicable)
+
+### 5. USE CASES
+###    - Dashboard: Display recent contracts
+###    - Activity feed: Show latest contract activity
+###    - Analytics: Track recent contract creation
+###    - Public display: Show recent successful contracts (if made public)
+
+### 6. PERFORMANCE
+###    - The endpoint performs eager loading to avoid N+1 queries
+###    - Limit should be kept reasonable (10-50) for best performance
+###    - Consider caching if called frequently
+
+###

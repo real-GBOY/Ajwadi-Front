@@ -1,0 +1,368 @@
+### Authentication OTP API Documentation
+### Complete API documentation for OTP (One-Time Password) authentication endpoints
+
+@baseUrl = http://localhost:5000/api
+@contentType = application/json
+
+### ============================================
+### SEND OTP
+### ============================================
+### Send a 6-digit OTP to the user's phone number
+### The user must already exist in the system (created during registration)
+### No authentication required
+
+POST {{baseUrl}}/auth/send-otp
+Content-Type: {{contentType}}
+
+{
+  "phone": "+1234567890"
+}
+
+### Response Example (Success):
+### {
+###   "success": true,
+###   "message": "OTP sent successfully",
+###   "data": {
+###     "message": "OTP sent successfully",
+###     "otpToken": "jwt-otp-token-here",
+###     "otp": "123456"
+###   }
+### }
+
+### Response Example (User Not Found):
+### {
+###   "success": false,
+###   "message": "User not found"
+### }
+
+### Notes:
+### - OTP is a 6-digit random number (100000-999999)
+### - OTP is stored in the user record
+### - An otpToken is returned which can be used for verification
+### - The OTP in the response is for testing/development purposes
+### - In production, OTP should be sent via SMS/email service
+
+### ============================================
+### VERIFY OTP
+### ============================================
+### Verify the OTP and authenticate the user
+### Returns JWT access token and refresh token upon successful verification
+### No authentication required
+
+POST {{baseUrl}}/auth/verify-otp
+Content-Type: {{contentType}}
+
+{
+  "phone": "+1234567890",
+  "otp": "123456",
+  "fcmToken": "optional-fcm-token-for-push-notifications"
+}
+
+### Verify OTP without FCM Token:
+POST {{baseUrl}}/auth/verify-otp
+Content-Type: {{contentType}}
+
+{
+  "phone": "+1234567890",
+  "otp": "123456"
+}
+
+### Response Example (Success):
+### {
+###   "success": true,
+###   "message": "OTP verified successfully",
+###   "data": {
+###     "token": "jwt-access-token-here",
+###     "refreshToken": "jwt-refresh-token-here",
+###     "tokenVersion": 1
+###   }
+### }
+
+### Response Example (Invalid OTP):
+### {
+###   "success": false,
+###   "message": "Invalid OTP"
+### }
+
+### Response Example (User Not Found):
+### {
+###   "success": false,
+###   "message": "User not found"
+### }
+
+### ============================================
+### COMPLETE AUTHENTICATION FLOW
+### ============================================
+
+### Step 1: Send OTP
+POST {{baseUrl}}/auth/send-otp
+Content-Type: {{contentType}}
+
+{
+  "phone": "+1234567890"
+}
+
+### Step 2: Verify OTP (use the OTP from Step 1 response or SMS)
+POST {{baseUrl}}/auth/verify-otp
+Content-Type: {{contentType}}
+
+{
+  "phone": "+1234567890",
+  "otp": "123456",
+  "fcmToken": "fcm-token-for-push-notifications"
+}
+
+### Step 3: Use the access token for authenticated requests
+### Example: Get user's projects
+GET {{baseUrl}}/projects/my-projects
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### ============================================
+### COMPREHENSIVE NOTES & GUIDELINES
+### ============================================
+
+### 1. AUTHENTICATION FLOW
+###    - Step 1: User requests OTP by providing phone number
+###    - Step 2: System generates 6-digit OTP and stores it
+###    - Step 3: OTP is sent to user (via SMS/email in production)
+###    - Step 4: User submits OTP for verification
+###    - Step 5: System verifies OTP and issues JWT tokens
+###    - Step 6: User uses access token for authenticated requests
+
+### 2. PHONE NUMBER FORMAT
+###    - Phone number must be a string
+###    - Minimum length: 1 character
+###    - Maximum length: 15 characters
+###    - Format: Can include country code (e.g., "+1234567890")
+###    - Phone number must match an existing user in the system
+
+### 3. OTP FORMAT
+###    - OTP must be exactly 6 digits
+###    - OTP must contain only numbers (0-9)
+###    - OTP is case-sensitive (must match exactly)
+###    - OTP is generated randomly between 100000 and 999999
+###    - OTP is stored in the user record until verified or expired
+
+### 4. OTP TOKEN
+###    - otpToken is a JWT token containing OTP information
+###    - Used internally for OTP verification process
+###    - Has a limited expiration time
+###    - Not the same as the access token
+
+### 5. FCM TOKEN (OPTIONAL)
+###    - Firebase Cloud Messaging token for push notifications
+###    - Optional field in verify-otp request
+###    - If provided, it's stored in user's fcmTokens array
+###    - Used to send push notifications to the user's device
+###    - Multiple FCM tokens can be stored per user (multiple devices)
+###    - Duplicate tokens are automatically filtered
+
+### 6. ACCESS TOKEN
+###    - JWT token containing user information
+###    - Used for authenticated API requests
+###    - Include in Authorization header: Bearer <token>
+###    - Contains user ID, phone, verification status, mode, etc.
+###    - Has expiration time (typically 1 day)
+###    - Token version is included to support token invalidation
+
+### 7. REFRESH TOKEN
+###    - JWT token used to obtain new access tokens
+###    - Stored in user record
+###    - Expires after 7 days
+###    - Used when access token expires
+###    - Token version is included for security
+
+### 8. TOKEN VERSION
+###    - Incremented on each OTP verification
+###    - Used to invalidate all previous tokens (single device login)
+###    - Prevents use of old tokens after new login
+###    - Included in both access and refresh tokens
+
+### 9. USER VERIFICATION
+###    - phoneVerification is set to true after successful OTP verification
+###    - OTP is cleared from user record after verification
+###    - User must be active (isDeleted: false) to receive OTP
+###    - User must exist in the system before sending OTP
+
+### 10. ERROR HANDLING
+###     - 200 OK: OTP sent successfully
+###     - 200 OK: OTP verified successfully
+###     - 400 Bad Request: Invalid OTP format or invalid OTP
+###     - 404 Not Found: User not found
+###     - 500 Internal Server Error: Server error
+
+### 11. SECURITY CONSIDERATIONS
+###     - OTP is single-use (cleared after verification)
+###     - OTP should be sent via secure channel (SMS/email)
+###     - OTP has expiration time (should be implemented in SMS service)
+###     - Token version prevents token reuse after logout/login
+###     - Phone number must match existing user (prevents enumeration)
+
+### 12. TESTING & DEVELOPMENT
+###     - In development, OTP is returned in the response for testing
+###     - In production, OTP should only be sent via SMS/email
+###     - Use test phone numbers for development
+###     - OTP format: 6 digits, numeric only
+
+### 13. REQUEST VALIDATION
+###     Send OTP:
+###     - phone: Required, string, 1-15 characters
+###     
+###     Verify OTP:
+###     - phone: Required, string, 1-15 characters
+###     - otp: Required, string, exactly 6 digits, numeric only
+###     - fcmToken: Optional, string
+
+### 14. RESPONSE STRUCTURE
+###     Send OTP Response:
+###     {
+###       "success": boolean,
+###       "message": string,
+###       "data": {
+###         "message": string,
+###         "otpToken": string (JWT),
+###         "otp": string (6 digits) - for testing only
+###       }
+###     }
+###     
+###     Verify OTP Response:
+###     {
+###       "success": boolean,
+###       "message": string,
+###       "data": {
+###         "token": string (JWT access token),
+###         "refreshToken": string (JWT refresh token),
+###         "tokenVersion": number
+###       }
+###     }
+
+### 15. USAGE EXAMPLES
+
+### Example 1: Basic Authentication Flow
+### Step 1: Send OTP
+POST {{baseUrl}}/auth/send-otp
+Content-Type: {{contentType}}
+
+{
+  "phone": "+966501234567"
+}
+
+### Step 2: Verify OTP (use OTP from SMS or response)
+POST {{baseUrl}}/auth/verify-otp
+Content-Type: {{contentType}}
+
+{
+  "phone": "+966501234567",
+  "otp": "123456"
+}
+
+### Step 3: Use Access Token
+GET {{baseUrl}}/projects/my-projects
+Authorization: Bearer <token-from-step-2>
+
+### Example 2: Authentication with Push Notifications
+POST {{baseUrl}}/auth/send-otp
+Content-Type: {{contentType}}
+
+{
+  "phone": "+966501234567"
+}
+
+POST {{baseUrl}}/auth/verify-otp
+Content-Type: {{contentType}}
+
+{
+  "phone": "+966501234567",
+  "otp": "123456",
+  "fcmToken": "dGhpcyBpcyBhIGZha2UgZmNtIHRva2VuIGZvciB0ZXN0aW5n"
+}
+
+### Example 3: Error Scenarios
+
+### Invalid Phone Number Format
+POST {{baseUrl}}/auth/send-otp
+Content-Type: {{contentType}}
+
+{
+  "phone": ""
+}
+
+### Response: 400 Bad Request
+### {
+###   "success": false,
+###   "message": "Phone is required"
+### }
+
+### User Not Found
+POST {{baseUrl}}/auth/send-otp
+Content-Type: {{contentType}}
+
+{
+  "phone": "+999999999999"
+}
+
+### Response: 404 Not Found
+### {
+###   "success": false,
+###   "message": "User not found"
+### }
+
+### Invalid OTP Format
+POST {{baseUrl}}/auth/verify-otp
+Content-Type: {{contentType}}
+
+{
+  "phone": "+1234567890",
+  "otp": "12345"
+}
+
+### Response: 400 Bad Request
+### {
+###   "success": false,
+###   "message": "OTP must be exactly 6 digits"
+### }
+
+### Invalid OTP Value
+POST {{baseUrl}}/auth/verify-otp
+Content-Type: {{contentType}}
+
+{
+  "phone": "+1234567890",
+  "otp": "000000"
+}
+
+### Response: 400 Bad Request
+### {
+###   "success": false,
+###   "message": "Invalid OTP"
+### }
+
+### 16. INTEGRATION NOTES
+###     - OTP endpoints are public (no authentication required)
+###     - User must exist before sending OTP
+###     - OTP is generated server-side (never trust client-generated OTP)
+###     - Access token should be stored securely (e.g., secure HTTP-only cookie or secure storage)
+###     - Refresh token should be stored securely and used to refresh access token
+###     - Token version allows for logout-all-devices functionality
+
+### 17. BEST PRACTICES
+###     - Always validate phone number format on client side before sending
+###     - Implement rate limiting to prevent OTP spam
+###     - Use SMS service with expiration (e.g., 5-10 minutes)
+###     - Clear OTP from response in production (only return in development)
+###     - Implement OTP resend functionality with cooldown period
+###     - Store tokens securely and implement token refresh mechanism
+###     - Handle token expiration gracefully in the client
+
+### 18. TOKEN USAGE
+###     After successful OTP verification, use the access token:
+###     
+###     Authorization: Bearer <access-token>
+###     
+###     Example authenticated request:
+###     GET {{baseUrl}}/projects/my-projects
+###     Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+###     
+###     When access token expires, use refresh token to get a new access token
+###     (refresh token endpoint should be implemented separately)

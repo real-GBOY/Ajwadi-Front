@@ -1,0 +1,554 @@
+### Tags API Documentation
+### Complete API documentation for tag management and tag attachments endpoints
+### All operations for creating, reading, and managing tags and tag attachments
+### Reviewed and verified against implementation
+
+@baseUrl = http://localhost:5000/api
+@contentType = application/json
+@token = your-jwt-token-here
+@tagId = your-tag-uuid-here
+@attachmentId = your-attachment-uuid-here
+@userId = your-user-uuid-here
+
+### ============================================
+### VARIABLES SETUP
+### ============================================
+### Replace the variables above with actual values:
+### - @token: JWT token from /api/auth/verify-otp
+### - @tagId: UUID of an existing tag
+### - @attachmentId: UUID of an existing tag attachment
+### - @userId: UUID of an existing user
+
+### ============================================
+### 1. CREATE TAG (WITH BADGE UPLOAD)
+### ============================================
+### Create a new tag with optional badge image
+### Requires user JWT token
+### Badge upload is optional - tag can be created without a badge
+
+### STEP 1: Get Upload URL for Badge (Optional)
+POST {{baseUrl}}/s3/upload-url
+Content-Type: {{contentType}}
+
+{
+  "fileName": "tag-badge.png",
+  "fileType": "image",
+  "filePurpose": "tag"
+}
+
+### Response Example:
+### {
+###   "success": true,
+###   "data": {
+###     "uploadUrl": "https://ajwadi.s3.us-east-1.amazonaws.com/tag/...",
+###     "file": {
+###       "id": "file-uuid-here",
+###       "fileName": "tag-badge.png",
+###       "fileType": "image",
+###       "filePurpose": "tag",
+###       "url": "https://ajwadi.s3.us-east-1.amazonaws.com/tag/...",
+###       ...
+###     },
+###     "uploadToken": "token-string-here"
+###   }
+### }
+
+### STEP 2: Upload Badge to S3 (Optional)
+### Use the uploadUrl from Step 1 to upload the actual file
+### This is a PUT request to the signed URL (not to our API)
+### Note: Replace {{uploadUrl}} with the actual URL from Step 1 response
+
+PUT {{uploadUrl}}
+Content-Type: image/png
+
+< ./path/to/your/tag-badge.png
+
+### STEP 3: Create Tag with Badge
+### After uploading badge to S3, use the fileId, uploadToken, and purpose from Step 1
+### IMPORTANT: badgeUrl must be an array, even for single files
+
+POST {{baseUrl}}/tags
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "name": "Web Development",
+  "badgeUrl": [
+    {
+      "fileId": "file-uuid-from-step-1",
+      "token": "token-from-step-1",
+      "purpose": "tag"
+    }
+  ]
+}
+
+### Response Example (201 Created):
+### {
+###   "success": true,
+###   "message": "Tag created successfully",
+###   "data": {
+###     "id": "tag-uuid",
+###     "name": "Web Development",
+###     "badgeUrl": "https://ajwadi.s3.us-east-1.amazonaws.com/tag/...",
+###     "createdAt": "2024-01-01T00:00:00.000Z",
+###     "updatedAt": "2024-01-01T00:00:00.000Z"
+###   }
+### }
+
+### ============================================
+### 2. CREATE TAG (WITHOUT BADGE)
+### ============================================
+### Create a tag without a badge image
+### Badge is optional, so you can create tags without uploading any files
+
+POST {{baseUrl}}/tags
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "name": "Graphic Design"
+}
+
+### Response Example (201 Created):
+### {
+###   "success": true,
+###   "message": "Tag created successfully",
+###   "data": {
+###     "id": "tag-uuid",
+###     "name": "Graphic Design",
+###     "badgeUrl": "",
+###     "createdAt": "2024-01-01T00:00:00.000Z",
+###     "updatedAt": "2024-01-01T00:00:00.000Z"
+###   }
+### }
+
+### ============================================
+### 3. LIST ALL TAGS
+### ============================================
+### Get all tags in the system
+### No authentication required
+### Returns all tags with their badges
+
+GET {{baseUrl}}/tags
+Content-Type: {{contentType}}
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "Tags fetched successfully",
+###   "data": [
+###     {
+###       "id": "tag-uuid-1",
+###       "name": "Web Development",
+###       "badgeUrl": "https://ajwadi.s3.us-east-1.amazonaws.com/tag/...",
+###       "createdAt": "2024-01-01T00:00:00.000Z",
+###       "updatedAt": "2024-01-01T00:00:00.000Z"
+###     },
+###     {
+###       "id": "tag-uuid-2",
+###       "name": "Graphic Design",
+###       "badgeUrl": "",
+###       "createdAt": "2024-01-02T00:00:00.000Z",
+###       "updatedAt": "2024-01-02T00:00:00.000Z"
+###     }
+###   ]
+### }
+
+### ============================================
+### 4. CREATE TAG ATTACHMENT
+### ============================================
+### Create a tag attachment (user submits proof/document for a tag)
+### Requires user JWT token
+### File upload is REQUIRED for attachments
+### The authenticated user's ID is automatically used
+
+### STEP 1: Get Upload URL for Attachment File
+POST {{baseUrl}}/s3/upload-url
+Content-Type: {{contentType}}
+
+{
+  "fileName": "portfolio-sample.pdf",
+  "fileType": "document",
+  "filePurpose": "tag"
+}
+
+### Response Example:
+### {
+###   "success": true,
+###   "data": {
+###     "uploadUrl": "https://ajwadi.s3.us-east-1.amazonaws.com/tag/...",
+###     "file": {
+###       "id": "file-uuid-here",
+###       "fileName": "portfolio-sample.pdf",
+###       "fileType": "document",
+###       "filePurpose": "tag",
+###       "url": "https://ajwadi.s3.us-east-1.amazonaws.com/tag/...",
+###       ...
+###     },
+###     "uploadToken": "token-string-here"
+###   }
+### }
+
+### STEP 2: Upload File to S3
+### Use the uploadUrl from Step 1 to upload the actual file
+### Note: Replace {{uploadUrl}} with the actual URL from Step 1 response
+
+PUT {{uploadUrl}}
+Content-Type: application/pdf
+
+< ./path/to/your/portfolio-sample.pdf
+
+### STEP 3: Create Tag Attachment
+### After uploading file to S3, use the fileId, uploadToken, and purpose from Step 1
+### IMPORTANT: fileUrl must be an array, even for single files
+### The userId is automatically set from the authenticated user
+
+POST {{baseUrl}}/tags/{{tagId}}/attachments
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "fileUrl": [
+    {
+      "fileId": "file-uuid-from-step-1",
+      "token": "token-from-step-1",
+      "purpose": "tag"
+    }
+  ]
+}
+
+### Example with actual UUID:
+POST {{baseUrl}}/tags/123e4567-e89b-12d3-a456-426614174000/attachments
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "fileUrl": [
+    {
+      "fileId": "file-uuid-here",
+      "token": "token-here",
+      "purpose": "tag"
+    }
+  ]
+}
+
+### Response Example (201 Created):
+### {
+###   "success": true,
+###   "message": "Attachment created successfully",
+###   "data": {
+###     "id": "attachment-uuid",
+###     "tagId": "tag-uuid",
+###     "userId": "user-uuid",
+###     "fileUrl": "https://ajwadi.s3.us-east-1.amazonaws.com/tag/...",
+###     "status": "pending",
+###     "rejectionReason": null,
+###     "createdAt": "2024-01-01T00:00:00.000Z",
+###     "updatedAt": "2024-01-01T00:00:00.000Z"
+###   }
+### }
+
+### ============================================
+### 5. LIST ALL ATTACHMENTS
+### ============================================
+### Get all tag attachments with optional filters
+### No authentication required
+### Supports query parameters: status, tagId, userId
+
+### List All Attachments (No Filters)
+GET {{baseUrl}}/tags/attachments
+Content-Type: {{contentType}}
+
+### List Attachments by Status
+GET {{baseUrl}}/tags/attachments?status=pending
+Content-Type: {{contentType}}
+
+### List Attachments by Tag
+GET {{baseUrl}}/tags/attachments?tagId={{tagId}}
+Content-Type: {{contentType}}
+
+### List Attachments by User
+GET {{baseUrl}}/tags/attachments?userId={{userId}}
+Content-Type: {{contentType}}
+
+### List Attachments with Multiple Filters
+GET {{baseUrl}}/tags/attachments?status=accepted&tagId={{tagId}}&userId={{userId}}
+Content-Type: {{contentType}}
+
+### Query Parameters:
+### - status: Filter by status - "pending", "accepted", or "rejected" (optional)
+### - tagId: Filter by tag UUID (optional)
+### - userId: Filter by user UUID (optional)
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "Attachments fetched successfully",
+###   "data": [
+###     {
+###       "id": "attachment-uuid",
+###       "tagId": "tag-uuid",
+###       "userId": "user-uuid",
+###       "fileUrl": "https://ajwadi.s3.us-east-1.amazonaws.com/tag/...",
+###       "status": "pending",
+###       "rejectionReason": null,
+###       "createdAt": "2024-01-01T00:00:00.000Z",
+###       "updatedAt": "2024-01-01T00:00:00.000Z"
+###     }
+###   ]
+### }
+
+### ============================================
+### 6. GET USER TAGS WITH ATTACHMENTS
+### ============================================
+### Get all tags for a specific user with their attachments
+### No authentication required
+### Returns tags grouped with their attachments
+
+GET {{baseUrl}}/tags/user/{{userId}}
+Content-Type: {{contentType}}
+
+### Example with actual UUID:
+GET {{baseUrl}}/tags/user/123e4567-e89b-12d3-a456-426614174000
+Content-Type: {{contentType}}
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "User tags with attachments fetched successfully",
+###   "data": [
+###     {
+###       "tag": {
+###         "id": "tag-uuid",
+###         "name": "Web Development",
+###         "badgeUrl": "https://ajwadi.s3.us-east-1.amazonaws.com/tag/...",
+###         "createdAt": "2024-01-01T00:00:00.000Z",
+###         "updatedAt": "2024-01-01T00:00:00.000Z"
+###       },
+###       "attachments": [
+###         {
+###           "id": "attachment-uuid",
+###           "tagId": "tag-uuid",
+###           "userId": "user-uuid",
+###           "fileUrl": "https://ajwadi.s3.us-east-1.amazonaws.com/tag/...",
+###           "status": "accepted",
+###           "rejectionReason": null,
+###           "createdAt": "2024-01-01T00:00:00.000Z",
+###           "updatedAt": "2024-01-01T00:00:00.000Z"
+###         }
+###       ]
+###     }
+###   ]
+### }
+
+### ============================================
+### 7. UPDATE ATTACHMENT STATUS
+### ============================================
+### Update the status of a tag attachment (accept/reject/pending)
+### Requires user JWT token
+### Status can be: "pending", "accepted", or "rejected"
+### If status is "rejected", rejectionReason is REQUIRED
+
+### Accept Attachment
+PATCH {{baseUrl}}/tags/attachments/{{attachmentId}}/status
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "status": "accepted"
+}
+
+### Example with actual UUID:
+PATCH {{baseUrl}}/tags/attachments/123e4567-e89b-12d3-a456-426614174000/status
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "status": "accepted"
+}
+
+### Reject Attachment (rejectionReason is required)
+PATCH {{baseUrl}}/tags/attachments/{{attachmentId}}/status
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "status": "rejected",
+  "rejectionReason": "The portfolio does not meet our quality standards. Please submit higher resolution samples."
+}
+
+### Set Status to Pending
+PATCH {{baseUrl}}/tags/attachments/{{attachmentId}}/status
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "status": "pending"
+}
+
+### Response Example (200 OK):
+### {
+###   "success": true,
+###   "message": "Attachment status updated successfully",
+###   "data": {
+###     "id": "attachment-uuid",
+###     "tagId": "tag-uuid",
+###     "userId": "user-uuid",
+###     "fileUrl": "https://ajwadi.s3.us-east-1.amazonaws.com/tag/...",
+###     "status": "accepted",
+###     "rejectionReason": null,
+###     "createdAt": "2024-01-01T00:00:00.000Z",
+###     "updatedAt": "2024-01-01T00:05:00.000Z"
+###   }
+### }
+
+### Error Response (Missing Rejection Reason):
+### {
+###   "success": false,
+###   "message": "Validation error",
+###   "errors": [
+###     {
+###       "field": "rejectionReason",
+###       "message": "rejectionReason is required when status is rejected"
+###     }
+###   ]
+### }
+
+### ============================================
+### COMPREHENSIVE NOTES & GUIDELINES
+### ============================================
+
+### 1. AUTHENTICATION & AUTHORIZATION
+###    - Endpoints requiring authentication:
+###      * POST /api/tags (create tag)
+###      * POST /api/tags/:tagId/attachments (create attachment)
+###      * PATCH /api/tags/attachments/:id/status (update status)
+###    - Endpoints without authentication:
+###      * GET /api/tags (list all tags)
+###      * GET /api/tags/attachments (list attachments)
+###      * GET /api/tags/user/:userId (get user tags)
+
+### 2. FILE UPLOAD FLOW
+###    - Step 1: Get upload URL from /api/s3/upload-url
+###    - Step 2: Upload file to S3 using the signed URL (PUT request)
+###    - Step 3: Use fileId, token, and purpose in the API request
+###    - File upload tokens are required for security and validation
+###    - Purpose must match: "tag" for tag badges and attachments
+
+### 3. VALIDATION RULES
+###    - Tag name: Required, 1-100 characters
+###    - Badge URL: Optional, can be file upload token object or string
+###    - Attachment file URL: Required, must be file upload token object
+###    - Attachment status: Required, must be "pending", "accepted", or "rejected"
+###    - Rejection reason: Required when status is "rejected", max 500 characters
+
+### 4. ATTACHMENT STATUSES
+###    - pending: Initial status when attachment is created
+###    - accepted: Attachment has been approved
+###    - rejected: Attachment has been rejected (requires rejectionReason)
+
+### 5. ERROR RESPONSES
+###    - 400 Bad Request: Validation errors (missing fields, invalid format, etc.)
+###    - 401 Unauthorized: Missing or invalid authentication token
+###    - 404 Not Found: Tag, attachment, or user not found
+###    - 500 Internal Server Error: Server error
+
+### 6. FILE UPLOAD TOKEN FORMAT
+###    When uploading files, use this format in the request body:
+###    {
+###      "fileUrl": [
+###        {
+###          "fileId": "uuid-from-s3-upload-url-response",
+###          "token": "token-from-s3-upload-url-response",
+###          "purpose": "tag"
+###        }
+###      ]
+###    }
+###    Note: Even for single files, it must be an array
+
+### 7. USAGE EXAMPLES
+
+### Example 1: Create Tag Without Badge
+POST {{baseUrl}}/tags
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "name": "Mobile Development"
+}
+
+### Example 2: Create Tag With Badge
+### (After uploading badge file to S3)
+POST {{baseUrl}}/tags
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "name": "UI/UX Design",
+  "badgeUrl": [
+    {
+      "fileId": "badge-file-uuid",
+      "token": "badge-upload-token",
+      "purpose": "tag"
+    }
+  ]
+}
+
+### Example 3: Create Attachment
+### (After uploading attachment file to S3)
+POST {{baseUrl}}/tags/{{tagId}}/attachments
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "fileUrl": [
+    {
+      "fileId": "attachment-file-uuid",
+      "token": "attachment-upload-token",
+      "purpose": "tag"
+    }
+  ]
+}
+
+### Example 4: List Pending Attachments for a Tag
+GET {{baseUrl}}/tags/attachments?status=pending&tagId={{tagId}}
+Content-Type: {{contentType}}
+
+### Example 5: Accept Attachment
+PATCH {{baseUrl}}/tags/attachments/{{attachmentId}}/status
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "status": "accepted"
+}
+
+### Example 6: Reject Attachment
+PATCH {{baseUrl}}/tags/attachments/{{attachmentId}}/status
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "status": "rejected",
+  "rejectionReason": "The submitted portfolio does not demonstrate sufficient experience in this area."
+}
+
+### 8. BEST PRACTICES
+###    - Use descriptive tag names that clearly identify the skill or category
+###    - Upload high-quality badge images for better visual representation
+###    - When rejecting attachments, provide clear and constructive rejection reasons
+###    - Regularly review pending attachments to maintain system quality
+###    - Use query filters when listing attachments to improve performance
+
+### 9. SECURITY NOTES
+###    - File upload tokens are required to prevent unauthorized file associations
+###    - Tokens have expiration times for security
+###    - Users can only create attachments for themselves (userId is set from token)
+###    - Status updates require authentication
+
+### 10. INTEGRATION NOTES
+###     - Tags are used to categorize users and their skills
+###     - Attachments allow users to provide proof of their skills
+###     - Attachment status workflow: pending → accepted/rejected
+###     - Tags can exist without badges, but attachments require files
+###     - User tags with attachments are grouped by tag for easy display

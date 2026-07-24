@@ -1,0 +1,510 @@
+### User Profile API Documentation
+### Complete API documentation for user profile management endpoints
+### Focused on profile update operations
+
+@baseUrl = http://localhost:5000/api
+@contentType = application/json
+@token = your-jwt-token-here
+@userId = your-user-uuid-here
+@fileId = your-file-uuid-here
+
+### ============================================
+### VARIABLES SETUP
+### ============================================
+### Replace the variables above with actual values:
+### - @token: JWT token from /api/auth/verify-otp
+### - @userId: UUID of an existing user
+### - @fileId: UUID of a file uploaded via /api/s3/upload-url
+
+### ============================================
+### GET MY PROFILE
+### ============================================
+### Get the authenticated user's profile (requires authentication)
+### Returns user with profilePictureData, skillsData, tagsData, and previousWorkData
+
+GET {{baseUrl}}/users/me/profile
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "Profile fetched successfully",
+###   "data": {
+###     "id": "9d02af3a-f2b1-4d54-90a1-3cc322ec3bd1",
+###     "name": "Mahmoud Nayel",
+###     "phone": "+96601026597475",
+###     "phoneVerification": true,
+###     "country": "sa",
+###     "address": null,
+###     "overview": "Experienced developer",
+###     "jobTitle": "Senior Developer",
+###     "mode": "freelancer",
+###     "isVerifiedAsFreelancer": false,
+###     "isVerifiedAsClient": false,
+###     "isSuspended": false,
+###     "suspendedReason": null,
+###     "available": true,
+###     "avgRating": "4.50",
+###     "totalReviews": 10,
+###     "faceIdenbility": false,
+###     "specificationId": "c94be4d5-b92f-4ba9-912d-1219b4c694c1",
+###     "profilePicture": "file-uuid-here",
+###     "profilePictureData": {
+###       "id": "file-uuid-here",
+###       "url": "https://ajwadi.s3.eu-west-3.amazonaws.com/profile/file-uuid-here-profile.jpg",
+###       "fileName": "profile.jpg",
+###       "fileExtension": "jpg",
+###       "fileType": "image",
+###       "filePurpose": "profile",
+###       "mimeType": "image/jpeg",
+###       "fileSize": 102400,
+###       "status": "ready",
+###       "createdAt": "2024-01-01T00:00:00.000Z",
+###       "updatedAt": "2024-01-01T00:00:00.000Z"
+###     },
+###     "skills": ["skill-uuid-1", "skill-uuid-2"],
+###     "tags": ["tag-uuid-1"],
+###     "skillsData": [
+###       {
+###         "id": "skill-uuid-1",
+###         "name": "JavaScript",
+###         "specificationId": "spec-uuid"
+###       }
+###     ],
+###     "tagsData": [
+###       {
+###         "id": "tag-uuid-1",
+###         "name": "Frontend",
+###         "badgeUrl": "frontend-badge.svg"
+###       }
+###     ],
+###     "previousWork": [],
+###     "createdAt": "2024-01-01T00:00:00.000Z",
+###     "updatedAt": "2024-01-01T00:00:00.000Z"
+###   }
+### }
+
+### ============================================
+### UPDATE MY PROFILE
+### ============================================
+### Update the authenticated user's profile (requires authentication)
+### At least one field must be provided
+### Skills and tags can be provided as arrays or comma-separated strings
+### Profile picture requires file upload via /api/s3/upload-url first
+
+### Update Complete Profile
+PATCH {{baseUrl}}/users/me/profile
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "name": "John Updated",
+  "overview": "Updated overview with more details about my experience and skills",
+  "jobTitle": "Lead Developer",
+  "country": "CA",
+  "address": "456 New St, Toronto",
+  "specificationId": "c94be4d5-b92f-4ba9-912d-1219b4c694c1",
+  "profilePicture": "{{fileId}}",
+  "skills": ["skill-uuid-1", "skill-uuid-2", "skill-uuid-3"],
+  "tags": ["tag-uuid-1", "tag-uuid-2"],
+  "available": true
+}
+
+### Update Only Name
+PATCH {{baseUrl}}/users/me/profile
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "name": "John Updated"
+}
+
+### Update Only Overview
+PATCH {{baseUrl}}/users/me/profile
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "overview": "Updated overview with more details about my experience"
+}
+
+### Update Only Job Title
+PATCH {{baseUrl}}/users/me/profile
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "jobTitle": "Senior Full Stack Developer"
+}
+
+### Update Profile Picture
+### Step 1: Upload file using /api/s3/upload-url with filePurpose: "profile"
+### Example: POST /api/s3/upload-url
+### {
+###   "fileName": "profile.jpg",
+###   "fileType": "image",
+###   "filePurpose": "profile"
+### }
+### Step 2: Use the returned fileId as profilePicture value
+PATCH {{baseUrl}}/users/me/profile
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "profilePicture": "{{fileId}}"
+}
+
+### Update Country and Address
+PATCH {{baseUrl}}/users/me/profile
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "country": "US",
+  "address": "123 Main St, New York, NY 10001"
+}
+
+### Update Specification
+PATCH {{baseUrl}}/users/me/profile
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "specificationId": "c94be4d5-b92f-4ba9-912d-1219b4c694c1"
+}
+
+### Update Skills Only (Array Format)
+PATCH {{baseUrl}}/users/me/profile
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "skills": ["skill-uuid-1", "skill-uuid-2", "skill-uuid-3"]
+}
+
+### Update Skills Only (Comma-Separated Format)
+PATCH {{baseUrl}}/users/me/profile
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "skills": "skill-uuid-1,skill-uuid-2,skill-uuid-3"
+}
+
+### Update Tags Only (Array Format)
+PATCH {{baseUrl}}/users/me/profile
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "tags": ["tag-uuid-1", "tag-uuid-2"]
+}
+
+### Update Tags Only (Comma-Separated Format)
+PATCH {{baseUrl}}/users/me/profile
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "tags": "tag-uuid-1,tag-uuid-2"
+}
+
+### Update Skills and Tags Together
+PATCH {{baseUrl}}/users/me/profile
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "skills": ["skill-uuid-1", "skill-uuid-2"],
+  "tags": ["tag-uuid-1", "tag-uuid-2"]
+}
+
+### Update Availability Status
+PATCH {{baseUrl}}/users/me/profile
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "available": false
+}
+
+### Update Multiple Fields Together
+PATCH {{baseUrl}}/users/me/profile
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "name": "John Updated",
+  "overview": "Updated overview",
+  "jobTitle": "Lead Developer",
+  "country": "CA",
+  "address": "456 New St",
+  "specificationId": "c94be4d5-b92f-4ba9-912d-1219b4c694c1",
+  "profilePicture": "{{fileId}}",
+  "skills": ["skill-uuid-1", "skill-uuid-2"],
+  "tags": ["tag-uuid-1"],
+  "available": true
+}
+
+### Response Example (Success):
+### {
+###   "success": true,
+###   "message": "Profile updated successfully",
+###   "data": {
+###     "id": "9d02af3a-f2b1-4d54-90a1-3cc322ec3bd1",
+###     "name": "John Updated",
+###     "phone": "+96601026597475",
+###     "phoneVerification": true,
+###     "country": "CA",
+###     "address": "456 New St",
+###     "overview": "Updated overview with more details",
+###     "jobTitle": "Lead Developer",
+###     "mode": "freelancer",
+###     "isVerifiedAsFreelancer": false,
+###     "isVerifiedAsClient": false,
+###     "isSuspended": false,
+###     "suspendedReason": null,
+###     "available": true,
+###     "avgRating": "4.50",
+###     "totalReviews": 10,
+###     "faceIdenbility": false,
+###     "specificationId": "c94be4d5-b92f-4ba9-912d-1219b4c694c1",
+###     "profilePicture": "file-uuid-here",
+###     "profilePictureData": {
+###       "id": "file-uuid-here",
+###       "url": "https://ajwadi.s3.eu-west-3.amazonaws.com/profile/file-uuid-here-profile.jpg",
+###       "fileName": "profile.jpg",
+###       "fileExtension": "jpg",
+###       "fileType": "image",
+###       "filePurpose": "profile",
+###       "mimeType": "image/jpeg",
+###       "fileSize": 102400,
+###       "status": "ready",
+###       "createdAt": "2024-01-01T00:00:00.000Z",
+###       "updatedAt": "2024-01-01T00:00:00.000Z"
+###     },
+###     "skills": ["skill-uuid-1", "skill-uuid-2"],
+###     "tags": ["tag-uuid-1"],
+###     "skillsData": [
+###       {
+###         "id": "skill-uuid-1",
+###         "name": "JavaScript",
+###         "specificationId": "spec-uuid"
+###       }
+###     ],
+###     "tagsData": [
+###       {
+###         "id": "tag-uuid-1",
+###         "name": "Frontend",
+###         "badgeUrl": "frontend-badge.svg"
+###       }
+###     ],
+###     "previousWork": [],
+###     "createdAt": "2024-01-01T00:00:00.000Z",
+###     "updatedAt": "2024-01-02T00:00:00.000Z"
+###   }
+### }
+
+### Error Response (Empty Payload):
+### {
+###   "success": false,
+###   "message": "Validation error",
+###   "errors": [
+###     {
+###       "field": "",
+###       "message": "At least one field must be provided for update"
+###     }
+###   ]
+### }
+
+### Error Response (Invalid Name):
+### {
+###   "success": false,
+###   "message": "Validation error",
+###   "errors": [
+###     {
+###       "field": "name",
+###       "message": "Name cannot be empty"
+###     }
+###   ]
+### }
+
+### Error Response (Unauthorized):
+### {
+###   "success": false,
+###   "message": "Unauthorized"
+### }
+
+### ============================================
+### UPDATABLE FIELDS
+### ============================================
+### The following fields can be updated:
+### 
+### - name: String (1-100 characters, optional)
+### - overview: String (max 500 characters, optional, can be empty)
+### - jobTitle: String (max 100 characters, optional, can be empty)
+### - country: String (max 100 characters, optional, can be empty)
+### - address: String (max 500 characters, optional, can be empty)
+### - specificationId: UUID (optional, can be null)
+### - profilePicture: UUID (optional, can be null, references FileHub)
+### - skills: Array of UUIDs or comma-separated string (optional)
+### - tags: Array of UUIDs or comma-separated string (optional)
+### - available: Boolean (optional)
+### 
+### At least one field must be provided when updating
+
+### ============================================
+### PROFILE PICTURE UPLOAD WORKFLOW
+### ============================================
+### 
+### Step 1: Get Upload URL
+### POST {{baseUrl}}/s3/upload-url
+### Content-Type: {{contentType}}
+### Authorization: Bearer {{token}}
+### 
+### {
+###   "fileName": "profile.jpg",
+###   "fileType": "image",
+###   "filePurpose": "profile"
+### }
+### 
+### Response:
+### {
+###   "success": true,
+###   "data": {
+###     "uploadUrl": "https://ajwadi.s3.eu-west-3.amazonaws.com/...",
+###     "file": {
+###       "id": "file-uuid-here",
+###       "fileName": "profile.jpg",
+###       "fileType": "image",
+###       "filePurpose": "profile",
+###       ...
+###     },
+###     "uploadToken": "upload-token-here"
+###   }
+### }
+### 
+### Step 2: Upload File to S3
+### PUT {uploadUrl from Step 1}
+### Content-Type: image/jpeg
+### 
+### [Binary file data]
+### 
+### Step 3: Update Profile with File ID
+### PATCH {{baseUrl}}/users/me/profile
+### Content-Type: {{contentType}}
+### Authorization: Bearer {{token}}
+### 
+### {
+###   "profilePicture": "file-uuid-here"
+### }
+
+### ============================================
+### UPDATE AVAILABILITY STATUS (FREELANCER ONLY)
+### ============================================
+### Update availability status for freelancers
+### Requires user JWT token
+### Only freelancers can update their availability
+### When available is false, clients cannot invite the freelancer to work
+
+PATCH {{baseUrl}}/users/me/availability
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "available": true
+}
+
+### Set freelancer as active (available for work)
+PATCH {{baseUrl}}/users/me/availability
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "available": true
+}
+
+### Set freelancer as inactive (not available for work)
+PATCH {{baseUrl}}/users/me/availability
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "available": false
+}
+
+### Request Body:
+### - available: Boolean (required) - true for active, false for inactive
+
+### Response Example (200 OK):
+### {
+###   "success": true,
+###   "message": "Availability status updated to active successfully",
+###   "data": {
+###     "id": "user-uuid",
+###     "available": true,
+###     "mode": "freelancer"
+###   }
+### }
+
+### Error Response (Not a Freelancer):
+### {
+###   "success": false,
+###   "message": "Availability status can only be updated by freelancers"
+### }
+
+### Error Response (Missing Field):
+### {
+###   "success": false,
+###   "message": "Validation error",
+###   "errors": [
+###     {
+###       "field": "available",
+###       "message": "Available status is required"
+###     }
+###   ]
+### }
+
+### ============================================
+### NOTES & GUIDELINES
+### ============================================
+### 
+### 1. AUTHENTICATION
+###    - All endpoints require JWT token in Authorization header
+###    - Format: Authorization: Bearer <token>
+###    - Get token from: POST /api/auth/verify-otp
+### 
+### 2. PROFILE PICTURE
+###    - Must be uploaded via /api/s3/upload-url first
+###    - File purpose must be "profile"
+###    - Use the fileId from upload response
+###    - profilePictureData is automatically included in responses
+###    - Includes fileExtension field for easy file type detection
+### 
+### 3. SKILLS AND TAGS
+###    - Can be provided as arrays: ["uuid1", "uuid2"]
+###    - Can be provided as comma-separated: "uuid1,uuid2"
+###    - Can be provided as JSON string: "[\"uuid1\", \"uuid2\"]"
+###    - Skills reference the Skills table
+###    - Tags reference the Tags table
+### 
+### 4. RESPONSE DATA
+###    - profilePictureData: Full file object with url, fileName, fileExtension, etc.
+###    - skillsData: Array of skill objects with id, name, specificationId
+###    - tagsData: Array of tag objects with id, name, badgeUrl
+###    - previousWork: Array of previous work objects
+### 
+### 5. VALIDATION
+###    - At least one field must be provided
+###    - Name must be 1-100 characters if provided
+###    - Overview must be max 500 characters if provided
+###    - Job title must be max 100 characters if provided
+###    - Country must be max 100 characters if provided
+###    - Address must be max 500 characters if provided
+### 
+### 6. ERROR HANDLING
+###    - 400 Bad Request: Validation errors
+###    - 401 Unauthorized: Missing or invalid token
+###    - 404 Not Found: User not found
+###    - 500 Internal Server Error: Server error

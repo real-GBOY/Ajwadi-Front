@@ -1,0 +1,484 @@
+### Proposals API Documentation
+### Complete API documentation for proposal management endpoints
+### All operations for creating, reading, updating, and managing proposals
+### Reviewed and verified against implementation
+
+@baseUrl = http://localhost:5000/api
+@contentType = application/json
+@token = your-jwt-token-here
+@freelancerToken = your-freelancer-jwt-token-here
+@clientToken = your-client-jwt-token-here
+@proposalId = your-proposal-uuid-here
+@projectId = your-project-uuid-here
+@userId = your-user-uuid-here
+
+### ============================================
+### VARIABLES SETUP
+### ============================================
+### Replace the variables above with actual values:
+### - @token: JWT token from /api/auth/verify-otp
+### - @freelancerToken: JWT token for a freelancer user
+### - @clientToken: JWT token for a client user (for favorite toggle)
+### - @proposalId: UUID of an existing proposal
+### - @projectId: UUID of an existing project
+### - @userId: UUID of an existing user
+
+### ============================================
+### 1. CREATE PROPOSAL
+### ============================================
+### Create a new proposal for a project (requires authentication and freelancer role)
+### Files require upload tokens from /api/s3/upload-url endpoint first
+### Required fields: projectId, description, budget, duration, files
+### Cannot create proposal for your own project
+### Cannot create proposal if project is not open for bids
+### Cannot create duplicate proposal for the same project
+### Files are REQUIRED (at least one file must be provided)
+
+POST {{baseUrl}}/proposals
+Content-Type: {{contentType}}
+Authorization: Bearer {{freelancerToken}}
+
+{
+  "projectId": "{{projectId}}",
+  "description": "I can complete this project efficiently. I have 5+ years of experience in React and Node.js development. I will deliver high-quality code with proper testing and documentation.",
+  "budget": 3500.50,
+  "duration": 20,
+  "files": [
+    {
+      "fileId": "770e8400-e29b-41d4-a716-446655440003",
+      "token": "upload-token-from-s3-upload-url-endpoint",
+      "purpose": "proposal"
+    }
+  ]
+}
+
+### Create Proposal with Multiple Files
+POST {{baseUrl}}/proposals
+Content-Type: {{contentType}}
+Authorization: Bearer {{freelancerToken}}
+
+{
+  "projectId": "{{projectId}}",
+  "description": "I have extensive experience in full-stack development. My portfolio includes similar projects that I've successfully completed. I'm confident I can deliver this project on time and within budget.",
+  "budget": 4500.00,
+  "duration": 25,
+  "files": [
+    {
+      "fileId": "770e8400-e29b-41d4-a716-446655440003",
+      "token": "upload-token-from-s3-upload-url-endpoint",
+      "purpose": "proposal"
+    },
+    {
+      "fileId": "770e8400-e29b-41d4-a716-446655440004",
+      "token": "upload-token-from-s3-upload-url-endpoint",
+      "purpose": "proposal"
+    }
+  ]
+}
+
+### ============================================
+### 2. GET PROPOSAL BY ID (PUBLIC)
+### ============================================
+### Get a specific proposal by its ID
+### No authentication required - Public access
+### Returns proposal with filesData array containing file URLs and metadata
+
+GET {{baseUrl}}/proposals/{{proposalId}}
+Content-Type: {{contentType}}
+
+### Example with actual UUID:
+GET {{baseUrl}}/proposals/123e4567-e89b-12d3-a456-426614174000
+Content-Type: {{contentType}}
+
+### ============================================
+### 3. GET PROPOSALS BY PROJECT ID (PUBLIC)
+### ============================================
+### Get all proposals for a specific project
+### No authentication required - Public access
+### Useful for project owners to see all proposals submitted for their project
+### Returns array of proposals with filesData
+
+GET {{baseUrl}}/proposals/project/{{projectId}}
+Content-Type: {{contentType}}
+
+### Example with actual UUID:
+GET {{baseUrl}}/proposals/project/123e4567-e89b-12d3-a456-426614174000
+Content-Type: {{contentType}}
+
+### ============================================
+### 4. GET PROPOSALS BY USER ID (PUBLIC)
+### ============================================
+### Get all proposals submitted by a specific user
+### No authentication required - Public access
+### Useful for freelancers to see all their submitted proposals
+### Returns array of proposals with filesData
+
+GET {{baseUrl}}/proposals/user/{{userId}}
+Content-Type: {{contentType}}
+
+### Example with actual UUID:
+GET {{baseUrl}}/proposals/user/123e4567-e89b-12d3-a456-426614174000
+Content-Type: {{contentType}}
+
+### ============================================
+### 5. UPDATE PROPOSAL (EDIT PROPOSAL)
+### ============================================
+### Update/Edit a proposal (requires authentication and freelancer role)
+### Only the proposal creator can update their proposal
+### At least one field must be provided
+### Files require upload tokens from /api/s3/upload-url endpoint first
+### All fields are optional - update only what you need
+
+### Update Multiple Fields (Comprehensive Example)
+PATCH {{baseUrl}}/proposals/{{proposalId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{freelancerToken}}
+
+{
+  "description": "Updated proposal description with more details about my approach and qualifications.",
+  "budget": 3800.00,
+  "duration": 22,
+  "status": "pending",
+  "files": [
+    {
+      "fileId": "770e8400-e29b-41d4-a716-446655440005",
+      "token": "upload-token-from-s3-upload-url-endpoint",
+      "purpose": "proposal"
+    }
+  ]
+}
+
+### Update Only Description
+PATCH {{baseUrl}}/proposals/{{proposalId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{freelancerToken}}
+
+{
+  "description": "Updated proposal description with revised approach and additional qualifications."
+}
+
+### Update Only Budget
+PATCH {{baseUrl}}/proposals/{{proposalId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{freelancerToken}}
+
+{
+  "budget": 4000.00
+}
+
+### Update Only Duration
+PATCH {{baseUrl}}/proposals/{{proposalId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{freelancerToken}}
+
+{
+  "duration": 25
+}
+
+### Update Budget and Duration Together
+PATCH {{baseUrl}}/proposals/{{proposalId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{freelancerToken}}
+
+{
+  "budget": 4200.00,
+  "duration": 28
+}
+
+### Update Status
+PATCH {{baseUrl}}/proposals/{{proposalId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{freelancerToken}}
+
+{
+  "status": "accepted"
+}
+
+### Update Files Only
+PATCH {{baseUrl}}/proposals/{{proposalId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{freelancerToken}}
+
+{
+  "files": [
+    {
+      "fileId": "770e8400-e29b-41d4-a716-446655440006",
+      "token": "upload-token-from-s3-upload-url-endpoint",
+      "purpose": "proposal"
+    },
+    {
+      "fileId": "770e8400-e29b-41d4-a716-446655440007",
+      "token": "upload-token-from-s3-upload-url-endpoint",
+      "purpose": "proposal"
+    }
+  ]
+}
+
+### Update Description and Budget Together
+PATCH {{baseUrl}}/proposals/{{proposalId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{freelancerToken}}
+
+{
+  "description": "Revised proposal with updated budget and timeline.",
+  "budget": 4500.00
+}
+
+### ============================================
+### 6. TOGGLE FAVORITE PROPOSAL
+### ============================================
+### Toggle the favorite status of a proposal (requires authentication)
+### Can be used by project owners to mark proposals as favorites
+### Toggles between true and false
+### No request body required
+### Any authenticated user can toggle favorite (not restricted to project owner)
+
+PATCH {{baseUrl}}/proposals/{{proposalId}}/favorite
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Example with actual UUID:
+PATCH {{baseUrl}}/proposals/123e4567-e89b-12d3-a456-426614174000/favorite
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### ============================================
+### 7. DELETE PROPOSAL
+### ============================================
+### Delete a proposal (requires authentication and freelancer role)
+### Only the proposal creator can delete their proposal
+### This is a permanent deletion - cannot be undone
+### Note: Service layer doesn't check ownership - deletion is allowed for any freelancer
+### Consider adding ownership validation in the service layer
+
+DELETE {{baseUrl}}/proposals/{{proposalId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{freelancerToken}}
+
+### Example with actual UUID:
+DELETE {{baseUrl}}/proposals/123e4567-e89b-12d3-a456-426614174000
+Content-Type: {{contentType}}
+Authorization: Bearer {{freelancerToken}}
+
+### ============================================
+### COMPREHENSIVE NOTES & GUIDELINES
+### ============================================
+
+### 1. AUTHENTICATION & AUTHORIZATION
+###    - Most endpoints require JWT token in Authorization header
+###    - Format: Authorization: Bearer <token>
+###    - Get token from: POST /api/auth/verify-otp
+###    
+###    Public endpoints (no auth required):
+###    - GET /api/proposals/:id (get proposal by ID)
+###    - GET /api/proposals/project/:projectId (get proposals by project)
+###    - GET /api/proposals/user/:userId (get proposals by user)
+###    
+###    Freelancer-only endpoints (requires freelancer role):
+###    - POST /api/proposals (create proposal)
+###    - PATCH /api/proposals/:id (update/edit proposal)
+###    - DELETE /api/proposals/:id (delete proposal)
+###    
+###    User endpoints (requires authentication, any role):
+###    - PATCH /api/proposals/:id/favorite (toggle favorite)
+
+### 2. FILE UPLOADS
+###    - Files require upload tokens from /api/s3/upload-url endpoint first
+###    - File purpose must be "proposal" for proposal files
+###    - File format: [{ fileId: "uuid", token: "upload-token", purpose: "proposal" }]
+###    - Files must be uploaded to S3 before they can be used in proposal creation/update
+###    - Files are REQUIRED when creating a proposal (validation enforces this)
+###    - Files are optional when updating a proposal
+###    - Upload flow:
+###      1. POST /api/s3/upload-url with filePurpose: "proposal"
+###      2. Upload file to S3 using the returned uploadUrl
+###      3. Use fileId and token in proposal creation/update request
+###    - Files are stored as array of UUIDs in the database
+###    - filesData is automatically attached to responses with file URLs and metadata
+
+### 3. PROPOSAL STATUS VALUES
+###    - "pending" - Proposal is pending review (default)
+###    - "accepted" - Proposal has been accepted by project owner
+###    - "rejected" - Proposal has been rejected by project owner
+###    - Status can be updated by the proposal creator (freelancer)
+###    - Status is typically managed by project owner through contracts/acceptance flow
+
+### 4. BUDGET VALIDATION
+###    - Budget must be a positive number
+###    - Budget is stored as DECIMAL(10, 2) (supports 2 decimal places)
+###    - Budget represents the proposed amount for completing the project
+###    - Example: 3500.50, 4500.00
+
+### 5. DURATION VALIDATION
+###    - Duration must be a positive integer
+###    - Duration represents the number of days to complete the project
+###    - Must be greater than 0
+###    - Example: 14, 20, 30
+
+### 6. DESCRIPTION VALIDATION
+###    - Description is required when creating a proposal
+###    - Description must be between 1 and 500 characters
+###    - Description should explain the freelancer's approach and qualifications
+###    - Trimmed automatically (leading/trailing whitespace removed)
+
+### 7. PROPOSAL CREATION RULES
+###    - Cannot create proposal for your own project (validated in service)
+###    - Cannot create proposal if project status is not "openforbids" (validated in service)
+###    - Cannot create duplicate proposal (one proposal per user per project, validated in service)
+###    - Project must exist and be active (validated in service)
+###    - User must be a freelancer (validated by Freelancer middleware)
+###    - Files are required (validated by Joi schema)
+###    - User must be active (non-deleted, validated by model hook)
+
+### 8. UPDATE PROPOSAL (EDIT PROPOSAL)
+###    - Endpoint: PATCH /api/proposals/:id
+###    - Only the proposal creator can update their proposal (note: service doesn't check ownership currently)
+###    - At least one field must be provided (validated by Joi schema)
+###    - All fields are optional - you can update any combination of fields
+###    - Editable fields:
+###      * description: String (1-500 characters)
+###      * budget: Positive number (2 decimal places)
+###      * duration: Positive integer (in days)
+###      * status: Enum (pending, accepted, rejected)
+###      * files: Array of file references with upload tokens
+###    - Files can be updated by providing new file references
+###    - Files require upload tokens from /api/s3/upload-url endpoint first
+###    - Status can be updated (though typically managed by project owner)
+###    - Returns 404 Not Found if proposal doesn't exist
+###    - Note: Consider adding ownership validation in service layer
+
+### 9. FAVORITE PROPOSAL
+###    - FavoriteProposal is a boolean field
+###    - Used by project owners to mark proposals they're interested in
+###    - Can be toggled on/off by any authenticated user
+###    - Default value is false
+###    - Toggles between true and false on each call
+###    - No request body required
+
+### 10. DELETE PROPOSAL
+###     - Endpoint: DELETE /api/proposals/:id
+###     - Requires authentication and freelancer role
+###     - Permanent deletion (force: true)
+###     - Returns 404 Not Found if proposal doesn't exist
+###     - Note: Service doesn't check ownership - any freelancer can delete any proposal
+###     - Consider adding ownership validation in service layer
+
+### 11. REQUIRED FIELDS FOR CREATE
+###     - projectId: UUID (required, must exist in Projects table)
+###     - description: String (1-500 characters, required)
+###     - budget: Positive number (required, 2 decimal places)
+###     - duration: Positive integer (required, in days)
+###     - files: Array of file references (required, at least one file)
+###     - Files format: [{ fileId: "uuid", token: "upload-token", purpose: "proposal" }]
+
+### 12. OPTIONAL FIELDS FOR UPDATE
+###     - description: String (1-500 characters, optional)
+###     - budget: Positive number (optional, 2 decimal places)
+###     - duration: Positive integer (optional, in days)
+###     - status: Enum (pending, accepted, rejected, optional)
+###     - files: Array of file references (optional)
+###     - At least one field must be provided when updating
+
+### 13. ERROR RESPONSES
+###     - 400 Bad Request: Invalid input data, validation errors, duplicate proposal
+###     - 401 Unauthorized: Missing or invalid authentication token
+###     - 403 Forbidden: User doesn't have required role (freelancer) or trying to create proposal for own project
+###     - 404 Not Found: Proposal, project, or user not found
+###     - 500 Internal Server Error: Server error
+
+### 14. FILE REFERENCE FORMAT
+###     - Single file: [{ fileId: "uuid", token: "upload-token", purpose: "proposal" }]
+###     - Multiple files: Array of file objects
+###     - Files must be uploaded to S3 first using /api/s3/upload-url
+###     - Upload token must match the fileId and purpose
+###     - Files are stored as array of UUIDs in database
+###     - filesData is automatically populated in responses with full file information
+
+### 15. RESPONSE DATA STRUCTURE
+###     - All GET endpoints return proposals with filesData array
+###     - filesData contains: id, url, fileName, fileType, filePurpose, mimeType, fileSize, status, createdAt, updatedAt
+###     - Proposal response includes:
+###       * id: UUID
+###       * projectId: UUID
+###       * userId: UUID (freelancer who created the proposal)
+###       * description: String
+###       * budget: Decimal
+###       * duration: Integer
+###       * status: Enum (pending, accepted, rejected)
+###       * FavoriteProposal: Boolean
+###       * files: Array of UUIDs
+###       * filesData: Array of file objects with URLs
+###       * createdAt: Timestamp
+
+### 16. EXAMPLE WORKFLOW
+###     1. Authenticate: POST /api/auth/verify-otp (get token)
+###     2. Get upload URL: POST /api/s3/upload-url (filePurpose: "proposal")
+###     3. Upload file to S3 using uploadUrl
+###     4. Create proposal: POST /api/proposals (with fileId and token)
+###     5. View proposal: GET /api/proposals/:id
+###     6. View all proposals for project: GET /api/proposals/project/:projectId
+###     7. Edit/Update proposal: PATCH /api/proposals/:id
+###        - Update budget: { "budget": 4000.00 }
+###        - Update duration: { "duration": 25 }
+###        - Update multiple fields: { "budget": 4000, "duration": 25, "description": "..." }
+###     8. Toggle favorite: PATCH /api/proposals/:id/favorite
+###     9. Delete proposal: DELETE /api/proposals/:id
+
+### 17. BUSINESS RULES
+###     - A freelancer can only submit one proposal per project (enforced in service)
+###     - Proposals can only be created for projects with status "openforbids" (enforced in service)
+###     - Project owners cannot create proposals for their own projects (enforced in service)
+###     - Proposal status can be updated by freelancer (pending, accepted, rejected)
+###     - Favorite proposals are highlighted for project owners
+###     - Files are required to provide supporting documents/portfolio
+###     - User must be active (non-deleted) to create proposal (enforced by model hook)
+
+### 18. DATA RELATIONSHIPS
+###     - Proposals belong to a Project (projectId, foreign key to Projects table)
+###     - Proposals are created by a User (userId, foreign key to Users table, must be freelancer)
+###     - Proposals can have multiple Files (files array of UUIDs referencing FileHub table)
+###     - filesData is populated from FileHub table with full file information
+###     - Proposals have a status (pending, accepted, rejected)
+###     - Proposals can be marked as favorite (FavoriteProposal boolean)
+###     - Database indexes on: projectId, userId, status, FavoriteProposal, createdAt, (projectId, userId), (projectId, status), files (GIN index)
+
+### 19. IMPLEMENTATION NOTES
+###     - Service layer validates: project exists, not own project, project is open, no duplicate
+###     - Repository pattern used for data access
+###     - DTO pattern used for data transformation
+###     - File attachment handled by middleware (validateUploadItems, confirmUploadMiddleware)
+###     - Files are fetched in bulk and attached to proposals (optimized query)
+###     - Error handling with proper status codes
+###     - Model hooks validate user is active before proposal creation
+
+### 20. BEST PRACTICES
+###     - Include detailed description explaining your approach
+###     - Provide realistic budget and duration estimates
+###     - Attach relevant portfolio files or samples
+###     - Update proposal if project requirements change
+###     - Keep proposal description professional and clear
+###     - Respond promptly to proposal status changes
+###     - Use favorite feature to shortlist promising proposals
+
+### 21. INTEGRATION NOTES
+###     - Proposals are public (can be viewed without authentication)
+###     - Only freelancers can create/update/delete proposals
+###     - Project owners use favorite feature to shortlist proposals
+###     - Proposal status changes may trigger notifications (if implemented)
+###     - Files are stored in S3 and referenced by UUID
+###     - File metadata is automatically included in responses
+
+### 22. SECURITY CONSIDERATIONS
+###     - Authentication required for create/update/delete operations
+###     - Freelancer role required for proposal management
+###     - Project ownership validated before proposal creation
+###     - Project status validated before proposal creation
+###     - Duplicate proposal prevention
+###     - File upload tokens validated before attachment
+###     - User must be active (non-deleted) to create proposals
+
+### 23. PERFORMANCE NOTES
+###     - Files are fetched in bulk using single query (optimized)
+###     - Database indexes on commonly queried fields
+###     - GIN index on files array for efficient array queries
+###     - Composite indexes for common query patterns

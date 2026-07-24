@@ -1,0 +1,29 @@
+### Wallet Balance API
+
+@baseUrl = http://localhost:5000/api
+@contentType = application/json
+@token = your-jwt-token-here
+
+### ============================================
+### GET MY WALLET BALANCE
+### ============================================
+### Get the authenticated user's wallet balance
+### Requires user JWT token
+
+GET {{baseUrl}}/wallet
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "Wallet fetched successfully",
+###   "data": {
+###     "id": "wallet-uuid",
+###     "balance": "150.00",
+###     "currency": "SAR",
+###     "createdAt": "2026-02-11T10:00:00.000Z",
+###     "updatedAt": "2026-02-11T10:05:00.000Z"
+###   }
+### }
+

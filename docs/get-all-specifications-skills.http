@@ -1,0 +1,134 @@
+### Get All Specifications and Skills
+### This file contains endpoints to retrieve all specifications and skills with pagination and search
+
+@baseUrl = http://localhost:5000/api
+@contentType = application/json
+
+### ============================================
+### GET ALL SKILLS
+### ============================================
+### Retrieve all skills with pagination and optional search
+### Query Parameters:
+###   - page: Page number (default: 1)
+###   - limit: Items per page (default: 100, max: 100)
+###   - search: Search term to filter skills by name (optional)
+
+### Get All Skills (Default - First Page, 100 items)
+GET {{baseUrl}}/skills
+Content-Type: {{contentType}}
+
+### Get All Skills with Pagination
+GET {{baseUrl}}/skills?page=1&limit=10
+Content-Type: {{contentType}}
+
+### Get All Skills with Search
+GET {{baseUrl}}/skills?page=1&limit=10&search=javascript
+Content-Type: {{contentType}}
+
+### Get All Skills - Second Page
+GET {{baseUrl}}/skills?page=2&limit=20
+Content-Type: {{contentType}}
+
+### Response Example:
+### {
+###   "success": true,
+###   "data": {
+###     "items": [
+###       {
+###         "id": "uuid-here",
+###         "name": "JavaScript",
+###         "specificationId": "uuid-here",
+###         "createdAt": "2024-01-01T00:00:00.000Z",
+###         "updatedAt": "2024-01-01T00:00:00.000Z"
+###       }
+###     ],
+###     "pagination": {
+###       "page": 1,
+###       "limit": 10,
+###       "total": 100,
+###       "totalPages": 10,
+###       "hasNext": true,
+###       "hasPrev": false
+###     }
+###   }
+### }
+
+### ============================================
+### GET ALL SPECIFICATIONS
+### ============================================
+### Retrieve all specifications with pagination and optional search
+### Query Parameters:
+###   - page: Page number (default: 1)
+###   - limit: Items per page (default: 100, max: 100)
+###   - search: Search term to filter specifications by name (optional)
+
+### Get All Specifications (Default - First Page, 100 items)
+GET {{baseUrl}}/specifications
+Content-Type: {{contentType}}
+
+### Get All Specifications with Pagination
+GET {{baseUrl}}/specifications?page=1&limit=10
+Content-Type: {{contentType}}
+
+### Get All Specifications with Search
+GET {{baseUrl}}/specifications?page=1&limit=10&search=web
+Content-Type: {{contentType}}
+
+### Get All Specifications - Second Page
+GET {{baseUrl}}/specifications?page=2&limit=20
+Content-Type: {{contentType}}
+
+### Response Example:
+### {
+###   "success": true,
+###   "data": {
+###     "items": [
+###       {
+###         "id": "uuid-here",
+###         "name": "Web Development",
+###         "icon": "web-icon.svg",
+###         "createdAt": "2024-01-01T00:00:00.000Z",
+###         "updatedAt": "2024-01-01T00:00:00.000Z"
+###       }
+###     ],
+###     "pagination": {
+###       "page": 1,
+###       "limit": 10,
+###       "total": 50,
+###       "totalPages": 5,
+###       "hasNext": true,
+###       "hasPrev": false
+###     }
+###   }
+### }
+
+### ============================================
+### NOTES:
+### ============================================
+### 1. Pagination:
+###    - Both endpoints support pagination via query parameters
+###    - page: Page number (starts from 1, default: 1)
+###    - limit: Number of items per page (default: 100, max: 100)
+###    - If limit exceeds 100, it will be capped at 100
+###
+### 2. Search:
+###    - Optional search parameter to filter results
+###    - Search is case-insensitive
+###    - Searches in the name field for both skills and specifications
+###    - Example: ?search=javascript will find skills/specs with "javascript" in the name
+###
+### 3. Response Format:
+###    - Both endpoints return a consistent response structure
+###    - Contains "items" array with the actual data
+###    - Contains "pagination" object with pagination metadata
+###    - Pagination includes: page, limit, total, totalPages, hasNext, hasPrev
+###
+### 4. Public Access:
+###    - Both endpoints are publicly accessible (no authentication required)
+###    - No Authorization header needed
+###
+### 5. Query Parameter Examples:
+###    - Default: GET /api/skills (page=1, limit=100)
+###    - Paginated: GET /api/skills?page=2&limit=20
+###    - With Search: GET /api/skills?page=1&limit=10&search=react
+###    - Combined: GET /api/skills?page=1&limit=50&search=node

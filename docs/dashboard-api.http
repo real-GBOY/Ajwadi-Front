@@ -1,0 +1,184 @@
+### Dashboard API Documentation
+### لوحة التحكم - Dashboard Endpoints
+
+@baseUrl = http://localhost:5000/api
+@contentType = application/json
+@employeeToken = your-employee-jwt-token-here
+
+### ============================================
+### GET OVERVIEW STATISTICS
+### ============================================
+### Get overview statistics (Total Freelancers, Clients, Projects, Revenue)
+### Requires employee JWT token
+
+GET {{baseUrl}}/dashboard/overview?startDate=2026-01-01&endDate=2026-02-17
+Content-Type: {{contentType}}
+Authorization: Bearer {{employeeToken}}
+
+### Query Parameters:
+### - startDate: Optional, format YYYY-MM-DD (e.g., "2026-01-01")
+### - endDate: Optional, format YYYY-MM-DD (e.g., "2026-02-17")
+### If not provided, compares with previous period automatically
+
+### Response Example (200 OK):
+### {
+###   "success": true,
+###   "message": "Overview statistics fetched successfully",
+###   "data": {
+###     "freelancers": {
+###       "total": 12456,
+###       "change": "5.2"
+###     },
+###     "clients": {
+###       "total": 8934,
+###       "change": "3.8"
+###     },
+###     "projects": {
+###       "total": 24789,
+###       "change": "3.8"
+###     },
+###     "revenue": {
+###       "total": 2400000.00,
+###       "change": "12.3"
+###     }
+###   }
+### }
+
+### ============================================
+### GET ACTIVE PROJECTS TIME SERIES
+### ============================================
+### Get time series data for active and completed projects
+### Requires employee JWT token
+
+GET {{baseUrl}}/dashboard/active-projects?startDate=2026-07-01&endDate=2026-07-12
+Content-Type: {{contentType}}
+Authorization: Bearer {{employeeToken}}
+
+### Query Parameters:
+### - startDate: Optional, format YYYY-MM-DD (defaults to 30 days ago)
+### - endDate: Optional, format YYYY-MM-DD (defaults to today)
+
+### Response Example (200 OK):
+### {
+###   "success": true,
+###   "message": "Active projects time series fetched successfully",
+###   "data": {
+###     "current": {
+###       "active": 521,
+###       "change": "2.6"
+###     },
+###     "timeSeries": [
+###       {
+###         "date": "2026-07-01",
+###         "active": 500,
+###         "completed": 1200
+###       },
+###       {
+###         "date": "2026-07-02",
+###         "active": 505,
+###         "completed": 1210
+###       },
+###       ...
+###     ]
+###   }
+### }
+
+### ============================================
+### GET FREELANCERS BY COUNTRY
+### ============================================
+### Get distribution of freelancers by country
+### Requires employee JWT token
+
+GET {{baseUrl}}/dashboard/freelancers-by-country
+Content-Type: {{contentType}}
+Authorization: Bearer {{employeeToken}}
+
+### Response Example (200 OK):
+### {
+###   "success": true,
+###   "message": "Freelancers by country fetched successfully",
+###   "data": [
+###     {
+###       "country": "السعودية",
+###       "count": 3114,
+###       "percentage": "25.0"
+###     },
+###     {
+###       "country": "الإمارات",
+###       "count": 2242,
+###       "percentage": "18.0"
+###     },
+###     {
+###       "country": "مصر",
+###       "count": 1868,
+###       "percentage": "15.0"
+###     },
+###     ...
+###   ]
+### }
+
+### ============================================
+### GET PROJECTS BY FIELD
+### ============================================
+### Get distribution of projects by field/specification
+### Requires employee JWT token
+
+GET {{baseUrl}}/dashboard/projects-by-field
+Content-Type: {{contentType}}
+Authorization: Bearer {{employeeToken}}
+
+### Response Example (200 OK):
+### {
+###   "success": true,
+###   "message": "Projects by field fetched successfully",
+###   "data": [
+###     {
+###       "field": "تطوير الويب",
+###       "fieldId": "uuid-here",
+###       "count": 6445,
+###       "percentage": "26.0"
+###     },
+###     {
+###       "field": "التسويق الرقمي",
+###       "fieldId": "uuid-here",
+###       "count": 3223,
+###       "percentage": "13.0"
+###     },
+###     {
+###       "field": "التصوير",
+###       "fieldId": "uuid-here",
+###       "count": 2231,
+###       "percentage": "9.0"
+###     },
+###     ...
+###   ]
+### }
+
+### ============================================
+### NOTES & GUIDELINES
+### ============================================
+
+### 1. AUTHENTICATION
+###    - All dashboard endpoints require employee/admin JWT token
+###    - Use: Authorization: Bearer {{employeeToken}}
+###    - Get token from: POST /api/employees/login
+
+### 2. DATE FORMAT
+###    - All dates must be in YYYY-MM-DD format
+###    - Example: "2026-02-17"
+
+### 3. PERCENTAGE CHANGES
+###    - Positive values indicate increase
+###    - Negative values indicate decrease
+###    - Calculated by comparing current period with previous period
+
+### 4. REVENUE CALCULATION
+###    - Revenue is calculated from FEE and ESCROW_RELEASE transactions
+###    - Only COMPLETED transactions are counted
+###    - Currency defaults to SAR
+
+### 5. TIME SERIES DATA
+###    - Defaults to last 30 days if no dates provided
+###    - Returns daily data points
+###    - Active projects = projects with status "in_progress"
+###    - Completed projects = projects with status "completed"

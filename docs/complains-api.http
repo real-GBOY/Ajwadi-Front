@@ -1,0 +1,393 @@
+### Complaints Management API
+### Base URL: http://localhost:5000/api
+
+### Variables
+@baseUrl = http://localhost:5000/api
+@token = your_jwt_token_here
+@complainId = your_complain_id_here
+
+############################################################
+# CREATE COMPLAINT
+############################################################
+
+### Create a New Complaint
+# Create a complaint against a freelancer
+# Requires: User authentication
+# Body Parameters:
+#   - userId: ID of the user making the complaint (optional, uses authenticated user if not provided)
+#   - freelancerId: ID of the freelancer being complained about (required)
+#   - reason: Detailed reason for the complaint (optional)
+#   - resonsummary: Summary of the reason (optional)
+POST {{baseUrl}}/complains
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "freelancerId": "7f040b8f-6111-4d4f-a544-acdba48509ff",
+  "reason": "The freelancer did not deliver the work as promised and was unresponsive to messages.",
+  "resonsummary": "Poor service delivery and communication"
+}
+
+############################################################
+# GET COMPLAINTS
+############################################################
+
+### Get All Complaints
+# Get all complaints with optional filters and pagination
+# Requires: User authentication
+# Query Parameters:
+#   - page: Page number (default: 1)
+#   - limit: Items per page (default: 10)
+#   - status: Filter by status ('pending' or 'resolved')
+#   - userId: Filter by user ID
+#   - freelancerId: Filter by freelancer ID
+#   - read: Filter by read status (true/false)
+#   - pinned: Filter by pinned status (true/false)
+#   - sortBy: Field to sort by (default: 'createdAt')
+#   - sortOrder: 'asc' or 'desc' (default: 'DESC')
+GET {{baseUrl}}/complains?page=1&limit=10
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Complaints - Filter by Status
+GET {{baseUrl}}/complains?page=1&limit=10&status=pending
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Complaints - Filter by User ID
+GET {{baseUrl}}/complains?page=1&limit=10&userId=0ed09547-b0bc-43e7-af16-4cfd56aca6c0
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Complaints - Filter by Freelancer ID
+GET {{baseUrl}}/complains?page=1&limit=10&freelancerId=7f040b8f-6111-4d4f-a544-acdba48509ff
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Complaints - Filter by Read Status
+GET {{baseUrl}}/complains?page=1&limit=10&read=false
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Complaints - Filter by Pinned Status
+GET {{baseUrl}}/complains?page=1&limit=10&pinned=true
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Complaints - Sorted by Created Date (Ascending)
+GET {{baseUrl}}/complains?page=1&limit=10&sortBy=createdAt&sortOrder=asc
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Complaints - Multiple Filters
+GET {{baseUrl}}/complains?page=1&limit=10&status=pending&read=false&sortBy=createdAt&sortOrder=desc
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+############################################################
+# GET COMPLAINT BY ID
+############################################################
+
+### Get Complaint by ID
+# Get a specific complaint by its ID
+# Requires: User authentication
+GET {{baseUrl}}/complains/{{complainId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+############################################################
+# UPDATE COMPLAINT
+############################################################
+
+### Update Complaint
+# Update complaint details
+# Requires: User authentication
+# Body Parameters (all optional):
+#   - status: 'pending' or 'resolved'
+#   - read: true/false
+#   - pinned: true/false
+#   - reason: Updated reason text
+#   - resonsummary: Updated reason summary
+PUT {{baseUrl}}/complains/{{complainId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "resolved",
+  "read": true,
+  "pinned": false,
+  "reason": "Updated reason for the complaint",
+  "resonsummary": "Updated summary"
+}
+
+### Update Complaint Status Only
+PUT {{baseUrl}}/complains/{{complainId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "resolved"
+}
+
+############################################################
+# DELETE COMPLAINT
+############################################################
+
+### Delete Complaint
+# Delete a complaint by ID
+# Requires: User authentication
+DELETE {{baseUrl}}/complains/{{complainId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+############################################################
+# MARK AS READ/UNREAD
+############################################################
+
+### Mark Complaint as Read
+# Mark a complaint as read
+# Requires: User authentication
+PATCH {{baseUrl}}/complains/{{complainId}}/read
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Mark Complaint as Unread
+# Mark a complaint as unread
+# Requires: User authentication
+PATCH {{baseUrl}}/complains/{{complainId}}/unread
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+############################################################
+# PIN/UNPIN COMPLAINT
+############################################################
+
+### Pin Complaint
+# Pin a complaint to the top
+# Requires: User authentication
+PATCH {{baseUrl}}/complains/{{complainId}}/pin
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Unpin Complaint
+# Unpin a complaint
+# Requires: User authentication
+PATCH {{baseUrl}}/complains/{{complainId}}/unpin
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+############################################################
+# RESOLVE COMPLAINT
+############################################################
+
+### Resolve Complaint
+# Mark a complaint as resolved
+# Requires: User authentication
+PATCH {{baseUrl}}/complains/{{complainId}}/resolve
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+############################################################
+# GET COMPLAINTS COUNT
+############################################################
+
+### Get Complaints Count
+# Get the total count of complaints with optional filters
+# Requires: User authentication
+# Query Parameters (all optional):
+#   - status: Filter by status ('pending' or 'resolved')
+#   - userId: Filter by user ID
+#   - freelancerId: Filter by freelancer ID
+#   - read: Filter by read status (true/false)
+#   - pinned: Filter by pinned status (true/false)
+GET {{baseUrl}}/complains/count
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Complaints Count - Filter by Status
+GET {{baseUrl}}/complains/count?status=pending
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Complaints Count - Filter by User ID
+GET {{baseUrl}}/complains/count?userId=0ed09547-b0bc-43e7-af16-4cfd56aca6c0
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Complaints Count - Filter by Freelancer ID
+GET {{baseUrl}}/complains/count?freelancerId=7f040b8f-6111-4d4f-a544-acdba48509ff
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Complaints Count - Filter by Read Status
+GET {{baseUrl}}/complains/count?read=false
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Get Complaints Count - Multiple Filters
+GET {{baseUrl}}/complains/count?status=pending&read=false
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+############################################################
+# RESPONSE FORMATS
+############################################################
+
+### Success Response - Create Complaint (201 Created):
+# {
+#   "success": true,
+#   "message": "Complaint created successfully",
+#   "data": {
+#     "id": "uuid",
+#     "userId": "uuid",
+#     "freelancerId": "uuid",
+#     "status": "pending",
+#     "reason": "Detailed reason...",
+#     "resonsummary": "Summary",
+#     "read": false,
+#     "readAt": null,
+#     "pinned": false,
+#     "pinnedAt": null,
+#     "createdAt": "2026-02-14T00:00:00.000Z",
+#     "updatedAt": "2026-02-14T00:00:00.000Z"
+#   }
+# }
+
+### Success Response - Get All Complaints (200 OK):
+# {
+#   "success": true,
+#   "message": "Complaints fetched successfully",
+#   "data": [
+#     {
+#       "id": "uuid",
+#       "userId": "uuid",
+#       "freelancerId": "uuid",
+#       "status": "pending",
+#       "reason": "Detailed reason...",
+#       "resonsummary": "Summary",
+#       "read": false,
+#       "readAt": null,
+#       "pinned": false,
+#       "pinnedAt": null,
+#       "createdAt": "2026-02-14T00:00:00.000Z",
+#       "updatedAt": "2026-02-14T00:00:00.000Z",
+#       "user": {
+#         "id": "uuid",
+#         "name": "User Name",
+#         "phone": "+1234567890",
+#         "profilePicture": "uuid"
+#       },
+#       "freelancer": {
+#         "id": "uuid",
+#         "name": "Freelancer Name",
+#         "phone": "+1234567891",
+#         "profilePicture": "uuid"
+#       }
+#     }
+#   ],
+#   "pagination": {
+#     "currentPage": 1,
+#     "itemsPerPage": 10,
+#     "totalItems": 25,
+#     "totalPages": 3
+#   }
+# }
+
+### Success Response - Get Complaint by ID (200 OK):
+# {
+#   "success": true,
+#   "message": "Complaint fetched successfully",
+#   "data": {
+#     "id": "uuid",
+#     "userId": "uuid",
+#     "freelancerId": "uuid",
+#     "status": "pending",
+#     "reason": "Detailed reason...",
+#     "resonsummary": "Summary",
+#     "read": false,
+#     "readAt": null,
+#     "pinned": false,
+#     "pinnedAt": null,
+#     "createdAt": "2026-02-14T00:00:00.000Z",
+#     "updatedAt": "2026-02-14T00:00:00.000Z",
+#     "user": {
+#       "id": "uuid",
+#       "name": "User Name",
+#       "phone": "+1234567890",
+#       "profilePicture": "uuid"
+#     },
+#     "freelancer": {
+#       "id": "uuid",
+#       "name": "Freelancer Name",
+#       "phone": "+1234567891",
+#       "profilePicture": "uuid"
+#     }
+#   }
+# }
+
+### Success Response - Update Complaint (200 OK):
+# {
+#   "success": true,
+#   "message": "Complaint updated successfully",
+#   "data": {
+#     "id": "uuid",
+#     "userId": "uuid",
+#     "freelancerId": "uuid",
+#     "status": "resolved",
+#     "reason": "Updated reason...",
+#     "resonsummary": "Updated summary",
+#     "read": true,
+#     "readAt": "2026-02-14T01:00:00.000Z",
+#     "pinned": false,
+#     "pinnedAt": null,
+#     "createdAt": "2026-02-14T00:00:00.000Z",
+#     "updatedAt": "2026-02-14T01:00:00.000Z"
+#   }
+# }
+
+### Success Response - Delete Complaint (200 OK):
+# {
+#   "success": true,
+#   "message": "Complaint deleted successfully"
+# }
+
+### Success Response - Get Count (200 OK):
+# {
+#   "success": true,
+#   "message": "Complaints count fetched successfully",
+#   "data": {
+#     "count": 25
+#   }
+# }
+
+### Error Response - Bad Request (400):
+# {
+#   "success": false,
+#   "message": "userId and freelancerId are required"
+# }
+
+### Error Response - Not Found (404):
+# {
+#   "success": false,
+#   "message": "Complaint not found"
+# }
+
+### Error Response - Unauthorized (401):
+# {
+#   "success": false,
+#   "message": "Unauthorized access"
+# }
+
+############################################################
+# NOTES
+############################################################
+
+# 1. All endpoints require authentication via Bearer token
+# 2. The userId in create request is optional - if not provided, it uses the authenticated user's ID
+# 3. Users cannot complain about themselves (userId !== freelancerId)
+# 4. Status can only be 'pending' or 'resolved'
+# 5. When marking as read, readAt is automatically set to current timestamp
+# 6. When pinning, pinnedAt is automatically set to current timestamp
+# 7. All timestamps are in ISO 8601 format (UTC)
+# 8. Pagination defaults: page=1, limit=10
+# 9. Sorting defaults: sortBy='createdAt', sortOrder='DESC'

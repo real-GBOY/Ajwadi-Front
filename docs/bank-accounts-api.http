@@ -1,0 +1,327 @@
+### Bank Accounts API Documentation
+### Complete API documentation for bank account management endpoints
+### All operations for creating, reading, and managing bank accounts
+### Reviewed and verified against implementation
+
+@baseUrl = http://localhost:5000/api
+@contentType = application/json
+@token = your-jwt-token-here
+@bankAccountId = your-bank-account-uuid-here
+
+### ============================================
+### GET MY BANK ACCOUNTS
+### ============================================
+### Get all bank accounts for the authenticated user
+### Requires user JWT token
+### All sensitive data is automatically decrypted
+
+GET {{baseUrl}}/bank-accounts
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "Bank accounts fetched successfully",
+###   "data": [
+###     {
+###       "id": "bank-account-uuid",
+###       "userId": "user-uuid",
+###       "beneficiaryName": "John Doe",
+###       "iban": "SA0380000000608010167519",
+###       "swift": "ALBISARI",
+###       "addressLine1": "123 Main Street",
+###       "addressLine2": "Building 5",
+###       "city": "Riyadh",
+###       "province": "Riyadh",
+###       "country": "Saudi Arabia",
+###       "postalCode": "12345",
+###       "createdAt": "2024-01-01T00:00:00.000Z",
+###       "updatedAt": "2024-01-01T00:00:00.000Z"
+###     }
+###   ]
+### }
+
+### ============================================
+### CREATE BANK ACCOUNT
+### ============================================
+### Create a new bank account for the authenticated user
+### Requires user JWT token
+### All sensitive data is automatically encrypted before saving
+
+POST {{baseUrl}}/bank-accounts
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "beneficiaryName": "John Doe",
+  "iban": "SA0380000000608010167519",
+  "swift": "ALBISARI",
+  "addressLine1": "123 Main Street",
+  "addressLine2": "Building 5",
+  "city": "Riyadh",
+  "province": "Riyadh",
+  "country": "Saudi Arabia",
+  "postalCode": "12345"
+}
+
+### Request Body Fields:
+### - beneficiaryName: Full name of account beneficiary (required, 1-255 chars)
+### - iban: International Bank Account Number (required, 15-34 chars)
+### - swift: SWIFT/BIC code (required, exactly 8 chars)
+### - addressLine1: Primary address line (required, 1-255 chars)
+### - addressLine2: Secondary address line (optional, max 255 chars)
+### - city: City name (required, 1-100 chars)
+### - province: Province/State name (required, 1-100 chars)
+### - country: Country name (required, 2-100 chars)
+### - postalCode: Postal/ZIP code (optional, max 20 chars)
+
+### Response Example (201 Created):
+### {
+###   "success": true,
+###   "message": "Bank account created successfully",
+###   "data": {
+###     "id": "bank-account-uuid",
+###     "userId": "user-uuid",
+###     "beneficiaryName": "John Doe",
+###     "iban": "SA0380000000608010167519",
+###     "swift": "ALBISARI",
+###     "addressLine1": "123 Main Street",
+###     "addressLine2": "Building 5",
+###     "city": "Riyadh",
+###     "province": "Riyadh",
+###     "country": "Saudi Arabia",
+###     "postalCode": "12345",
+###     "createdAt": "2024-01-01T00:00:00.000Z",
+###     "updatedAt": "2024-01-01T00:00:00.000Z"
+###   }
+### }
+
+### Error Response (Missing Required Fields):
+### {
+###   "success": false,
+###   "message": "Validation error",
+###   "errors": [
+###     {
+###       "field": "iban",
+###       "message": "IBAN is required"
+###     }
+###   ]
+### }
+
+### Error Response (Invalid IBAN Length):
+### {
+###   "success": false,
+###   "message": "Validation error",
+###   "errors": [
+###     {
+###       "field": "iban",
+###       "message": "IBAN must be at least 15 characters"
+###     }
+###   ]
+### }
+
+### Error Response (Invalid SWIFT Length):
+### {
+###   "success": false,
+###   "message": "Validation error",
+###   "errors": [
+###     {
+###       "field": "swift",
+###       "message": "SWIFT code must be exactly 8 characters"
+###     }
+###   ]
+### }
+
+### ============================================
+### CREATE BANK ACCOUNT (MINIMAL)
+### ============================================
+### Create a bank account without optional fields
+
+POST {{baseUrl}}/bank-accounts
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "beneficiaryName": "Jane Smith",
+  "iban": "SA0380000000608010167520",
+  "swift": "ALBISARI",
+  "addressLine1": "456 Second Street",
+  "city": "Jeddah",
+  "province": "Makkah",
+  "country": "Saudi Arabia"
+}
+
+### Note: addressLine2 and postalCode are optional and will be null if not provided
+
+### ============================================
+### DELETE BANK ACCOUNT
+### ============================================
+### Delete a bank account by ID
+### Requires user JWT token
+### Users can only delete their own bank accounts
+
+DELETE {{baseUrl}}/bank-accounts/{{bankAccountId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Example with actual UUID:
+DELETE {{baseUrl}}/bank-accounts/123e4567-e89b-12d3-a456-426614174000
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Response Example (200 OK):
+### {
+###   "success": true,
+###   "message": "Bank account deleted successfully"
+### }
+
+### Error Response (Not Found):
+### {
+###   "success": false,
+###   "message": "Bank account not found or you don't have permission to delete it"
+### }
+
+### Error Response (Invalid UUID):
+### {
+###   "success": false,
+###   "message": "Validation error",
+###   "errors": [
+###     {
+###       "field": "id",
+###       "message": "id must be a valid UUID"
+###     }
+###   ]
+### }
+
+### ============================================
+### COMPREHENSIVE NOTES & GUIDELINES
+### ============================================
+
+### 1. AUTHENTICATION & AUTHORIZATION
+###    - All endpoints require user JWT token
+###    - Users can only access their own bank accounts
+###    - Include Authorization header: Authorization: Bearer <your-jwt-token>
+
+### 2. ENCRYPTION & SECURITY
+###    - All sensitive fields are automatically encrypted before saving to database
+###    - Encrypted fields: beneficiaryName, iban, swift, addressLine1, addressLine2,
+###      city, province, country, postalCode
+###    - Data is automatically decrypted when retrieved from database
+###    - Encryption uses AES-256-CBC algorithm
+###    - Encryption key is stored in ENCRYPTION_KEY environment variable
+
+### 3. VALIDATION RULES
+###    - beneficiaryName: Required, 1-255 characters
+###    - iban: Required, 15-34 characters (standard IBAN format)
+###    - swift: Required, exactly 8 characters (SWIFT/BIC code format)
+###    - addressLine1: Required, 1-255 characters
+###    - addressLine2: Optional, max 255 characters
+###    - city: Required, 1-100 characters
+###    - province: Required, 1-100 characters
+###    - country: Required, 2-100 characters
+###    - postalCode: Optional, max 20 characters
+
+### 4. ERROR RESPONSES
+###    - 400 Bad Request: Validation errors (missing fields, invalid format, etc.)
+###    - 401 Unauthorized: Missing or invalid authentication token
+###    - 404 Not Found: Bank account not found or user doesn't have permission
+###    - 500 Internal Server Error: Server error
+
+### 5. DATA ISOLATION
+###    - Users can only see and manage their own bank accounts
+###    - Attempting to access another user's bank account returns 404
+###    - Each bank account is tied to a specific userId
+
+### 6. IBAN FORMAT
+###    - IBAN (International Bank Account Number) must be 15-34 characters
+###    - Format: Country code (2) + Check digits (2) + Bank identifier + Account number
+###    - Example: SA0380000000608010167519 (Saudi Arabia)
+
+### 7. SWIFT CODE FORMAT
+###    - SWIFT/BIC code must be exactly 8 characters
+###    - Format: Bank code (4) + Country code (2) + Location code (2)
+###    - Example: ALBISARI (Al Rajhi Bank, Saudi Arabia)
+
+### 8. USAGE EXAMPLES
+
+### Example 1: Get All My Bank Accounts
+GET {{baseUrl}}/bank-accounts
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Example 2: Create Bank Account with All Fields
+POST {{baseUrl}}/bank-accounts
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "beneficiaryName": "Ahmed Al-Saud",
+  "iban": "SA0380000000608010167519",
+  "swift": "ALBISARI",
+  "addressLine1": "King Fahd Road",
+  "addressLine2": "Tower A, Floor 10",
+  "city": "Riyadh",
+  "province": "Riyadh",
+  "country": "Saudi Arabia",
+  "postalCode": "11564"
+}
+
+### Example 3: Create Bank Account (Minimal)
+POST {{baseUrl}}/bank-accounts
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "beneficiaryName": "Mohammed Ali",
+  "iban": "SA0380000000608010167520",
+  "swift": "NCBKSAJE",
+  "addressLine1": "Olaya Street",
+  "city": "Riyadh",
+  "province": "Riyadh",
+  "country": "Saudi Arabia"
+}
+
+### Example 4: Delete Bank Account
+DELETE {{baseUrl}}/bank-accounts/{{bankAccountId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### 9. BEST PRACTICES
+###    - Keep bank account information up to date
+###    - Verify IBAN and SWIFT codes before submitting
+###    - Use proper address formatting
+###    - Delete unused bank accounts to maintain security
+###    - Never share your JWT token
+
+### 10. SECURITY NOTES
+###     - All sensitive data is encrypted at rest in the database
+###     - Data is decrypted only when retrieved for authorized users
+###     - Encryption keys should be stored securely in environment variables
+###     - Use HTTPS in production to encrypt data in transit
+###     - Regularly rotate encryption keys in production environments
+
+### 11. COMMON IBAN FORMATS
+###     - Saudi Arabia: SA + 22 digits (24 characters total)
+###     - UAE: AE + 2 check digits + 3 bank code + 16 digits (23 characters)
+###     - Kuwait: KW + 2 check digits + 2 bank code + 22 digits (30 characters)
+###     - Bahrain: BH + 2 check digits + 4 bank code + 14 alphanumeric (22 characters)
+
+### 12. COMMON SWIFT CODES (Saudi Arabia)
+###     - Al Rajhi Bank: ALBISARI
+###     - National Commercial Bank: NCBKSAJE
+###     - Riyad Bank: RIBLSARI
+###     - Saudi British Bank: SABBSARI
+###     - Alinma Bank: ALINSARI
+
+### 13. TESTING
+###     - Use test JWT tokens for development
+###     - Verify encryption by checking database directly (data should be encrypted)
+###     - Verify decryption by checking API responses (data should be readable)
+###     - Test with invalid UUIDs, missing fields, and unauthorized access
+
+### 14. INTEGRATION NOTES
+###     - Bank accounts are linked to users via userId
+###     - Deleting a user does not automatically delete bank accounts (consider cascade)
+###     - Bank accounts can be used for withdrawal/payout operations
+###     - Consider adding verification status for bank accounts in future

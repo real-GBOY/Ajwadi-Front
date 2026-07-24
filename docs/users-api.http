@@ -1,0 +1,784 @@
+### Users API Documentation
+### Complete API documentation for user management endpoints
+
+@baseUrl = http://localhost:5000/api
+@contentType = application/json
+@token = your-jwt-token-here
+@employeeToken = your-employee-jwt-token-here
+
+### ============================================
+### GET ALL USERS
+### ============================================
+### Get all users with pagination and optional filters (public access)
+### No authentication required
+### Supports filtering by specification, mode, verification status, and search
+
+GET {{baseUrl}}/users?page=1&limit=10&search=John&sortBy=name&sortOrder=asc&mode=freelancer&isVerifiedAsFreelancer=true&specification=uuid-here
+Content-Type: {{contentType}}
+
+### Query Parameters:
+### - page: Page number (default: 1, min: 1)
+### - limit: Items per page (default: 10, min: 1, max: 100)
+### - search: Search by name (optional)
+### - sortBy: Sort field - "name", "createdAt", "updatedAt", "avgRating" (default: "createdAt")
+### - sortOrder: Sort direction - "asc" or "desc" (default: "desc")
+### - isVerified: Filter by general verification status (optional, boolean)
+### - specification: Filter by specification ID (optional, UUID)
+### - isVerifiedAsFreelancer: Filter by freelancer verification (optional, boolean)
+### - isVerifiedAsClient: Filter by client verification (optional, boolean)
+### - mode: Filter by mode - "freelancer" or "client" (optional)
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "Users fetched successfully",
+###   "data": [
+###     {
+###       "id": "user-uuid",
+###       "name": "John Doe",
+###       "phone": "+1234567890",
+###       "phoneVerification": true,
+###       "country": "US",
+###       "address": "123 Main St",
+###       "overview": "Experienced developer",
+###       "jobTitle": "Senior Developer",
+###       "mode": "freelancer",
+###       "isVerifiedAsFreelancer": true,
+###       "isVerifiedAsClient": false,
+###       "isSuspended": false,
+###       "suspendedReason": null,
+###       "available": true,
+###       "avgRating": 4.5,
+###       "totalReviews": 10,
+###       "faceIdenbility": true,
+###       "specificationId": "spec-uuid",
+###       "profilePicture": "file-uuid",
+###       "profilePictureData": {
+###         "id": "file-uuid",
+###         "url": "https://example.com/profile.jpg",
+###         "fileName": "profile.jpg",
+###         "fileType": "image",
+###         "filePurpose": "profile",
+###         "mimeType": "image/jpeg",
+###         "fileSize": 102400,
+###         "status": "ready",
+###         "createdAt": "2024-01-01T00:00:00.000Z",
+###         "updatedAt": "2024-01-01T00:00:00.000Z"
+###       },
+###       "skills": ["skill-uuid-1", "skill-uuid-2"],
+###       "tags": ["tag-uuid-1"],
+###       "createdAt": "2024-01-01T00:00:00.000Z",
+###       "updatedAt": "2024-01-01T00:00:00.000Z"
+###     }
+###   ],
+###   "pagination": {
+###     "total": 100,
+###     "page": 1,
+###     "limit": 10
+###   }
+### }
+
+### ============================================
+### GET USER BY ID
+### ============================================
+### Get a specific user by their ID (public access)
+### No authentication required
+### Returns user with related data (specification, skills, tags, reviews, portfolio)
+
+GET {{baseUrl}}/users/:id
+Content-Type: {{contentType}}
+
+### Replace :id with actual user UUID
+### Example: GET {{baseUrl}}/users/123e4567-e89b-12d3-a456-426614174000
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "User fetched successfully",
+###   "data": {
+###     "id": "user-uuid",
+###     "name": "John Doe",
+###     "phone": "+1234567890",
+###     "phoneVerification": true,
+###     "country": "US",
+###     "address": "123 Main St",
+###     "overview": "Experienced developer with 5+ years",
+###     "jobTitle": "Senior Developer",
+###     "mode": "freelancer",
+###     "isVerifiedAsFreelancer": true,
+###     "isVerifiedAsClient": false,
+###     "isSuspended": false,
+###     "suspendedReason": null,
+###     "available": true,
+###     "avgRating": 4.5,
+###     "totalReviews": 10,
+###     "faceIdenbility": true,
+###     "specificationId": "spec-uuid",
+###     "profilePicture": "file-uuid",
+###     "skills": ["skill-uuid-1", "skill-uuid-2"],
+###     "tags": ["tag-uuid-1"],
+###     "specification": {
+###       "id": "spec-uuid",
+###       "name": "Web Development",
+###       "icon": "web-icon.svg"
+###     },
+###     "skillsData": [
+###       {
+###         "id": "skill-uuid-1",
+###         "name": "JavaScript",
+###         "specificationId": "spec-uuid"
+###       }
+###     ],
+###     "tagsData": [
+###       {
+###         "id": "tag-uuid-1",
+###         "name": "Frontend",
+###         "badgeUrl": "frontend-badge.svg"
+###       }
+###     ],
+###     "reviews": [],
+###     "portfolio": null,
+###     "previousWork": [],
+###     "createdAt": "2024-01-01T00:00:00.000Z",
+###     "updatedAt": "2024-01-01T00:00:00.000Z"
+###   }
+### }
+
+### Error Response (User Not Found):
+### {
+###   "success": false,
+###   "message": "User not found"
+### }
+
+### Error Response (Invalid ID):
+### {
+###   "success": false,
+###   "message": "Validation error",
+###   "errors": [
+###     {
+###       "field": "id",
+###       "message": "id must be a valid UUID"
+###     }
+###   ]
+### }
+
+### ============================================
+### GET MY PROFILE
+### ============================================
+### Get the authenticated user's own profile (requires authentication)
+### Returns user with all related data (specification, skills, tags, reviews, portfolio)
+
+GET {{baseUrl}}/users/me/profile
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "Profile fetched successfully",
+###   "data": {
+###     "id": "user-uuid",
+###     "name": "John Doe",
+###     "phone": "+1234567890",
+###     "phoneVerification": true,
+###     "country": "US",
+###     "address": "123 Main St",
+###     "overview": "Experienced developer",
+###     "jobTitle": "Senior Developer",
+###     "mode": "freelancer",
+###     "isVerifiedAsFreelancer": true,
+###     "isVerifiedAsClient": false,
+###     "isSuspended": false,
+###     "suspendedReason": null,
+###     "available": true,
+###     "avgRating": 4.5,
+###     "totalReviews": 10,
+###     "faceIdenbility": true,
+###     "specificationId": "spec-uuid",
+###     "profilePicture": "file-uuid",
+###     "skills": ["skill-uuid-1", "skill-uuid-2"],
+###     "tags": ["tag-uuid-1"],
+###     "specification": {
+###       "id": "spec-uuid",
+###       "name": "Web Development",
+###       "icon": "web-icon.svg"
+###     },
+###     "skillsData": [
+###       {
+###         "id": "skill-uuid-1",
+###         "name": "JavaScript",
+###         "specificationId": "spec-uuid"
+###       }
+###     ],
+###     "tagsData": [
+###       {
+###         "id": "tag-uuid-1",
+###         "name": "Frontend",
+###         "badgeUrl": "frontend-badge.svg"
+###       }
+###     ],
+###     "reviews": [],
+###     "portfolio": null,
+###     "previousWork": [],
+###     "createdAt": "2024-01-01T00:00:00.000Z",
+###     "updatedAt": "2024-01-01T00:00:00.000Z"
+###   }
+### }
+
+### Error Response (Unauthorized):
+### {
+###   "success": false,
+###   "message": "Unauthorized"
+### }
+
+### ============================================
+### UPDATE MY PROFILE
+### ============================================
+### Update the authenticated user's profile (requires authentication)
+### At least one field must be provided
+### Skills and tags can be provided as arrays or comma-separated strings
+### Profile picture requires file upload via /api/s3/upload-url first
+
+PATCH {{baseUrl}}/users/me/profile
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "name": "John Updated",
+  "overview": "Updated overview with more details",
+  "jobTitle": "Lead Developer",
+  "country": "CA",
+  "address": "456 New St",
+  "specificationId": "new-spec-uuid",
+  "profilePicture": "new-file-uuid",
+  "skills": ["skill-uuid-1", "skill-uuid-2", "skill-uuid-3"],
+  "tags": ["tag-uuid-1", "tag-uuid-2"],
+  "available": true
+}
+
+### Update Only Name
+PATCH {{baseUrl}}/users/me/profile
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "name": "John Updated"
+}
+
+### Update Profile Picture
+### Step 1: Upload file using /api/s3/upload-url with filePurpose: "profile"
+### Step 2: Use the returned fileId as profilePicture value
+PATCH {{baseUrl}}/users/me/profile
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "profilePicture": "file-uuid-from-s3-upload-response"
+}
+
+### Update Skills and Tags (Array Format)
+PATCH {{baseUrl}}/users/me/profile
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "skills": ["skill-uuid-1", "skill-uuid-2", "skill-uuid-3"],
+  "tags": ["tag-uuid-1", "tag-uuid-2"]
+}
+
+### Update Skills and Tags (Comma-Separated Format)
+PATCH {{baseUrl}}/users/me/profile
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "skills": "skill-uuid-1,skill-uuid-2,skill-uuid-3",
+  "tags": "tag-uuid-1,tag-uuid-2"
+}
+
+### Update Multiple Fields
+PATCH {{baseUrl}}/users/me/profile
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "name": "John Updated",
+  "overview": "Updated overview with more details",
+  "jobTitle": "Lead Developer",
+  "country": "CA",
+  "address": "456 New St",
+  "specificationId": "new-spec-uuid",
+  "profilePicture": "new-file-uuid",
+  "skills": ["skill-uuid-1", "skill-uuid-2"],
+  "tags": ["tag-uuid-1"],
+  "available": true
+}
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "Profile updated successfully",
+###   "data": {
+###     "id": "user-uuid",
+###     "name": "John Updated",
+###     "phone": "+1234567890",
+###     "phoneVerification": true,
+###     "country": "CA",
+###     "address": "456 New St",
+###     "overview": "Updated overview with more details",
+###     "jobTitle": "Lead Developer",
+###     "mode": "freelancer",
+###     "isVerifiedAsFreelancer": false,
+###     "isVerifiedAsClient": false,
+###     "isSuspended": false,
+###     "suspendedReason": null,
+###     "available": true,
+###     "avgRating": "4.50",
+###     "totalReviews": 10,
+###     "faceIdenbility": false,
+###     "specificationId": "new-spec-uuid",
+###     "profilePicture": "new-file-uuid",
+###     "profilePictureData": {
+###       "id": "new-file-uuid",
+###       "url": "https://ajwadi.s3.eu-west-3.amazonaws.com/profile/new-file-uuid-profile.jpg",
+###       "fileName": "profile.jpg",
+###       "fileExtension": "jpg",
+###       "fileType": "image",
+###       "filePurpose": "profile",
+###       "mimeType": "image/jpeg",
+###       "fileSize": 102400,
+###       "status": "ready",
+###       "createdAt": "2024-01-01T00:00:00.000Z",
+###       "updatedAt": "2024-01-01T00:00:00.000Z"
+###     },
+###     "skills": ["skill-uuid-1", "skill-uuid-2", "skill-uuid-3"],
+###     "tags": ["tag-uuid-1", "tag-uuid-2"],
+###     "skillsData": [
+###       {
+###         "id": "skill-uuid-1",
+###         "name": "JavaScript",
+###         "specificationId": "spec-uuid"
+###       }
+###     ],
+###     "tagsData": [
+###       {
+###         "id": "tag-uuid-1",
+###         "name": "Frontend",
+###         "badgeUrl": "frontend-badge.svg"
+###       }
+###     ],
+###     "createdAt": "2024-01-01T00:00:00.000Z",
+###     "updatedAt": "2024-01-02T00:00:00.000Z"
+###   }
+### }
+
+### Error Response (Empty Payload):
+### {
+###   "success": false,
+###   "message": "Validation error",
+###   "errors": [
+###     {
+###       "field": "",
+###       "message": "At least one field must be provided for update"
+###     }
+###   ]
+### }
+
+### Error Response (Invalid Data):
+### {
+###   "success": false,
+###   "message": "Validation error",
+###   "errors": [
+###     {
+###       "field": "name",
+###       "message": "Name cannot be empty"
+###     }
+###   ]
+### }
+
+### ============================================
+### SWITCH MODE
+### ============================================
+### Switch user mode between freelancer and client (requires authentication)
+### User can switch between "freelancer" and "client" modes
+
+PATCH {{baseUrl}}/users/me/mode
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "mode": "client"
+}
+
+### Valid mode values: "freelancer" or "client"
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "Mode switched successfully",
+###   "data": {
+###     "id": "user-uuid",
+###     "name": "John Doe",
+###     "mode": "client",
+###     "updatedAt": "2024-01-02T00:00:00.000Z"
+###   }
+### }
+
+### Error Response (Invalid Mode):
+### {
+###   "success": false,
+###   "message": "Validation error",
+###   "errors": [
+###     {
+###       "field": "mode",
+###       "message": "Mode must be either 'freelancer' or 'client'"
+###     }
+###   ]
+### }
+
+### ============================================
+### VERIFY USER AS FREELANCER
+### ============================================
+### Verify a user as a freelancer (employee only)
+### Sets isVerifiedAsFreelancer to true
+
+PATCH {{baseUrl}}/users/:id/verify/freelancer
+Content-Type: {{contentType}}
+Authorization: Bearer {{employeeToken}}
+
+### Replace :id with actual user UUID
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "User verified as freelancer successfully",
+###   "data": {
+###     "id": "user-uuid",
+###     "name": "John Doe",
+###     "isVerifiedAsFreelancer": true,
+###     "updatedAt": "2024-01-02T00:00:00.000Z"
+###   }
+### }
+
+### Error Response (User Not Found):
+### {
+###   "success": false,
+###   "message": "User not found"
+### }
+
+### ============================================
+### VERIFY USER AS CLIENT
+### ============================================
+### Verify a user as a client (employee only)
+### Sets isVerifiedAsClient to true
+
+PATCH {{baseUrl}}/users/:id/verify/client
+Content-Type: {{contentType}}
+Authorization: Bearer {{employeeToken}}
+
+### Replace :id with actual user UUID
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "User verified as client successfully",
+###   "data": {
+###     "id": "user-uuid",
+###     "name": "John Doe",
+###     "isVerifiedAsClient": true,
+###     "updatedAt": "2024-01-02T00:00:00.000Z"
+###   }
+### }
+
+### ============================================
+### UNVERIFY USER AS FREELANCER
+### ============================================
+### Unverify a user as a freelancer (employee only)
+### Sets isVerifiedAsFreelancer to false
+
+PATCH {{baseUrl}}/users/:id/unverify/freelancer
+Content-Type: {{contentType}}
+Authorization: Bearer {{employeeToken}}
+
+### Replace :id with actual user UUID
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "User unverified as freelancer successfully",
+###   "data": {
+###     "id": "user-uuid",
+###     "name": "John Doe",
+###     "isVerifiedAsFreelancer": false,
+###     "updatedAt": "2024-01-02T00:00:00.000Z"
+###   }
+### }
+
+### ============================================
+### UNVERIFY USER AS CLIENT
+### ============================================
+### Unverify a user as a client (employee only)
+### Sets isVerifiedAsClient to false
+
+PATCH {{baseUrl}}/users/:id/unverify/client
+Content-Type: {{contentType}}
+Authorization: Bearer {{employeeToken}}
+
+### Replace :id with actual user UUID
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "User unverified as client successfully",
+###   "data": {
+###     "id": "user-uuid",
+###     "name": "John Doe",
+###     "isVerifiedAsClient": false,
+###     "updatedAt": "2024-01-02T00:00:00.000Z"
+###   }
+### }
+
+### ============================================
+### SUSPEND USER
+### ============================================
+### Suspend a user account (employee only)
+### Sets isSuspended to true and stores the suspension reason
+
+PATCH {{baseUrl}}/users/:id/suspend
+Content-Type: {{contentType}}
+Authorization: Bearer {{employeeToken}}
+
+{
+  "suspendedReason": "Violation of terms and conditions. User engaged in fraudulent activities."
+}
+
+### Replace :id with actual user UUID
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "User suspended successfully",
+###   "data": {
+###     "id": "user-uuid",
+###     "name": "John Doe",
+###     "isSuspended": true,
+###     "suspendedReason": "Violation of terms and conditions. User engaged in fraudulent activities.",
+###     "updatedAt": "2024-01-02T00:00:00.000Z"
+###   }
+### }
+
+### Error Response (Missing Reason):
+### {
+###   "success": false,
+###   "message": "Validation error",
+###   "errors": [
+###     {
+###       "field": "suspendedReason",
+###       "message": "Suspended reason is required"
+###     }
+###   ]
+### }
+
+### ============================================
+### UNSUSPEND USER
+### ============================================
+### Unsuspend a user account (employee only)
+### Sets isSuspended to false and clears the suspension reason
+
+PATCH {{baseUrl}}/users/:id/unsuspend
+Content-Type: {{contentType}}
+Authorization: Bearer {{employeeToken}}
+
+### Replace :id with actual user UUID
+### No request body required
+
+### Response Example:
+### {
+###   "success": true,
+###   "message": "User unsuspended successfully",
+###   "data": {
+###     "id": "user-uuid",
+###     "name": "John Doe",
+###     "isSuspended": false,
+###     "suspendedReason": null,
+###     "updatedAt": "2024-01-02T00:00:00.000Z"
+###   }
+### }
+
+### ============================================
+### COMPREHENSIVE NOTES & GUIDELINES
+### ============================================
+
+### 1. AUTHENTICATION & AUTHORIZATION
+###    - Public endpoints (no auth required):
+###      * GET /api/users (get all users)
+###      * GET /api/users/:id (get user by ID)
+###    - User endpoints (requires user JWT token):
+###      * GET /api/users/me/profile (get my profile)
+###      * PATCH /api/users/me/profile (update my profile)
+###      * PATCH /api/users/me/mode (switch mode)
+###    - Employee-only endpoints (requires employee JWT token):
+###      * PATCH /api/users/:id/verify/freelancer (verify as freelancer)
+###      * PATCH /api/users/:id/verify/client (verify as client)
+###      * PATCH /api/users/:id/unverify/freelancer (unverify as freelancer)
+###      * PATCH /api/users/:id/unverify/client (unverify as client)
+###      * PATCH /api/users/:id/suspend (suspend user)
+###      * PATCH /api/users/:id/unsuspend (unsuspend user)
+
+### 2. USER MODE
+###    - Users can operate in two modes: "freelancer" or "client"
+###    - Mode determines the user's primary role on the platform
+###    - Users can switch between modes using the switch mode endpoint
+###    - Default mode is "freelancer"
+
+### 3. VERIFICATION STATUS
+###    - isVerifiedAsFreelancer: User verified as a freelancer (employee action)
+###    - isVerifiedAsClient: User verified as a client (employee action)
+###    - Verification is independent for each role
+###    - Users can be verified in both roles simultaneously
+
+### 4. PROFILE UPDATE FIELDS
+###    - name: String (1-100 characters, optional)
+###    - overview: String (max 500 characters, optional, can be empty)
+###    - jobTitle: String (max 100 characters, optional, can be empty)
+###    - country: String (max 100 characters, optional, can be empty)
+###    - address: String (max 500 characters, optional, can be empty)
+###    - specificationId: UUID (optional, can be null)
+###    - profilePicture: UUID (optional, can be null, references FileHub)
+###    - skills: Array of UUIDs or comma-separated string (optional)
+###    - tags: Array of UUIDs or comma-separated string (optional)
+###    - available: Boolean (optional)
+###    - At least one field must be provided
+
+### 5. SKILLS AND TAGS
+###    - Skills and tags are stored as arrays of UUIDs
+###    - Can be provided as:
+###      * Array: ["skill-uuid-1", "skill-uuid-2"]
+###      * JSON string: "[\"skill-uuid-1\", \"skill-uuid-2\"]"
+###      * Comma-separated string: "skill-uuid-1,skill-uuid-2"
+###    - Skills reference the Skills table
+###    - Tags reference the Tags table
+
+### 6. PROFILE PICTURE
+###    - profilePicture is a UUID that references FileHub
+###    - File must be uploaded to S3 first using /api/s3/upload-url
+###    - File purpose should be "profile"
+###    - Use the fileId from the upload response
+
+### 7. SEARCH AND FILTERING
+###    - Search: Searches user names (case-insensitive, partial match)
+###    - Filter by specification: Filter users by their specification
+###    - Filter by mode: Filter by "freelancer" or "client"
+###    - Filter by verification: Filter by verification status
+###    - Multiple filters can be combined
+
+### 8. SORTING
+###    - sortBy: Field to sort by - "name", "createdAt", "updatedAt", "avgRating"
+###    - sortOrder: "asc" or "desc"
+###    - Default: sortBy="createdAt", sortOrder="desc"
+
+### 9. PAGINATION
+###    - page: Page number (default: 1, min: 1)
+###    - limit: Items per page (default: 10, min: 1, max: 100)
+###    - Response includes pagination metadata
+
+### 10. SUSPENSION
+###     - Suspended users have isSuspended set to true
+###     - Suspension reason is required and stored
+###     - Suspended users may have restricted access to platform features
+###     - Only employees can suspend/unsuspend users
+
+### 11. RELATED DATA
+###     - getUserById and getMyProfile return related data:
+###       * specification: Full specification object
+###       * profilePictureData: FileHub object with URL and metadata (null if no picture)
+###       * skillsData: Array of skill objects (fetched from skills UUIDs)
+###       * tagsData: Array of tag objects (fetched from tags UUIDs)
+###       * reviews: Array of review objects
+###       * portfolio: Portfolio object
+###       * previousWorkData: Array of previous work objects
+###     - File data structure (profilePictureData):
+###       {
+###         "id": "file-uuid",
+###         "url": "https://example.com/file.jpg",
+###         "fileName": "file.jpg",
+###         "fileType": "image",
+###         "filePurpose": "profile",
+###         "mimeType": "image/jpeg",
+###         "fileSize": 102400,
+###         "status": "ready",
+###         "createdAt": "2024-01-01T00:00:00.000Z",
+###         "updatedAt": "2024-01-01T00:00:00.000Z"
+###       }
+
+### 12. ERROR RESPONSES
+###     - 400 Bad Request: Invalid input data, validation errors
+###     - 401 Unauthorized: Missing or invalid authentication token
+###     - 403 Forbidden: User doesn't have required role (employee)
+###     - 404 Not Found: User not found
+###     - 500 Internal Server Error: Server error
+
+### 13. USAGE EXAMPLES
+
+### Example 1: Get All Freelancers
+GET {{baseUrl}}/users?mode=freelancer&isVerifiedAsFreelancer=true&page=1&limit=20
+Content-Type: {{contentType}}
+
+### Example 2: Search Users by Name
+GET {{baseUrl}}/users?search=John&page=1&limit=10
+Content-Type: {{contentType}}
+
+### Example 3: Get Users by Specification
+GET {{baseUrl}}/users?specification=123e4567-e89b-12d3-a456-426614174000&page=1&limit=10
+Content-Type: {{contentType}}
+
+### Example 4: Update Profile with Skills
+PATCH {{baseUrl}}/users/me/profile
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "name": "Updated Name",
+  "skills": ["skill-uuid-1", "skill-uuid-2"],
+  "available": true
+}
+
+### Example 5: Switch to Client Mode
+PATCH {{baseUrl}}/users/me/mode
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "mode": "client"
+}
+
+### Example 6: Suspend a User
+PATCH {{baseUrl}}/users/123e4567-e89b-12d3-a456-426614174000/suspend
+Content-Type: {{contentType}}
+Authorization: Bearer {{employeeToken}}
+
+{
+  "suspendedReason": "Repeated violation of community guidelines"
+}
+
+### 14. DATA RELATIONSHIPS
+###     - Users belong to a Specification (specificationId)
+###     - Users have multiple Skills (skills array)
+###     - Users have multiple Tags (tags array)
+###     - Users can have a Portfolio (one-to-one)
+###     - Users can have multiple Reviews (one-to-many)
+###     - Users have a Profile Picture (profilePicture UUID references FileHub)
+
+### 15. BEST PRACTICES
+###     - Keep profile information up to date
+###     - Use appropriate skills and tags for better discoverability
+###     - Maintain a professional overview and job title
+###     - Update availability status regularly
+###     - Switch mode based on current needs (freelancer vs client)
+
+### 16. INTEGRATION NOTES
+###     - User data includes aggregated information (avgRating, totalReviews)
+###     - Related data is fetched automatically for getUserById and getMyProfile
+###     - Profile updates trigger updatedAt timestamp
+###     - Suspended users may have restricted functionality
+###     - Verification status affects user visibility and capabilities
