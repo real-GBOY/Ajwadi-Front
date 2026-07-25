@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Calendar } from 'lucide-react';
+import { Calendar, Users, User, FolderKanban, Wallet } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import StatCard from '../components/StatCard';
 import ProductSalesChart from '../components/ProductSalesChart';
@@ -164,28 +164,32 @@ export default function DashboardPage() {
             value={overview.freelancers.total.toLocaleString()}
             change={parseChange(overview.freelancers.change).display}
             isPositive={parseChange(overview.freelancers.change).isPositive}
-            icon="👥"
+            icon={Users}
+            iconColor="text-indigo-600 bg-indigo-50"
           />
           <StatCard
             label={t('totalClients')}
             value={overview.clients.total.toLocaleString()}
             change={parseChange(overview.clients.change).display}
             isPositive={parseChange(overview.clients.change).isPositive}
-            icon="👤"
+            icon={User}
+            iconColor="text-blue-600 bg-blue-50"
           />
           <StatCard
             label={t('totalProjects')}
             value={overview.projects.total.toLocaleString()}
             change={parseChange(overview.projects.change).display}
             isPositive={parseChange(overview.projects.change).isPositive}
-            icon="📁"
+            icon={FolderKanban}
+            iconColor="text-amber-600 bg-amber-50"
           />
           <StatCard
             label={t('totalRevenue')}
             value={formatRevenue(overview.revenue.total)}
             change={parseChange(overview.revenue.change).display}
             isPositive={parseChange(overview.revenue.change).isPositive}
-            icon="💰"
+            icon={Wallet}
+            iconColor="text-emerald-600 bg-emerald-50"
           />
         </div>
       ) : null}

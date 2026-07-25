@@ -148,7 +148,13 @@ export default function ClientDetailPage() {
                         ? 'bg-green-100 text-green-700 border border-green-200'
                         : 'bg-gray-100 text-gray-700 border border-gray-200'
                     }`}>
-                    {identityData.isVerified ? '✓ محقق' : 'غير محقق'}
+                    {identityData.isVerified ? (
+                      <>
+                        <CheckCircle className="w-3.5 h-3.5 me-1" /> محقق
+                      </>
+                    ) : (
+                      'غير محقق'
+                    )}
                   </span>
                 </div>
                 {identityData.verifiedBy && (
@@ -204,7 +210,13 @@ export default function ClientDetailPage() {
                         ? 'bg-green-100 text-green-700 border border-green-200'
                         : 'bg-gray-100 text-gray-700 border border-gray-200'
                     }`}>
-                    {user.phoneVerification ? '✓ محقق' : 'غير محقق'}
+                    {user.phoneVerification ? (
+                      <>
+                        <CheckCircle className="w-3.5 h-3.5 me-1" /> محقق
+                      </>
+                    ) : (
+                      'غير محقق'
+                    )}
                   </span>
                 </div>
                 <p className="text-sm text-text-sub">لا توجد معلومات هوية متاحة</p>
@@ -561,7 +573,13 @@ export default function ClientDetailPage() {
                     ? 'bg-green-100 text-green-700 border border-green-200'
                     : 'bg-gray-100 text-gray-700 border border-gray-200'
                 }`}>
-                {user.isVerifiedAsClient ? '✓ محقق كعميل' : 'غير محقق'}
+                {user.isVerifiedAsClient ? (
+                  <>
+                    <CheckCircle className="w-3.5 h-3.5 me-1" /> محقق كعميل
+                  </>
+                ) : (
+                  'غير محقق'
+                )}
               </span>
               <span
                 className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
@@ -573,7 +591,7 @@ export default function ClientDetailPage() {
               </span>
               {user.phoneVerification && (
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 border border-blue-200">
-                  ✓ الهاتف محقق
+                  <CheckCircle className="w-3.5 h-3.5 me-1" /> الهاتف محقق
                 </span>
               )}
             </div>

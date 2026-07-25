@@ -2,13 +2,12 @@ import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
-// If API_BASE_URL is a full URL (starts with http), don't set baseURL in axios
-// because endpoints already include the full URL
-// If it's a relative path, use it as baseURL for axios
-const axiosBaseURL = API_BASE_URL.startsWith('http') ? undefined : API_BASE_URL;
-
+// endPoints.ts exports paths relative to this base (e.g. "/employees/login"),
+// never the full URL - axios.baseURL is the one place that applies it,
+// whether it's a relative "/api" (same-origin proxy) or an absolute
+// "https://.../api" (cross-origin). Doing it in both places double-prefixes.
 const apiClient = axios.create({
-  baseURL: axiosBaseURL,
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { X, Send, Paperclip, Image, File, Loader2, User, Users, Download, Play } from 'lucide-react';
+import { X, Send, Paperclip, Image, File, Loader2, User, Users, Download, Play, CheckCheck } from 'lucide-react';
 import {
   useGetConversationById,
   useGetMessages,
@@ -651,7 +651,9 @@ export default function ChatModal({
                       )}
                     </div>
                     {displayMessage.read && (
-                      <span className="text-xs text-text-sub mt-1">✓ مقروء</span>
+                      <span className="inline-flex items-center text-xs text-text-sub mt-1">
+                        <CheckCheck className="w-3.5 h-3.5 me-1" /> مقروء
+                      </span>
                     )}
                     {'localStatus' in displayMessage && displayMessage.senderId === currentUserId && (displayMessage as UiMessage).localStatus === 'sending' && (
                       <span className="text-xs text-text-sub mt-1">جاري الإرسال...</span>

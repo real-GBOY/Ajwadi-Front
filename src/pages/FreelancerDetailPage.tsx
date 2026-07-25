@@ -7,7 +7,7 @@ import {
   useGetUserContracts,
   useGetUserProjects,
 } from '../hooks/userDetails/useUserDetails';
-import { ArrowRight, MessageCircle, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowRight, MessageCircle, CheckCircle, XCircle, Star } from 'lucide-react';
 import Loader from '../designSystem/Loader';
 import { Tabs } from '../designSystem/ui/tabs';
 import SuccessModal from '../designSystem/SuccessModal';
@@ -100,7 +100,13 @@ export default function FreelancerDetailPage() {
                         ? 'bg-green-100 text-green-700 border border-green-200'
                         : 'bg-gray-100 text-gray-700 border border-gray-200'
                     }`}>
-                    {identityData.isVerified ? '✓ محقق' : 'غير محقق'}
+                    {identityData.isVerified ? (
+                      <>
+                        <CheckCircle className="w-3.5 h-3.5 me-1" /> محقق
+                      </>
+                    ) : (
+                      'غير محقق'
+                    )}
                   </span>
                 </div>
                 {identityData.verifiedBy && (
@@ -156,7 +162,13 @@ export default function FreelancerDetailPage() {
                         ? 'bg-green-100 text-green-700 border border-green-200'
                         : 'bg-gray-100 text-gray-700 border border-gray-200'
                     }`}>
-                    {user.phoneVerification ? '✓ محقق' : 'غير محقق'}
+                    {user.phoneVerification ? (
+                      <>
+                        <CheckCircle className="w-3.5 h-3.5 me-1" /> محقق
+                      </>
+                    ) : (
+                      'غير محقق'
+                    )}
                   </span>
                 </div>
                 <p className="text-sm text-text-sub">لا توجد معلومات هوية متاحة</p>
@@ -520,7 +532,13 @@ export default function FreelancerDetailPage() {
                     ? 'bg-green-100 text-green-700 border border-green-200'
                     : 'bg-gray-100 text-gray-700 border border-gray-200'
                 }`}>
-                {user.isVerifiedAsFreelancer ? '✓ محقق كمستقل' : 'غير محقق'}
+                {user.isVerifiedAsFreelancer ? (
+                  <>
+                    <CheckCircle className="w-3.5 h-3.5 me-1" /> محقق كمستقل
+                  </>
+                ) : (
+                  'غير محقق'
+                )}
               </span>
               <span
                 className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
@@ -540,12 +558,13 @@ export default function FreelancerDetailPage() {
               </span>
               {user.avgRating && user.avgRating !== '0.00' && user.avgRating !== 0 && (
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700 border border-yellow-200">
-                  ⭐ {typeof user.avgRating === 'string' ? parseFloat(user.avgRating).toFixed(1) : user.avgRating.toFixed(1)} ({user.totalReviews || 0})
+                  <Star className="w-3.5 h-3.5 me-1 fill-yellow-500 text-yellow-500" />{' '}
+                  {typeof user.avgRating === 'string' ? parseFloat(user.avgRating).toFixed(1) : user.avgRating.toFixed(1)} ({user.totalReviews || 0})
                 </span>
               )}
               {user.phoneVerification && (
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 border border-blue-200">
-                  ✓ الهاتف محقق
+                  <CheckCircle className="w-3.5 h-3.5 me-1" /> الهاتف محقق
                 </span>
               )}
             </div>

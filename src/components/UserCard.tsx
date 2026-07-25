@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import type { User } from '../services/userService';
-import { Eye } from 'lucide-react';
+import { Eye, CheckCircle2 } from 'lucide-react';
 
 interface UserCardProps {
   user: User;
@@ -110,7 +110,13 @@ export default function UserCard({
                   ? 'bg-green-50 text-green-700 border border-green-200'
                   : 'bg-gray-50 text-gray-600 border border-gray-200'
               }`}>
-              {user.isVerifiedAsClient ? '✓ محقق' : 'غير محقق'}
+              {user.isVerifiedAsClient ? (
+                <>
+                  <CheckCircle2 className="w-3.5 h-3.5 me-1" /> محقق
+                </>
+              ) : (
+                'غير محقق'
+              )}
             </span>
           </>
         ) : (
@@ -121,7 +127,13 @@ export default function UserCard({
                   ? 'bg-green-50 text-green-700 border border-green-200'
                   : 'bg-gray-50 text-gray-600 border border-gray-200'
               }`}>
-              {user.isVerifiedAsFreelancer ? '✓ محقق' : 'غير محقق'}
+              {user.isVerifiedAsFreelancer ? (
+                <>
+                  <CheckCircle2 className="w-3.5 h-3.5 me-1" /> محقق
+                </>
+              ) : (
+                'غير محقق'
+              )}
             </span>
             {showAvailability && (
               <span

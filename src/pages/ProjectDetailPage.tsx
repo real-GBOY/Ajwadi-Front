@@ -5,7 +5,7 @@ import {
   useGetProposalsByProjectId,
   useGetContractsByProjectId,
 } from '../hooks/projects/useProjects';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Star, CheckCircle } from 'lucide-react';
 import Loader from '../designSystem/Loader';
 import { Tabs } from '../designSystem/ui/tabs';
 
@@ -220,8 +220,8 @@ export default function ProjectDetailPage() {
                               {proposal.freelancerData.avgRating &&
                                 proposal.freelancerData.avgRating !== '0.00' &&
                                 proposal.freelancerData.avgRating !== 0 && (
-                                  <span className="text-xs text-text-sub">
-                                    ⭐{' '}
+                                  <span className="inline-flex items-center text-xs text-text-sub">
+                                    <Star className="w-3.5 h-3.5 me-1 fill-yellow-500 text-yellow-500" />
                                     {typeof proposal.freelancerData.avgRating === 'string'
                                       ? parseFloat(proposal.freelancerData.avgRating).toFixed(1)
                                       : proposal.freelancerData.avgRating.toFixed(1)}{' '}
@@ -236,7 +236,7 @@ export default function ProjectDetailPage() {
                                     color: 'var(--c-badge-success-text)',
                                     borderColor: 'var(--c-badge-success-border)',
                                   }}>
-                                  ✓ محقق
+                                  <CheckCircle className="w-3.5 h-3.5 me-1" /> محقق
                                 </span>
                               )}
                               {proposal.freelancerData.available !== undefined && (
