@@ -12,6 +12,19 @@ import {
 } from '../hooks/dashboard/useDashboard';
 import { useGetAllTransactions } from '../hooks/wallet/useWallet';
 
+const SEED_PROJECTS_BY_FIELD: Array<{ key: string; percentage: number }> = [
+  { key: 'webDevelopment', percentage: 28 },
+  { key: 'mobileDevelopment', percentage: 18 },
+  { key: 'uiUxDesign', percentage: 14 },
+  { key: 'graphicDesign', percentage: 12 },
+  { key: 'digitalMarketing', percentage: 10 },
+  { key: 'dataAnalysis', percentage: 8 },
+  { key: 'writing', percentage: 5 },
+  { key: 'translation', percentage: 3 },
+  { key: 'videoEditing', percentage: 1 },
+  { key: 'photography', percentage: 1 },
+];
+
 const CHART_COLORS = [
   '#8b5cf6',
   '#3b82f6',
@@ -84,6 +97,13 @@ export default function DashboardPage() {
   }, [activeProjects?.timeSeries]);
 
   const categoryData = useMemo(() => {
+    if (projectsByField.length === 0) {
+      return SEED_PROJECTS_BY_FIELD.map((item, i) => ({
+        label: t(`categories.${item.key}`),
+        percentage: item.percentage,
+        color: CHART_COLORS[i % CHART_COLORS.length],
+      }));
+    }
     return projectsByField.map((item, i) => ({
       label: item.field || t('unknown'),
       percentage: Number(item.percentage) || 0,
