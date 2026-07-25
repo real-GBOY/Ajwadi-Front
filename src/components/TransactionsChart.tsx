@@ -96,8 +96,9 @@ export default function TransactionsChart({ data }: TransactionsChartProps) {
                 tick={{ fontSize: tickFontSize, fill: AXIS_FILL }}
                 axisLine={{ stroke: GRID_STROKE }}
                 tickLine={false}
-                interval={isMobile ? 'preserveStartEnd' : 0}
-                minTickGap={isMobile ? 24 : 12}
+                interval="preserveStartEnd"
+                minTickGap={isMobile ? 32 : 48}
+                tickMargin={isMobile ? 6 : 10}
               />
               <YAxis
                 yAxisId="left"

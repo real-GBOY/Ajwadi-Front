@@ -87,6 +87,7 @@ export default function ProductSalesChart({ data }: ProductSalesChartProps) {
                 fill="#3b82f6"
                 radius={[4, 4, 0, 0]}
                 maxBarSize={48}
+                isAnimationActive={false}
               />
               <Bar
                 dataKey="completed"
@@ -94,6 +95,7 @@ export default function ProductSalesChart({ data }: ProductSalesChartProps) {
                 fill="#f97316"
                 radius={[4, 4, 0, 0]}
                 maxBarSize={48}
+                isAnimationActive={false}
               />
             </BarChart>
           </ResponsiveContainer>
