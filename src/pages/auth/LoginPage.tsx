@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { employeeService } from '@/services/employeeService';
@@ -57,6 +57,16 @@ export default function LoginPage() {
                <p className="text-gray-600">
                   {t('auth.enterCredentials')}
                </p>
+            </div>
+
+            {/* Demo Notice */}
+            <div className="flex gap-3 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg text-sm mb-6 text-right">
+               <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+               <div>
+                  <p className="font-semibold">{t('auth.demoNoticeTitle')}</p>
+                  <p>{t('auth.demoNoticeBody')}</p>
+                  <p className="mt-1">{t('auth.demoNoticePurpose')}</p>
+               </div>
             </div>
 
             {/* Login Form */}
