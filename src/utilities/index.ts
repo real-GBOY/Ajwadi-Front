@@ -22,7 +22,8 @@ export function isEnglishText(
   // Arabic characters are in the range \u0600-\u06FF
   const arabicPattern = /[\u0600-\u06FF]/;
   const hasArabic = arabicPattern.test(str);
-
+ 
+  
   // If no Arabic characters, it's likely English
   if (!hasArabic) return true;
 
