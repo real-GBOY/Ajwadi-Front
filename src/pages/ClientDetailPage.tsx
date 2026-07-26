@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useGetUserById, useVerifyAsClient, useUnverifyAsClient } from '../hooks/users/useUsers';
 import {
   useGetUserIdentity,
@@ -18,6 +19,7 @@ import SuccessModal from '../designSystem/SuccessModal';
 export default function ClientDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const { data: user, isLoading, refetch } = useGetUserById(id || null);
   const [activeTab, setActiveTab] = useState('identity');
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -51,7 +53,7 @@ export default function ClientDetailPage() {
     return (
       <div className="p-8">
         <div className="bg-white rounded-lg border border-border p-6">
-          <p className="text-text-sub">العميل غير موجود</p>
+          <p className="text-text-sub">{t('detailPages.clientNotFound', 'العميل غير موجود')}</p>
         </div>
       </div>
     );
@@ -67,7 +69,7 @@ export default function ClientDetailPage() {
     
     if (!currentUserIdValue) {
       console.error('Current user ID not found. Cannot create conversation.');
-      alert('خطأ: لم يتم العثور على معرف المستخدم الحالي. يرجى تسجيل الدخول مرة أخرى.');
+      alert(t('apiErrors.unauthorized', 'خطأ: لم يتم العثور على معرف المستخدم الحالي. يرجى تسجيل الدخول مرة أخرى.'));
       return;
     }
     
@@ -77,7 +79,7 @@ export default function ClientDetailPage() {
       return;
     }
     
-    const conversationName = `محادثة مع ${user.name}`;
+    const conversationName = `${t('detailPages.chatWith', 'محادثة مع ')}${user.name}`;
     const participantIds = [currentUserIdValue, id];
 
     findOrCreateConversation.mutate(
@@ -100,8 +102,8 @@ export default function ClientDetailPage() {
           console.error('Failed to create conversation:', error);
           const apiError = error as { response?: { data?: { message?: string } }; message?: string };
           const errorMessage =
-            apiError?.response?.data?.message || apiError?.message || 'حدث خطأ غير معروف';
-          alert(`خطأ في إنشاء المحادثة: ${errorMessage}`);
+            apiError?.response?.data?.message || apiError?.message || t('detailPages.unknownError', 'حدث خطأ غير معروف');
+          alert(`${t('common.errorSend', 'خطأ في إنشاء المحادثة: ')}${errorMessage}`);
         },
       }
     );
@@ -112,10 +114,10 @@ export default function ClientDetailPage() {
     try {
       if (user.isVerifiedAsClient) {
         await unverifyAsClientMutation.mutateAsync(id);
-        setSuccessMessage('تم إلغاء التحقق كعميل بنجاح');
+        setSuccessMessage(t('detailPages.unverifyClientSuccess', 'تم إلغاء التحقق كعميل بنجاح'));
       } else {
         await verifyAsClientMutation.mutateAsync(id);
-        setSuccessMessage('تم التحقق كعميل بنجاح');
+        setSuccessMessage(t('detailPages.verifyClientSuccess', 'تم التحقق كعميل بنجاح'));
       }
       refetch();
       setSuccessModalOpen(true);
@@ -127,11 +129,11 @@ export default function ClientDetailPage() {
   const tabs = [
     {
       id: 'identity',
-      label: 'الهوية',
+      label: t('detailPages.identity', 'الهوية'),
       content: (
         <div className="space-y-4">
           <div className="bg-white rounded-lg border border-border p-6">
-            <h3 className="text-lg font-semibold text-text-strong mb-4">معلومات الهوية</h3>
+            <h3 className="text-lg font-semibold text-text-strong mb-4">{t('detailPages.identityInfo', 'معلومات الهوية')}</h3>
             {identityLoading ? (
               <div className="flex justify-center py-8">
                 <Loader />
@@ -140,7 +142,7 @@ export default function ClientDetailPage() {
               <div className="space-y-4">
                 <div>
                   <label className="text-sm font-medium text-text-sub mb-1 block">
-                    حالة التحقق
+                    {t('detailPages.verificationStatus', 'حالة التحقق')}
                   </label>
                   <span
                     className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
@@ -150,17 +152,17 @@ export default function ClientDetailPage() {
                     }`}>
                     {identityData.isVerified ? (
                       <>
-                        <CheckCircle className="w-3.5 h-3.5 me-1" /> محقق
+                        <CheckCircle className="w-3.5 h-3.5 me-1" /> {t('detailPages.verified', 'محقق')}
                       </>
                     ) : (
-                      'غير محقق'
+                      t('detailPages.unverified', 'غير محقق')
                     )}
                   </span>
                 </div>
                 {identityData.verifiedBy && (
                   <div>
                     <label className="text-sm font-medium text-text-sub mb-1 block">
-                      تم التحقق بواسطة
+                      {t('detailPages.verifiedBy', 'تم التحقق بواسطة')}
                     </label>
                     <p className="text-sm text-text-strong">{identityData.verifiedBy}</p>
                   </div>
@@ -168,7 +170,7 @@ export default function ClientDetailPage() {
                 {identityData.files && identityData.files.length > 0 && (
                   <div>
                     <label className="text-sm font-medium text-text-sub mb-2 block">
-                      صور الهوية
+                      {t('detailPages.identityPhotos', 'صور الهوية')}
                     </label>
                     <div className="grid grid-cols-2 gap-4">
                       {identityData.files.map((file, index) => (
@@ -187,10 +189,10 @@ export default function ClientDetailPage() {
                 )}
                 <div>
                   <label className="text-sm font-medium text-text-sub mb-1 block">
-                    تاريخ الإنشاء
+                    {t('detailPages.createdAtPlain', 'تاريخ الإنشاء')}
                   </label>
                   <p className="text-sm text-text-strong">
-                    {new Date(identityData.createdAt).toLocaleDateString('ar-SA', {
+                    {new Date(identityData.createdAt).toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric',
@@ -202,7 +204,7 @@ export default function ClientDetailPage() {
               <div className="space-y-4">
                 <div>
                   <label className="text-sm font-medium text-text-sub mb-1 block">
-                    تحقق الهاتف
+                    {t('detailPages.phoneVerification', 'تحقق الهاتف')}
                   </label>
                   <span
                     className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
@@ -212,14 +214,14 @@ export default function ClientDetailPage() {
                     }`}>
                     {user.phoneVerification ? (
                       <>
-                        <CheckCircle className="w-3.5 h-3.5 me-1" /> محقق
+                        <CheckCircle className="w-3.5 h-3.5 me-1" /> {t('detailPages.verified', 'محقق')}
                       </>
                     ) : (
-                      'غير محقق'
+                      t('detailPages.unverified', 'غير محقق')
                     )}
                   </span>
                 </div>
-                <p className="text-sm text-text-sub">لا توجد معلومات هوية متاحة</p>
+                <p className="text-sm text-text-sub">{t('detailPages.noIdentity', 'لا توجد معلومات هوية متاحة')}</p>
               </div>
             )}
           </div>
@@ -228,11 +230,11 @@ export default function ClientDetailPage() {
     },
     {
       id: 'projects',
-      label: 'المشاريع',
+      label: t('detailPages.projects', 'المشاريع'),
       content: (
         <div className="space-y-4">
           <div className="bg-white rounded-lg border border-border p-6">
-            <h3 className="text-lg font-semibold text-text-strong mb-4">المشاريع</h3>
+            <h3 className="text-lg font-semibold text-text-strong mb-4">{t('detailPages.projects', 'المشاريع')}</h3>
             {projectsLoading ? (
               <div className="flex justify-center py-8">
                 <Loader />
@@ -253,21 +255,21 @@ export default function ClientDetailPage() {
                             ? 'bg-blue-100 text-blue-700'
                             : 'bg-gray-100 text-gray-700'
                         }`}>
-                        {project.status}
+                        {t(`detailPages.${project.status}`, project.status)}
                       </span>
                     </div>
                     <p className="text-sm text-text-sub mb-2 line-clamp-2">{project.description}</p>
                     <div className="flex items-center gap-4 text-xs text-text-sub">
                       <span>
-                        الميزانية: {project.minBudget} - {project.maxBudget}
+                        {t('detailPages.budget', 'الميزانية')}: {project.minBudget} - {project.maxBudget}
                       </span>
-                      <span>المدة: {project.duration} يوم</span>
+                      <span>{t('detailPages.duration', 'المدة')}: {project.duration} {t('detailPages.days', 'يوم')}</span>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-text-sub">لا توجد مشاريع حالياً</p>
+              <p className="text-sm text-text-sub">{t('detailPages.noProjects', 'لا توجد مشاريع حالياً')}</p>
             )}
           </div>
         </div>
@@ -275,11 +277,11 @@ export default function ClientDetailPage() {
     },
     {
       id: 'proposals',
-      label: 'العروض',
+      label: t('detailPages.proposals', 'العروض'),
       content: (
         <div className="space-y-4">
           <div className="bg-white rounded-lg border border-border p-6">
-            <h3 className="text-lg font-semibold text-text-strong mb-4">العروض</h3>
+            <h3 className="text-lg font-semibold text-text-strong mb-4">{t('detailPages.proposals', 'العروض')}</h3>
             {proposalsLoading ? (
               <div className="flex justify-center py-8">
                 <Loader />
@@ -293,7 +295,7 @@ export default function ClientDetailPage() {
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <h4 className="text-base font-semibold text-text-strong mb-1">
-                          {proposal.projectData?.title || `عرض للمشروع: ${proposal.projectId}`}
+                          {proposal.projectData?.title || `${t('detailPages.proposalForProject', 'عرض للمشروع: ')}${proposal.projectId}`}
                         </h4>
                         {proposal.projectData && (
                           <p className="text-xs text-text-sub mb-2 line-clamp-1">
@@ -310,39 +312,39 @@ export default function ClientDetailPage() {
                             : 'bg-gray-100 text-gray-700'
                         }`}>
                         {proposal.status === 'accepted'
-                          ? 'مقبول'
+                          ? t('detailPages.accepted', 'مقبول')
                           : proposal.status === 'rejected'
-                          ? 'مرفوض'
-                          : 'قيد الانتظار'}
+                          ? t('detailPages.rejected', 'مرفوض')
+                          : t('detailPages.pending', 'قيد الانتظار')}
                       </span>
                     </div>
                     <div className="mb-3">
-                      <p className="text-sm text-text-strong mb-1">وصف العرض:</p>
+                      <p className="text-sm text-text-strong mb-1">{t('detailPages.proposalDesc', 'وصف العرض:')}</p>
                       <p className="text-sm text-text-sub">{proposal.description}</p>
                     </div>
                     <div className="grid grid-cols-2 gap-4 mb-3">
                       <div>
-                        <span className="text-xs text-text-sub block mb-1">ميزانية العرض</span>
+                        <span className="text-xs text-text-sub block mb-1">{t('detailPages.proposalBudget', 'ميزانية العرض')}</span>
                         <span className="text-sm font-medium text-text-strong">
                           {typeof proposal.budget === 'string'
                             ? parseFloat(proposal.budget).toFixed(2)
                             : proposal.budget.toFixed(2)}{' '}
-                          ريال
+                          {t('detailPages.sar', 'ريال')}
                         </span>
                       </div>
                       <div>
-                        <span className="text-xs text-text-sub block mb-1">مدة التنفيذ</span>
+                        <span className="text-xs text-text-sub block mb-1">{t('detailPages.executionDuration', 'مدة التنفيذ')}</span>
                         <span className="text-sm font-medium text-text-strong">
-                          {proposal.duration} يوم
+                          {proposal.duration} {t('detailPages.days', 'يوم')}
                         </span>
                       </div>
                     </div>
                     {proposal.projectData && (
                       <div className="pt-3 border-t border-border">
-                        <p className="text-xs font-medium text-text-sub mb-2">معلومات المشروع:</p>
+                        <p className="text-xs font-medium text-text-sub mb-2">{t('detailPages.projectInfo', 'معلومات المشروع:')}</p>
                         <div className="grid grid-cols-2 gap-4 text-xs">
                           <div>
-                            <span className="text-text-sub">نطاق الميزانية: </span>
+                            <span className="text-text-sub">{t('detailPages.budgetRange', 'نطاق الميزانية: ')}</span>
                             <span className="text-text-strong">
                               {typeof proposal.projectData.minBudget === 'string'
                                 ? parseFloat(proposal.projectData.minBudget).toFixed(2)
@@ -351,17 +353,17 @@ export default function ClientDetailPage() {
                               {typeof proposal.projectData.maxBudget === 'string'
                                 ? parseFloat(proposal.projectData.maxBudget).toFixed(2)
                                 : proposal.projectData.maxBudget.toFixed(2)}{' '}
-                              ريال
+                              {t('detailPages.sar', 'ريال')}
                             </span>
                           </div>
                           <div>
-                            <span className="text-text-sub">مدة المشروع: </span>
+                            <span className="text-text-sub">{t('detailPages.projectDuration', 'مدة المشروع: ')}</span>
                             <span className="text-text-strong">
-                              {proposal.projectData.duration} يوم
+                              {proposal.projectData.duration} {t('detailPages.days', 'يوم')}
                             </span>
                           </div>
                           <div>
-                            <span className="text-text-sub">حالة المشروع: </span>
+                            <span className="text-text-sub">{t('detailPages.projectStatus', 'حالة المشروع: ')}</span>
                             <span
                               className={`px-2 py-0.5 rounded text-xs ${
                                 proposal.projectData.status === 'completed'
@@ -370,15 +372,15 @@ export default function ClientDetailPage() {
                                   ? 'bg-blue-100 text-blue-700'
                                   : 'bg-gray-100 text-gray-700'
                               }`}>
-                              {proposal.projectData.status}
+                              {t(`detailPages.${proposal.projectData.status}`, proposal.projectData.status)}
                             </span>
                           </div>
                         </div>
                       </div>
                     )}
                     <div className="mt-2 text-xs text-text-sub">
-                      تاريخ الإنشاء:{' '}
-                      {new Date(proposal.createdAt).toLocaleDateString('ar-SA', {
+                      {t('detailPages.createdAt', 'تاريخ الإنشاء: ')}{' '}
+                      {new Date(proposal.createdAt).toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric',
@@ -388,7 +390,7 @@ export default function ClientDetailPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-text-sub">لا توجد عروض حالياً</p>
+              <p className="text-sm text-text-sub">{t('detailPages.noProposals', 'لا توجد عروض حالياً')}</p>
             )}
           </div>
         </div>
@@ -396,11 +398,11 @@ export default function ClientDetailPage() {
     },
     {
       id: 'contracts',
-      label: 'العقود',
+      label: t('detailPages.contracts', 'العقود'),
       content: (
         <div className="space-y-4">
           <div className="bg-white rounded-lg border border-border p-6">
-            <h3 className="text-lg font-semibold text-text-strong mb-4">العقود</h3>
+            <h3 className="text-lg font-semibold text-text-strong mb-4">{t('detailPages.contracts', 'العقود')}</h3>
             {contractsLoading ? (
               <div className="flex justify-center py-8">
                 <Loader />
@@ -413,7 +415,7 @@ export default function ClientDetailPage() {
                     className="p-4 border border-border rounded-lg hover:bg-gray-50 transition-colors">
                     <div className="flex items-start justify-between mb-2">
                       <h4 className="text-base font-semibold text-text-strong">
-                        عقد #{contract.id.slice(0, 8)}
+                        {t('detailPages.contractNum', 'عقد #')}{contract.id.slice(0, 8)}
                       </h4>
                       <span
                         className={`px-2 py-1 rounded text-xs font-medium ${
@@ -423,24 +425,24 @@ export default function ClientDetailPage() {
                             ? 'bg-red-100 text-red-700'
                             : 'bg-gray-100 text-gray-700'
                         }`}>
-                        {contract.status}
+                        {t(`detailPages.${contract.status}`, contract.status)}
                       </span>
                     </div>
                     <p className="text-sm text-text-sub mb-2 line-clamp-2">
                       {contract.termsAndConditions}
                     </p>
                     <div className="flex items-center gap-4 text-xs text-text-sub">
-                      <span>القيمة: {contract.value}</span>
-                      <span>المدة: {contract.duration} يوم</span>
+                      <span>{t('detailPages.value', 'القيمة')}: {contract.value}</span>
+                      <span>{t('detailPages.duration', 'المدة')}: {contract.duration} {t('detailPages.days', 'يوم')}</span>
                       {contract.freelancerData && (
-                        <span>المستقل: {contract.freelancerData.name}</span>
+                        <span>{t('detailPages.freelancer', 'المستقل')}: {contract.freelancerData.name}</span>
                       )}
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-text-sub">لا توجد عقود حالياً</p>
+              <p className="text-sm text-text-sub">{t('detailPages.noContracts', 'لا توجد عقود حالياً')}</p>
             )}
           </div>
         </div>
@@ -448,11 +450,11 @@ export default function ClientDetailPage() {
     },
     {
       id: 'tags',
-      label: 'العلامات',
+      label: t('detailPages.tags', 'العلامات'),
       content: (
         <div className="space-y-4">
           <div className="bg-white rounded-lg border border-border p-6">
-            <h3 className="text-lg font-semibold text-text-strong mb-4">العلامات</h3>
+            <h3 className="text-lg font-semibold text-text-strong mb-4">{t('detailPages.tags', 'العلامات')}</h3>
             {user.tagsData && user.tagsData.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {user.tagsData.map((tag) => (
@@ -474,7 +476,7 @@ export default function ClientDetailPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-text-sub">لا توجد علامات</p>
+              <p className="text-sm text-text-sub">{t('detailPages.noTags', 'لا توجد علامات')}</p>
             )}
           </div>
         </div>
@@ -488,7 +490,7 @@ export default function ClientDetailPage() {
         onClick={() => navigate('/users/clients')}
         className="mb-6 flex items-center gap-2 text-text-sub hover:text-text-strong transition-colors">
         <ArrowRight className="w-5 h-5" />
-        <span>العودة إلى قائمة العملاء</span>
+        <span>{t('detailPages.backToClients', 'العودة إلى قائمة العملاء')}</span>
       </button>
 
       {/* Header with Personal Data */}
@@ -523,12 +525,12 @@ export default function ClientDetailPage() {
                 <h1 className="text-3xl font-semibold text-text-strong mb-2">{user.name}</h1>
                 <div className="flex items-center gap-4 flex-wrap">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-text-sub">رقم الجوال:</span>
+                    <span className="text-sm text-text-sub">{t('detailPages.phone', 'رقم الجوال:')}</span>
                     <span className="text-sm font-english text-text-strong">{user.phone}</span>
                   </div>
                   {user.country && (
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-text-sub">البلد:</span>
+                      <span className="text-sm text-text-sub">{t('detailPages.country', 'البلد:')}</span>
                       <span className="text-sm text-text-strong">{user.country}</span>
                     </div>
                   )}
@@ -548,12 +550,12 @@ export default function ClientDetailPage() {
                   {user.isVerifiedAsClient ? (
                     <>
                       <XCircle className="w-4 h-4" />
-                      <span>إلغاء التحقق كعميل</span>
+                      <span>{t('detailPages.unverifyAsClient', 'إلغاء التحقق كعميل')}</span>
                     </>
                   ) : (
                     <>
                       <CheckCircle className="w-4 h-4" />
-                      <span>التحقق كعميل</span>
+                      <span>{t('detailPages.verifyAsClient', 'التحقق كعميل')}</span>
                     </>
                   )}
                 </button>
@@ -561,7 +563,7 @@ export default function ClientDetailPage() {
                   onClick={handleStartChat}
                   className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
                   <MessageCircle className="w-5 h-5" />
-                  <span>بدء المحادثة</span>
+                  <span>{t('detailPages.startChat', 'بدء المحادثة')}</span>
                 </button>
               </div>
             </div>
@@ -575,10 +577,10 @@ export default function ClientDetailPage() {
                 }`}>
                 {user.isVerifiedAsClient ? (
                   <>
-                    <CheckCircle className="w-3.5 h-3.5 me-1" /> محقق كعميل
+                    <CheckCircle className="w-3.5 h-3.5 me-1" /> {t('detailPages.clientVerified', 'محقق كعميل')}
                   </>
                 ) : (
-                  'غير محقق'
+                  t('detailPages.unverified', 'غير محقق')
                 )}
               </span>
               <span
@@ -587,11 +589,11 @@ export default function ClientDetailPage() {
                     ? 'bg-red-100 text-red-700 border border-red-200'
                     : 'bg-green-100 text-green-700 border border-green-200'
                 }`}>
-                {user.isSuspended ? 'معلق' : 'نشط'}
+                {user.isSuspended ? t('detailPages.suspended', 'معلق') : t('detailPages.active', 'نشط')}
               </span>
               {user.phoneVerification && (
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 border border-blue-200">
-                  <CheckCircle className="w-3.5 h-3.5 me-1" /> الهاتف محقق
+                  <CheckCircle className="w-3.5 h-3.5 me-1" /> {t('detailPages.phoneVerified', 'الهاتف محقق')}
                 </span>
               )}
             </div>
@@ -604,7 +606,7 @@ export default function ClientDetailPage() {
 
             {user.address && (
               <div className="mt-2">
-                <span className="text-sm text-text-sub">العنوان: </span>
+                <span className="text-sm text-text-sub">{t('detailPages.address', 'العنوان: ')}</span>
                 <span className="text-sm text-text-strong">{user.address}</span>
               </div>
             )}
@@ -622,7 +624,7 @@ export default function ClientDetailPage() {
         isOpen={isChatModalOpen}
         onClose={() => setIsChatModalOpen(false)}
         conversationId={conversationId}
-        conversationName={`محادثة مع ${user.name}`}
+        conversationName={`${t('detailPages.chatWith', 'محادثة مع ')}${user.name}`}
         participantName={user.name}
         participantId={id}
       />
@@ -632,7 +634,7 @@ export default function ClientDetailPage() {
         isOpen={successModalOpen}
         onClose={() => setSuccessModalOpen(false)}
         message={successMessage}
-        details="تم تنفيذ العملية عبر واجهة التحقق للمستخدم."
+        details={t('detailPages.userVerifySuccess', 'تم تنفيذ العملية عبر واجهة التحقق للمستخدم.')}
       />
     </div>
   );

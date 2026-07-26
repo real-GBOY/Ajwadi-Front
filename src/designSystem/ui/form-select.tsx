@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, forwardRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface SelectOption {
   value: string;
@@ -28,7 +29,7 @@ export const FormSelect = forwardRef<HTMLSelectElement, FormSelectProps>(
       error,
       required,
       options,
-      placeholder = 'اختر...',
+      placeholder,
       isLoading = false,
       dir = 'rtl',
       value = '',
@@ -40,6 +41,8 @@ export const FormSelect = forwardRef<HTMLSelectElement, FormSelectProps>(
     },
     ref
   ) => {
+    const { t } = useTranslation();
+    const defaultPlaceholder = placeholder || t('forms.selectOption', 'اختر...');
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const hiddenSelectRef = useRef<HTMLSelectElement>(null);
@@ -65,7 +68,7 @@ export const FormSelect = forwardRef<HTMLSelectElement, FormSelectProps>(
     }, [isOpen]);
 
     const selectedOption = options.find((opt) => opt.value === value);
-    const displayValue = selectedOption ? selectedOption.label : (isLoading ? 'جاري التحميل...' : placeholder);
+    const displayValue = selectedOption ? selectedOption.label : (isLoading ? t('forms.loading', 'جاري التحميل...') : defaultPlaceholder);
 
     const handleSelect = (optionValue: string) => {
       if (hiddenSelectRef.current) {
@@ -219,17 +222,15 @@ export const FormSelect = forwardRef<HTMLSelectElement, FormSelectProps>(
                 </div>
               ) : (
                 <div
-                  className={`px-4 py-2.5 text-sm text-gray-500 ${
-                    dir === 'ltr' ? 'text-left' : 'text-right'
-                  }`}>
-                  لا توجد خيارات متاحة
+                  className={`px-4 py-2.5 text-sm text-gray-500 rtl:text-right ltr:text-left`}>
+                  {t('forms.noOptions', 'لا توجد خيارات متاحة')}
                 </div>
               )}
             </div>
           )}
         </div>
         {error && (
-          <p className="mt-1.5 text-sm text-red-500 text-right">{error}</p>
+          <p className="mt-1.5 text-sm text-red-500 rtl:text-right ltr:text-left">{error}</p>
         )}
       </div>
     );

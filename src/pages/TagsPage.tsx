@@ -11,7 +11,7 @@ import type { Tag, CreateTagRequest } from '../services/tagService';
 import TagForm from '../components/forms/TagForm';
 
 export default function TagsPage() {
-   const { t } = useTranslation();
+   const { t, i18n } = useTranslation();
    const [searchQuery, setSearchQuery] = useState('');
    const [pagination, setPagination] = useState({
       pageIndex: 0,
@@ -56,7 +56,7 @@ export default function TagsPage() {
    };
 
    const handleDelete = useCallback(async (tag: Tag) => {
-      if (window.confirm('هل أنت متأكد من حذف هذه العلامة؟')) {
+      if (window.confirm(t('appData.confirmDeleteTag', 'هل أنت متأكد من حذف هذه العلامة؟'))) {
          try {
             await deleteTagMutation.mutateAsync(tag.id);
             refetch();
@@ -64,7 +64,7 @@ export default function TagsPage() {
             console.error('Error deleting tag:', error);
          }
       }
-   }, [deleteTagMutation, refetch]);
+   }, [deleteTagMutation, refetch, t]);
 
    const handleAdd = () => {
       setSelectedTag(null);
@@ -98,12 +98,12 @@ export default function TagsPage() {
       () => [
          {
             accessorKey: 'name',
-            header: 'اسم العلامة',
+            header: t('appData.tagName', 'اسم العلامة'),
             size: 200,
          },
          {
             accessorKey: 'badgeUrl',
-            header: 'الشارة',
+            header: t('appData.badge', 'الشارة'),
             size: 150,
             cell: ({ row }) => {
                const badgeUrl = row.getValue('badgeUrl') as string;
@@ -118,7 +118,7 @@ export default function TagsPage() {
                            target.style.display = 'none';
                            const parent = target.parentElement;
                            if (parent) {
-                              parent.innerHTML = '<span class="text-text-soft text-xs">فشل تحميل الصورة</span>';
+                              parent.innerHTML = `<span class="text-text-soft text-xs">${t('appData.imageLoadFailed', 'فشل تحميل الصورة')}</span>`;
                            }
                         }}
                      />
@@ -130,14 +130,14 @@ export default function TagsPage() {
          },
          {
             accessorKey: 'status',
-            header: 'الحالة',
+            header: t('labels.status', 'الحالة'),
             size: 120,
             cell: ({ row }) => {
                const status = row.getValue('status') as string;
                const statusMap: Record<string, { label: string; className: string }> = {
-                  pending: { label: 'قيد الانتظار', className: 'bg-yellow-100 text-yellow-800' },
-                  accepted: { label: 'مقبول', className: 'bg-green-100 text-green-800' },
-                  rejected: { label: 'مرفوض', className: 'bg-red-100 text-red-800' },
+                  pending: { label: t('status.pending', 'قيد الانتظار'), className: 'bg-yellow-100 text-yellow-800' },
+                  accepted: { label: t('status.accepted', 'مقبول'), className: 'bg-green-100 text-green-800' },
+                  rejected: { label: t('status.rejected', 'مرفوض'), className: 'bg-red-100 text-red-800' },
                };
                const statusInfo = statusMap[status] || { label: status || '-', className: 'bg-gray-100 text-gray-800' };
                return (
@@ -149,7 +149,7 @@ export default function TagsPage() {
          },
          {
             accessorKey: 'createdAt',
-            header: 'تاريخ الإنشاء',
+            header: t('labels.createdAt', 'تاريخ الإنشاء'),
             size: 180,
             cell: ({ row }) => {
                const date = row.getValue('createdAt') as string;
@@ -158,7 +158,7 @@ export default function TagsPage() {
                   const d = new Date(date);
                   return (
                      <span>
-                        {d.toLocaleDateString('ar-SA', {
+                        {d.toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
                            year: 'numeric',
                            month: 'long',
                            day: 'numeric',
@@ -172,7 +172,7 @@ export default function TagsPage() {
          },
          {
             id: 'actions',
-            header: 'الإجراءات',
+            header: t('labels.actions', 'الإجراءات'),
             size: 100,
             cell: ({ row }) => {
                const tag = row.original;
@@ -184,7 +184,7 @@ export default function TagsPage() {
                            handleEdit(tag);
                         }}
                         className="p-1.5 text-text-sub hover:text-primary hover:bg-primary/10 rounded transition-colors"
-                        title="تعديل">
+                        title={t('actions.edit', 'تعديل')}>
                         <Edit className="w-4 h-4" />
                      </button>
                      <button
@@ -193,7 +193,7 @@ export default function TagsPage() {
                            handleDelete(tag);
                         }}
                         className="p-1.5 text-text-sub hover:text-danger hover:bg-danger/10 rounded transition-colors"
-                        title="حذف">
+                        title={t('actions.delete', 'حذف')}>
                         <Trash2 className="w-4 h-4" />
                      </button>
                   </div>
@@ -201,7 +201,7 @@ export default function TagsPage() {
             },
          },
       ],
-      [handleDelete]
+      [handleDelete, t, i18n.language]
    );
 
    return (
@@ -214,7 +214,7 @@ export default function TagsPage() {
                onClick={handleAdd}
                className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">
                <Plus className="w-5 h-5" />
-               <span>إضافة علامة</span>
+               <span>{t('appData.addTag', 'إضافة علامة')}</span>
             </button>
          </div>
 
@@ -223,7 +223,7 @@ export default function TagsPage() {
                <SearchInput
                   value={searchQuery}
                   onChange={setSearchQuery}
-                  placeholder="ابحث عن علامة..."
+                  placeholder={t('appData.searchTag', 'ابحث عن علامة...')}
                   className="max-w-md"
                />
             </div>
@@ -246,7 +246,7 @@ export default function TagsPage() {
          <Modal
             isOpen={isModalOpen}
             onClose={handleCloseModal}
-            title={selectedTag ? 'تعديل علامة' : 'إضافة علامة جديدة'}
+            title={selectedTag ? t('appData.editTag', 'تعديل علامة') : t('appData.addNewTag', 'إضافة علامة جديدة')}
             size="md">
             <TagForm
                tag={selectedTag}

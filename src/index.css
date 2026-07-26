@@ -263,6 +263,11 @@ html[dir="rtl"] {
    direction: rtl;
 }
 
+html[lang="en"],
+html[dir="ltr"] {
+   direction: ltr;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    SCROLLBAR STYLES
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -367,6 +372,24 @@ html[lang="ar"] .main-page {
 html[dir="rtl"] .main-page *,
 html[lang="ar"] .main-page * {
    font-family: inherit;
+}
+
+/* English font for English mode across the whole app */
+html[dir="ltr"] body,
+html[lang="en"] body,
+html[dir="ltr"] .settings-page,
+html[lang="en"] .settings-page,
+html[dir="ltr"] .main-page,
+html[lang="en"] .main-page,
+html[dir="ltr"] button,
+html[lang="en"] button,
+html[dir="ltr"] input,
+html[lang="en"] input,
+html[dir="ltr"] textarea,
+html[lang="en"] textarea,
+html[dir="ltr"] select,
+html[lang="en"] select {
+   font-family: var(--font-sf-pro-rounded), -apple-system, BlinkMacSystemFont, sans-serif !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════

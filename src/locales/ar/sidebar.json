@@ -42,13 +42,15 @@
     "specification": "المجالات",
     "privacyPolicy": "سياسة الخصوصية",
     "demands": "الطلبات",
-    "demandsItem": "الطلبات",
+    "demandsItem": "طلبات العلامات",
     "identity": "الهوية",
     "tags": "العلامات",
     "experience": "الخبرة",
-    "complain": "شكوى",
-    "public": "عام",
-    "projects": "مشاريع",
+    "complain": "الشكاوى",
+    "public": "شكاوى عامة",
+    "projects": "شكاوى المشاريع",
+    "projectsComplaints": "شكاوى المشاريع",
+    "publicComplaints": "شكاوى عامة",
     "finance": "المالية",
     "transactions": "المعاملات",
     "withdrawDemand": "طلب السحب",
@@ -60,6 +62,7 @@
     "logOut": "تسجيل الخروج",
     "menu": "القائمة",
     "close": "إغلاق",
-    "pushNotifications": "الإشعارات الفورية"
+    "pushNotifications": "الإشعارات الفورية",
+    "language": "اللغة"
   }
 }

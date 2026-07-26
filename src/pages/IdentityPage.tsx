@@ -10,7 +10,7 @@ import SearchInput from '@/designSystem/SearchInput';
 import { useDebounce } from '@/hooks/useDebounce';
 
 export default function IdentityPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
@@ -25,7 +25,7 @@ export default function IdentityPage() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('ar-SA', {
+    return date.toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -50,10 +50,10 @@ export default function IdentityPage() {
   };
 
   return (
-    <div className="p-6 space-y-6" dir="rtl">
+    <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">الهوية</h1>
-        <p className="text-gray-600">إدارة طلبات التحقق للمستخدمين</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('sidebar.identity', 'الهوية')}</h1>
+        <p className="text-gray-600">{t('demands.identity.subtitle', 'إدارة طلبات التحقق للمستخدمين')}</p>
       </div>
 
       {/* Search */}
@@ -64,16 +64,16 @@ export default function IdentityPage() {
             setSearch(value);
             setPage(1); // Reset to first page on search
           }}
-          placeholder="البحث بالاسم..."
+          placeholder={t('pages.identity.searchPlaceholder', 'البحث بالاسم...')}
         />
       </div>
 
       {/* Verification Demands Section */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-semibold text-gray-900">المستخدمون قيد المراجعة</h2>
+          <h2 className="text-2xl font-semibold text-gray-900">{t('demands.identity.usersUnderReview', 'المستخدمون قيد المراجعة')}</h2>
           <span className="text-sm text-gray-500">
-            {verificationData?.pagination.totalItems || 0} طلب
+            {verificationData?.pagination.totalItems || 0} {t('labels.request', 'طلب')}
           </span>
         </div>
 
@@ -120,7 +120,7 @@ export default function IdentityPage() {
 
                   <div className="space-y-2 mb-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500">النوع:</span>
+                      <span className="text-xs text-gray-500">{t('labels.type', 'النوع')}:</span>
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-medium ${
                           demand.mode === 'freelancer'
@@ -128,11 +128,11 @@ export default function IdentityPage() {
                             : 'bg-purple-100 text-purple-700'
                         }`}
                       >
-                        {demand.mode === 'freelancer' ? 'مستقل' : 'عميل'}
+                        {demand.mode === 'freelancer' ? t('labels.freelancer', 'مستقل') : t('labels.client', 'عميل')}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500">التاريخ:</span>
+                      <span className="text-xs text-gray-500">{t('labels.date', 'التاريخ')}:</span>
                       <span className="text-xs text-gray-700">{formatDate(demand.createdAt)}</span>
                     </div>
                   </div>
@@ -142,7 +142,7 @@ export default function IdentityPage() {
                     className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors text-sm font-medium"
                   >
                     <Eye className="w-4 h-4" />
-                    <span>عرض التفاصيل</span>
+                    <span>{t('actions.viewDetails', 'عرض التفاصيل')}</span>
                   </button>
                 </div>
               ))}
@@ -156,10 +156,10 @@ export default function IdentityPage() {
                   disabled={!verificationData.pagination.hasPreviousPage}
                   className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                 >
-                  السابق
+                  {t('pagination.previous', 'السابق')}
                 </button>
                 <span className="px-4 py-2 text-sm text-gray-700">
-                  صفحة {verificationData.pagination.currentPage} من{' '}
+                  {t('pagination.page', 'صفحة')} {verificationData.pagination.currentPage} {t('pagination.of', 'من')}{' '}
                   {verificationData.pagination.totalPages}
                 </span>
                 <button
@@ -167,7 +167,7 @@ export default function IdentityPage() {
                   disabled={!verificationData.pagination.hasNextPage}
                   className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                 >
-                  التالي
+                  {t('pagination.next', 'التالي')}
                 </button>
               </div>
             )}
@@ -175,7 +175,7 @@ export default function IdentityPage() {
         ) : (
           <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
             <User className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-            <p className="text-gray-500">لا توجد طلبات تحقق</p>
+            <p className="text-gray-500">{t('table.noVerificationDemands', 'لا توجد طلبات تحقق')}</p>
           </div>
         )}
       </div>

@@ -5,6 +5,7 @@ import endPoints from '@/config/endPoints';
 import { experienceDemandService } from './experienceDemandService';
 import type { FilePurpose } from './s3Service';
 import axios from 'axios';
+import i18n from '@/config/i18n';
 
 export interface GenerateAndUploadCertificateParams {
   userName: string;
@@ -145,7 +146,7 @@ export async function generateAndUploadCertificate(
         });
         throw new Error(
           (uploadError.response.data as { message?: string })?.message || 
-          `فشل في الحصول على رابط الرفع: ${uploadError.response.status} ${uploadError.response.statusText}`
+          `${i18n.t('apiErrors.uploadLinkFailed', 'فشل في الحصول على رابط الرفع: ')}${uploadError.response.status} ${uploadError.response.statusText}`
         );
       }
       throw uploadError;
@@ -158,6 +159,6 @@ export async function generateAndUploadCertificate(
       throw error;
     }
     
-    throw new Error('فشل في إنشاء وتحميل الشهادة');
+    throw new Error(i18n.t('apiErrors.certGenFailed', 'فشل في إنشاء وتحميل الشهادة'));
   }
 }

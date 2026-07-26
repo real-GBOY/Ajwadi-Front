@@ -17,7 +17,7 @@ const LANGUAGE_MAP: Record<string, string> = {
 };
 
 export default function PrivacyPolicyPage() {
-   const { t } = useTranslation();
+   const { t, i18n } = useTranslation();
    const [searchQuery, setSearchQuery] = useState('');
    const [pagination, setPagination] = useState({
       pageIndex: 0,
@@ -58,7 +58,7 @@ export default function PrivacyPolicyPage() {
    };
 
    const handleDelete = useCallback(async (privacyPolicy: PrivacyPolicy) => {
-      if (window.confirm('هل أنت متأكد من حذف سياسة الخصوصية هذه؟')) {
+      if (window.confirm(t('appData.confirmDeletePolicy', 'هل أنت متأكد من حذف سياسة الخصوصية هذه؟'))) {
          try {
             await deletePrivacyPolicyMutation.mutateAsync(privacyPolicy.id);
             refetch();
@@ -66,7 +66,7 @@ export default function PrivacyPolicyPage() {
             console.error('Error deleting privacy policy:', error);
          }
       }
-   }, [deletePrivacyPolicyMutation, refetch]);
+   }, [deletePrivacyPolicyMutation, refetch, t]);
 
    const handleAdd = () => {
       setSelectedPrivacyPolicy(null);
@@ -108,7 +108,7 @@ export default function PrivacyPolicyPage() {
                onClick={handleAdd}
                className="flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors w-full sm:w-auto shrink-0">
                <Plus className="w-5 h-5 shrink-0" />
-               <span>إضافة سياسة خصوصية</span>
+               <span>{t('appData.addPolicy', 'إضافة سياسة خصوصية')}</span>
             </button>
          </div>
 
@@ -116,7 +116,7 @@ export default function PrivacyPolicyPage() {
             <SearchInput
                value={searchQuery}
                onChange={setSearchQuery}
-               placeholder="ابحث عن سياسة خصوصية..."
+               placeholder={t('appData.searchPolicy', 'ابحث عن سياسة خصوصية...')}
                className="w-full max-w-md"
             />
          </div>
@@ -127,7 +127,7 @@ export default function PrivacyPolicyPage() {
             </div>
          ) : data.length === 0 ? (
             <div className="bg-white rounded-lg border border-border p-8 text-center text-text-sub">
-               لا توجد سياسات خصوصية
+               {t('table.noResults', 'لا توجد نتائج')}
             </div>
          ) : (
             <>
@@ -148,7 +148,7 @@ export default function PrivacyPolicyPage() {
                            </p>
                            {policy.createdAt && (
                               <p className="text-xs text-text-soft mt-3">
-                                 {new Date(policy.createdAt).toLocaleDateString('ar-SA', {
+                                 {new Date(policy.createdAt).toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
                                     year: 'numeric',
                                     month: 'short',
                                     day: 'numeric',
@@ -160,13 +160,13 @@ export default function PrivacyPolicyPage() {
                            <button
                               onClick={() => handleEdit(policy)}
                               className="p-2 text-text-sub hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
-                              title="تعديل">
+                              title={t('actions.edit', 'تعديل')}>
                               <Edit className="w-4 h-4" />
                            </button>
                            <button
                               onClick={() => handleDelete(policy)}
                               className="p-2 text-text-sub hover:text-danger hover:bg-danger/10 rounded-lg transition-colors"
-                              title="حذف">
+                              title={t('actions.delete', 'حذف')}>
                               <Trash2 className="w-4 h-4" />
                            </button>
                         </div>
@@ -177,7 +177,7 @@ export default function PrivacyPolicyPage() {
                {pageCount > 1 && (
                   <div className="flex flex-wrap items-center justify-center gap-3 mt-6 py-4 px-3 bg-white rounded-lg border border-border">
                      <span className="text-sm text-text-sub">
-                        صفحة {currentPage} من {pageCount}
+                        {t('pagination.page', 'صفحة')} {currentPage} {t('pagination.of', 'من')} {pageCount}
                      </span>
                      <div className="flex items-center gap-1">
                         <button
@@ -185,14 +185,14 @@ export default function PrivacyPolicyPage() {
                            onClick={() => setPagination((p) => ({ ...p, pageIndex: Math.max(0, p.pageIndex - 1) }))}
                            disabled={pagination.pageIndex === 0}
                            className="p-2 rounded-lg text-text-sub hover:bg-bg-weak disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                           <ChevronRight className="w-5 h-5" />
+                           <ChevronRight className="w-5 h-5 rtl:rotate-180 ltr:rotate-0" />
                         </button>
                         <button
                            type="button"
                            onClick={() => setPagination((p) => ({ ...p, pageIndex: Math.min(pageCount - 1, p.pageIndex + 1) }))}
                            disabled={pagination.pageIndex >= pageCount - 1}
                            className="p-2 rounded-lg text-text-sub hover:bg-bg-weak disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                           <ChevronLeft className="w-5 h-5" />
+                           <ChevronLeft className="w-5 h-5 rtl:rotate-180 ltr:rotate-0" />
                         </button>
                      </div>
                   </div>
@@ -203,7 +203,7 @@ export default function PrivacyPolicyPage() {
          <Modal
             isOpen={isModalOpen}
             onClose={handleCloseModal}
-            title={selectedPrivacyPolicy ? 'تعديل سياسة خصوصية' : 'إضافة سياسة خصوصية جديدة'}
+            title={selectedPrivacyPolicy ? t('appData.editPolicy', 'تعديل سياسة خصوصية') : t('appData.addNewPolicy', 'إضافة سياسة خصوصية جديدة')}
             size="lg"
             className="max-w-[95vw] sm:max-w-2xl">
             <PrivacyPolicyForm

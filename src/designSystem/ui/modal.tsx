@@ -34,8 +34,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', className
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-3 sm:p-4"
-      onClick={onClose}
-      dir="rtl">
+      onClick={onClose}>
       <div
         className={`bg-white rounded-lg shadow-xl w-full ${sizeClasses[size]} max-h-[90vh] overflow-hidden flex flex-col ${className ?? ''}`}
         onClick={(e) => e.stopPropagation()}>

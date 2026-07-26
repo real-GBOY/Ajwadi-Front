@@ -16,7 +16,7 @@ import SearchInput from '../designSystem/SearchInput';
 import EmployeeForm from '../components/forms/EmployeeForm';
 
 export default function EmployeesPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -60,7 +60,7 @@ export default function EmployeesPage() {
   };
 
   const handleDelete = useCallback(async (employee: Employee) => {
-    if (window.confirm('هل أنت متأكد من حذف هذا الموظف؟')) {
+    if (window.confirm(t('confirmDeleteEmployee', 'هل أنت متأكد من حذف هذا الموظف؟'))) {
       try {
         await deleteEmployeeMutation.mutateAsync(employee.id);
         refetch();
@@ -102,12 +102,12 @@ export default function EmployeesPage() {
     () => [
       {
         accessorKey: 'name',
-        header: 'اسم الموظف',
+        header: t('labels.name', 'اسم الموظف'),
         size: 180,
       },
       {
         accessorKey: 'email',
-        header: 'البريد الإلكتروني',
+        header: t('labels.email', 'البريد الإلكتروني'),
         size: 220,
         cell: ({ row }) => (
           <span className="font-english">{row.original.email}</span>
@@ -115,7 +115,7 @@ export default function EmployeesPage() {
       },
       {
         accessorKey: 'phone',
-        header: 'رقم الجوال',
+        header: t('labels.phone', 'رقم الجوال'),
         size: 160,
         cell: ({ row }) => (
           <span className="font-english">{row.original.phone || '-'}</span>
@@ -123,7 +123,7 @@ export default function EmployeesPage() {
       },
       {
         accessorKey: 'address',
-        header: 'العنوان',
+        header: t('labels.address', 'العنوان'),
         size: 200,
         cell: ({ row }) => (
           <span className="text-sm text-text-sub">{row.original.address || '-'}</span>
@@ -131,7 +131,7 @@ export default function EmployeesPage() {
       },
       {
         accessorKey: 'Role',
-        header: 'الدور',
+        header: t('labels.role', 'الدور'),
         size: 150,
         cell: ({ row }) => {
           const role = row.original.Role;
@@ -144,14 +144,14 @@ export default function EmployeesPage() {
       },
       {
         accessorKey: 'status',
-        header: 'الحالة',
+        header: t('labels.status', 'الحالة'),
         size: 120,
         cell: ({ row }) => {
           const status = row.getValue('status') as string;
           const statusMap: Record<string, { label: string; className: string }> = {
-            active: { label: 'نشط', className: 'bg-green-100 text-green-800' },
-            inactive: { label: 'غير نشط', className: 'bg-gray-100 text-gray-800' },
-            suspended: { label: 'معلق', className: 'bg-red-100 text-red-800' },
+            active: { label: t('status.active', 'نشط'), className: 'bg-green-100 text-green-800' },
+            inactive: { label: t('status.inactive', 'غير نشط'), className: 'bg-gray-100 text-gray-800' },
+            suspended: { label: t('status.suspended', 'معلق'), className: 'bg-red-100 text-red-800' },
           };
           const statusInfo = statusMap[status] || { label: status || '-', className: 'bg-gray-100 text-gray-800' };
           return (
@@ -163,7 +163,7 @@ export default function EmployeesPage() {
       },
       {
         accessorKey: 'createdAt',
-        header: 'تاريخ الإنشاء',
+        header: t('labels.createdAt', 'تاريخ الإنشاء'),
         size: 180,
         cell: ({ row }) => {
           const date = row.getValue('createdAt') as string;
@@ -172,7 +172,7 @@ export default function EmployeesPage() {
             const d = new Date(date);
             return (
               <span>
-                {d.toLocaleDateString('ar-SA', {
+                {d.toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric',
@@ -186,7 +186,7 @@ export default function EmployeesPage() {
       },
       {
         id: 'actions',
-        header: 'الإجراءات',
+        header: t('labels.actions', 'الإجراءات'),
         size: 100,
         cell: ({ row }) => {
           const employee = row.original;
@@ -198,7 +198,7 @@ export default function EmployeesPage() {
                   handleEdit(employee);
                 }}
                 className="p-1.5 text-text-sub hover:text-primary hover:bg-primary/10 rounded transition-colors"
-                title="تعديل">
+                title={t('actions.edit', 'تعديل')}>
                 <Edit className="w-4 h-4" />
               </button>
               <button
@@ -207,7 +207,7 @@ export default function EmployeesPage() {
                   handleDelete(employee);
                 }}
                 className="p-1.5 text-text-sub hover:text-danger hover:bg-danger/10 rounded transition-colors"
-                title="حذف">
+                title={t('actions.delete', 'حذف')}>
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>
@@ -215,7 +215,7 @@ export default function EmployeesPage() {
         },
       },
     ],
-    [handleDelete]
+    [handleDelete, t, i18n.language]
   );
 
   return (
@@ -228,7 +228,7 @@ export default function EmployeesPage() {
           onClick={handleAdd}
           className="flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors w-full sm:w-auto shrink-0">
           <Plus className="w-5 h-5 shrink-0" />
-          <span>إضافة موظف</span>
+          <span>{t('actions.add', 'إضافة موظف')}</span>
         </button>
       </div>
 
@@ -237,7 +237,7 @@ export default function EmployeesPage() {
           <SearchInput
             value={searchQuery}
             onChange={setSearchQuery}
-            placeholder="ابحث عن موظف..."
+            placeholder={t('pages.employees.searchPlaceholder', 'ابحث عن موظف...')}
             className="w-full max-w-md"
           />
         </div>
@@ -262,7 +262,7 @@ export default function EmployeesPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        title={selectedEmployee ? 'تعديل موظف' : 'إضافة موظف جديد'}
+        title={selectedEmployee ? t('actions.edit', 'تعديل موظف') : t('actions.add', 'إضافة موظف جديد')}
         size="md"
         className="max-w-[95vw] sm:max-w-lg">
         <EmployeeForm

@@ -66,7 +66,7 @@ export default function ClientsPage() {
           <SearchInput
             value={searchQuery}
             onChange={setSearchQuery}
-            placeholder="ابحث عن عميل..."
+            placeholder={t('pages.clients.searchPlaceholder', 'ابحث عن عميل...')}
             className="max-w-md"
           />
         </div>
@@ -93,8 +93,8 @@ export default function ClientsPage() {
             {pageCount > 1 && (
               <div className="p-4 border-t border-border flex items-center justify-between">
                 <div className="text-sm text-text-sub">
-                  عرض {pagination.pageIndex * pagination.pageSize + 1} -{' '}
-                  {Math.min((pagination.pageIndex + 1) * pagination.pageSize, totalItems)} من{' '}
+                  {t('pagination.showing', 'عرض')} {pagination.pageIndex * pagination.pageSize + 1} -{' '}
+                  {Math.min((pagination.pageIndex + 1) * pagination.pageSize, totalItems)} {t('pagination.of', 'من')}{' '}
                   {totalItems}
                 </div>
                 <div className="flex items-center gap-2">
@@ -102,7 +102,7 @@ export default function ClientsPage() {
                     onClick={handlePreviousPage}
                     disabled={pagination.pageIndex === 0}
                     className="p-2 rounded-lg border border-border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                    <ChevronRight className="w-5 h-5" />
+                    <ChevronRight className="w-5 h-5 rtl:rotate-0 ltr:rotate-180" />
                   </button>
                   <span className="text-sm text-text-strong px-3">
                     {pagination.pageIndex + 1} / {pageCount}
@@ -111,7 +111,7 @@ export default function ClientsPage() {
                     onClick={handleNextPage}
                     disabled={pagination.pageIndex >= pageCount - 1}
                     className="p-2 rounded-lg border border-border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                    <ChevronLeft className="w-5 h-5" />
+                    <ChevronLeft className="w-5 h-5 rtl:rotate-0 ltr:rotate-180" />
                   </button>
                 </div>
               </div>
@@ -119,7 +119,7 @@ export default function ClientsPage() {
           </>
         ) : (
           <div className="p-12 text-center">
-            <p className="text-text-sub">لا توجد عملاء</p>
+            <p className="text-text-sub">{t('table.noResults', 'لا توجد عملاء')}</p>
           </div>
         )}
       </div>

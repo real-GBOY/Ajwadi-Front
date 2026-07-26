@@ -10,8 +10,10 @@ import { Eye, Tag, CheckCircle, XCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { TagAttachmentDemand } from '@/services/demandService';
 import SuccessModal from '@/designSystem/SuccessModal';
+import { useTranslation } from 'react-i18next';
 
 export default function DemandsPage() {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const limit = 12;
@@ -28,7 +30,7 @@ export default function DemandsPage() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('ar-SA', {
+    return date.toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -38,16 +40,16 @@ export default function DemandsPage() {
   const handleAccept = async (demand: TagAttachmentDemand) => {
     try {
       await acceptMutation.mutateAsync(demand.id);
-      setSuccessMessage(`تم قبول طلب مرفق العلامة "${demand.tagData?.name || 'غير معروف'}" بنجاح`);
+      setSuccessMessage(`${t('demands.tags.acceptSuccess', 'تم قبول طلب مرفق العلامة بنجاح')}`);
       setSuccessModalOpen(true);
     } catch (error) {
       console.error('Error accepting tag attachment:', error);
-      alert('حدث خطأ أثناء قبول الطلب');
+      alert(t('demands.tags.errorAccept', 'حدث خطأ أثناء قبول الطلب'));
     }
   };
 
   const handleReject = async (demand: TagAttachmentDemand) => {
-    const rejectionReason = prompt('يرجى إدخال سبب الرفض:');
+    const rejectionReason = prompt(t('demands.tags.promptReason', 'يرجى إدخال سبب الرفض:'));
     if (!rejectionReason || rejectionReason.trim() === '') {
       return;
     }
@@ -57,27 +59,27 @@ export default function DemandsPage() {
         id: demand.id,
         rejectionReason: rejectionReason.trim(),
       });
-      setSuccessMessage(`تم رفض طلب مرفق العلامة "${demand.tagData?.name || 'غير معروف'}" بنجاح`);
+      setSuccessMessage(`${t('demands.tags.rejectSuccess', 'تم رفض طلب مرفق العلامة بنجاح')}`);
       setSuccessModalOpen(true);
     } catch (error) {
       console.error('Error rejecting tag attachment:', error);
-      alert('حدث خطأ أثناء رفض الطلب');
+      alert(t('demands.tags.errorReject', 'حدث خطأ أثناء رفض الطلب'));
     }
   };
 
   return (
-    <div className="p-6 space-y-6" dir="rtl">
+    <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">الطلبات</h1>
-        <p className="text-gray-600">إدارة طلبات مرفقات العلامات</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('demands.tags.title', 'طلبات ربط العلامات')}</h1>
+        <p className="text-gray-600">{t('demands.tags.subtitle', 'إدارة طلبات مرفقات العلامات')}</p>
       </div>
 
       {/* Tag Attachment Demands Section */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-semibold text-gray-900">طلبات مرفقات العلامات</h2>
+          <h2 className="text-2xl font-semibold text-gray-900">{t('demands.tags.title', 'طلبات مرفقات العلامات')}</h2>
           <span className="text-sm text-gray-500">
-            {tagAttachmentData?.pagination.totalItems || 0} طلب
+            {tagAttachmentData?.pagination.totalItems || 0} {t('labels.request', 'طلب')}
           </span>
         </div>
 
@@ -113,17 +115,17 @@ export default function DemandsPage() {
                     )}
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-gray-900 truncate">
-                        {demand.tagData?.name || 'علامة غير معروفة'}
+                        {demand.tagData?.name || t('labels.unknownTag', 'علامة غير معروفة')}
                       </h3>
                       <p className="text-sm text-gray-500">
-                        {demand.userData?.name || 'مستخدم غير معروف'}
+                        {demand.userData?.name || t('labels.unknownUser', 'مستخدم غير معروف')}
                       </p>
                     </div>
                   </div>
 
                   <div className="space-y-2 mb-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500">الحالة:</span>
+                      <span className="text-xs text-gray-500">{t('labels.status', 'الحالة')}:</span>
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-medium ${
                           demand.status === 'pending'
@@ -134,14 +136,14 @@ export default function DemandsPage() {
                         }`}
                       >
                         {demand.status === 'pending'
-                          ? 'قيد المراجعة'
+                          ? t('status.pending', 'قيد المراجعة')
                           : demand.status === 'accepted'
-                          ? 'مقبول'
-                          : 'مرفوض'}
+                          ? t('status.accepted', 'مقبول')
+                          : t('status.rejected', 'مرفوض')}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500">التاريخ:</span>
+                      <span className="text-xs text-gray-500">{t('labels.date', 'التاريخ')}:</span>
                       <span className="text-xs text-gray-700">{formatDate(demand.createdAt)}</span>
                     </div>
                   </div>
@@ -150,7 +152,7 @@ export default function DemandsPage() {
                     <div className="mb-3">
                       <img
                         src={demand.fileUrl}
-                        alt="مرفق"
+                        alt={t('chat.attachment', 'مرفق')}
                         className="w-full h-32 object-cover rounded-lg"
                       />
                     </div>
@@ -164,7 +166,7 @@ export default function DemandsPage() {
                         className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <CheckCircle className="w-4 h-4" />
-                        <span>قبول</span>
+                        <span>{t('actions.accept', 'قبول')}</span>
                       </button>
                       <button
                         onClick={() => handleReject(demand)}
@@ -172,7 +174,7 @@ export default function DemandsPage() {
                         className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <XCircle className="w-4 h-4" />
-                        <span>رفض</span>
+                        <span>{t('actions.reject', 'رفض')}</span>
                       </button>
                     </div>
                   )}
@@ -186,7 +188,7 @@ export default function DemandsPage() {
                     className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors text-sm font-medium"
                   >
                     <Eye className="w-4 h-4" />
-                    <span>عرض التفاصيل</span>
+                    <span>{t('actions.viewDetails', 'عرض التفاصيل')}</span>
                   </button>
                 </div>
               ))}
@@ -200,10 +202,10 @@ export default function DemandsPage() {
                   disabled={!tagAttachmentData.pagination.hasPreviousPage}
                   className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                 >
-                  السابق
+                  {t('pagination.previous', 'السابق')}
                 </button>
                 <span className="px-4 py-2 text-sm text-gray-700">
-                  صفحة {tagAttachmentData.pagination.currentPage} من{' '}
+                  {t('pagination.page', 'صفحة')} {tagAttachmentData.pagination.currentPage} {t('pagination.of', 'من')}{' '}
                   {tagAttachmentData.pagination.totalPages}
                 </span>
                 <button
@@ -211,7 +213,7 @@ export default function DemandsPage() {
                   disabled={!tagAttachmentData.pagination.hasNextPage}
                   className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                 >
-                  التالي
+                  {t('pagination.next', 'التالي')}
                 </button>
               </div>
             )}
@@ -219,7 +221,7 @@ export default function DemandsPage() {
         ) : (
           <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
             <Tag className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-            <p className="text-gray-500">لا توجد طلبات مرفقات علامات</p>
+            <p className="text-gray-500">{t('table.noTagDemands', 'لا توجد طلبات مرفقات علامات')}</p>
           </div>
         )}
       </div>

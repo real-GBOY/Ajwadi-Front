@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { SPECIFICATION_ICONS, type IconOption } from '@/utils/specificationIcons';
 import { ChevronDown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface IconSelectDropdownProps {
   label?: string;
@@ -22,7 +23,7 @@ export default function IconSelectDropdown({
   label,
   error,
   required,
-  placeholder = 'اختر أيقونة...',
+  placeholder,
   dir = 'rtl',
   value = '',
   onChange,
@@ -31,6 +32,8 @@ export default function IconSelectDropdown({
   name,
   id,
 }: IconSelectDropdownProps) {
+  const { t } = useTranslation();
+  const placeholderText = placeholder || t('forms.iconPlaceholder', 'اختر أيقونة...');
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -71,7 +74,7 @@ export default function IconSelectDropdown({
   return (
     <div>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-2 text-right">
+        <label className="block text-sm font-medium text-gray-700 mb-2 rtl:text-right ltr:text-left">
           {label}
           {required && <span className="text-red-500"> *</span>}
         </label>
@@ -103,7 +106,7 @@ export default function IconSelectDropdown({
                 <span className="text-gray-900 truncate">{selectedIcon.label}</span>
               </>
             ) : (
-              <span className="text-gray-500">{placeholder}</span>
+              <span className="text-gray-500">{placeholderText}</span>
             )}
           </div>
           <div className="flex-shrink-0">
@@ -167,14 +170,14 @@ export default function IconSelectDropdown({
                 className={`px-4 py-2.5 text-sm text-gray-500 ${
                   dir === 'ltr' ? 'text-left' : 'text-right'
                 }`}>
-                لا توجد أيقونات متاحة
+                {t('forms.noIcons', 'لا توجد أيقونات متاحة')}
               </div>
             )}
           </div>
         )}
       </div>
       {error && (
-        <p className="mt-1.5 text-sm text-red-500 text-right">{error}</p>
+        <p className="mt-1.5 text-sm text-red-500 rtl:text-right ltr:text-left">{error}</p>
       )}
     </div>
   );

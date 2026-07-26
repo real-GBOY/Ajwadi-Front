@@ -12,7 +12,7 @@ import type { Transaction } from '../services/walletService';
 import Loader from '../designSystem/Loader';
 
 export default function TopupTransactionPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'PENDING' | 'COMPLETED' | 'FAILED'>('all');
 
@@ -53,17 +53,17 @@ export default function TopupTransactionPage() {
       PENDING: {
         icon: Clock,
         className: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-        label: 'قيد الانتظار',
+        label: t('status.pending', 'قيد الانتظار'),
       },
       COMPLETED: {
         icon: CheckCircle,
         className: 'bg-green-100 text-green-800 border-green-200',
-        label: 'مكتمل',
+        label: t('status.completed', 'مكتمل'),
       },
       FAILED: {
         icon: XCircle,
         className: 'bg-red-100 text-red-800 border-red-200',
-        label: 'فشل',
+        label: t('status.failed', 'فشل'),
       },
     };
 
@@ -84,7 +84,7 @@ export default function TopupTransactionPage() {
     () => [
       {
         accessorKey: 'id',
-        header: 'معرف المعاملة',
+        header: t('finance.txId', 'معرف المعاملة'),
         size: 200,
         cell: ({ row }) => {
           const id = row.getValue('id') as string;
@@ -97,7 +97,7 @@ export default function TopupTransactionPage() {
       },
       {
         accessorKey: 'userId',
-        header: 'معرف المستخدم',
+        header: t('finance.userId', 'معرف المستخدم'),
         size: 200,
         cell: ({ row }) => {
           const userId = row.getValue('userId') as string | undefined;
@@ -112,7 +112,7 @@ export default function TopupTransactionPage() {
       },
       {
         accessorKey: 'amount',
-        header: 'المبلغ',
+        header: t('labels.amount', 'المبلغ'),
         size: 150,
         cell: ({ row }) => {
           const rawAmount = row.getValue('amount') as number | string;
@@ -128,7 +128,7 @@ export default function TopupTransactionPage() {
       },
       {
         accessorKey: 'status',
-        header: 'الحالة',
+        header: t('labels.status', 'الحالة'),
         size: 120,
         cell: ({ row }) => {
           const status = row.getValue('status') as string;
@@ -137,7 +137,7 @@ export default function TopupTransactionPage() {
       },
       {
         accessorKey: 'toWalletId',
-        header: 'معرف المحفظة',
+        header: t('finance.walletId', 'معرف المحفظة'),
         size: 200,
         cell: ({ row }) => {
           const walletId = row.original.toWalletId;
@@ -152,7 +152,7 @@ export default function TopupTransactionPage() {
       },
       {
         accessorKey: 'createdAt',
-        header: 'تاريخ الإنشاء',
+        header: t('labels.createdAt', 'تاريخ الإنشاء'),
         size: 180,
         cell: ({ row }) => {
           const date = row.getValue('createdAt') as string;
@@ -161,7 +161,7 @@ export default function TopupTransactionPage() {
             const d = new Date(date);
             return (
               <span className="text-sm text-text-sub">
-                {d.toLocaleDateString('ar-SA', {
+                {d.toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric',
@@ -177,7 +177,7 @@ export default function TopupTransactionPage() {
       },
       {
         accessorKey: 'updatedAt',
-        header: 'تاريخ التحديث',
+        header: t('labels.updatedAt', 'تاريخ التحديث'),
         size: 180,
         cell: ({ row }) => {
           const date = row.original.updatedAt;
@@ -186,7 +186,7 @@ export default function TopupTransactionPage() {
             const d = new Date(date);
             return (
               <span className="text-sm text-text-sub">
-                {d.toLocaleDateString('ar-SA', {
+                {d.toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric',
@@ -201,7 +201,7 @@ export default function TopupTransactionPage() {
         },
       },
     ],
-    []
+    [i18n.language]
   );
 
   if (isLoading) {
@@ -216,7 +216,7 @@ export default function TopupTransactionPage() {
         </h1>
         <div className="flex items-center gap-2">
           <span className="text-sm text-text-sub">
-            إجمالي معاملات الإيداع: {filteredTransactions.length}
+            {t('finance.totalTopups', 'إجمالي معاملات الإيداع')}: {filteredTransactions.length}
           </span>
         </div>
       </div>
@@ -228,22 +228,22 @@ export default function TopupTransactionPage() {
             <SearchInput
               value={searchQuery}
               onChange={setSearchQuery}
-              placeholder="ابحث عن معاملة إيداع..."
+              placeholder={t('finance.searchTopup', 'ابحث عن معاملة إيداع...')}
               className="max-w-md"
             />
 
             {/* Status Filter */}
             <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-text-strong">الحالة:</label>
+              <label className="text-sm font-medium text-text-strong">{t('labels.status', 'الحالة')}:</label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value as any)}
                 className="px-3 py-1.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
-                <option value="all">الكل</option>
-                <option value="PENDING">قيد الانتظار</option>
-                <option value="COMPLETED">مكتمل</option>
-                <option value="FAILED">فشل</option>
+                <option value="all">{t('status.all', 'الكل')}</option>
+                <option value="PENDING">{t('status.pending', 'قيد الانتظار')}</option>
+                <option value="COMPLETED">{t('status.completed', 'مكتمل')}</option>
+                <option value="FAILED">{t('status.failed', 'فشل')}</option>
               </select>
             </div>
           </div>

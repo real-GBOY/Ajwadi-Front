@@ -2,6 +2,7 @@
 
 import { useRef, useEffect } from 'react';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export interface CertificateData {
   userName: string;
@@ -30,6 +31,7 @@ export default function CertificateModal({
   onPrint,
   isGenerating = false,
 }: CertificateModalProps) {
+  const { t, i18n } = useTranslation();
   const certificateRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = async () => {
@@ -57,7 +59,6 @@ export default function CertificateModal({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
       onClick={onClose}
-      dir="rtl"
     >
       <div
         className="bg-white rounded-xl shadow-2xl w-full max-w-[95vw] max-h-[95vh] overflow-hidden flex flex-col"
@@ -65,14 +66,14 @@ export default function CertificateModal({
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 bg-white sticky top-0 z-10">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">شهادة خبرة</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{t('certificate.title', 'شهادة خبرة')}</h2>
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrint}
               disabled={isGenerating}
               className="px-3 sm:px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base whitespace-nowrap"
             >
-              {isGenerating ? 'جاري الإنشاء...' : 'إنشاء PDF ورفع'}
+              {isGenerating ? t('certificate.generating', 'جاري الإنشاء...') : t('certificate.generatePdf', 'إنشاء PDF ورفع')}
             </button>
             <button
               onClick={onClose}
@@ -88,7 +89,7 @@ export default function CertificateModal({
           <div
             ref={certificateRef}
             className="certificate-wrapper"
-            dir="rtl"
+            dir={i18n.language === 'ar' ? 'rtl' : 'ltr'}
           >
             {/* Certificate Container */}
             <div className="certificate-container">
@@ -100,7 +101,7 @@ export default function CertificateModal({
               <div className="certificate-content">
                 {/* Header Section */}
                 <div className="certificate-header">
-                  <h1 className="certificate-title">شهادة خبرة</h1>
+                  <h1 className="certificate-title">{t('certificate.title', 'شهادة خبرة')}</h1>
                 </div>
 
                 {/* Body Section */}
@@ -115,12 +116,12 @@ export default function CertificateModal({
                   {/* Achievements Section */}
                   {data.achievements && data.achievements.length > 0 && (
                     <div className="certificate-achievements">
-                      <p className="certificate-earned-text">قد حصل على</p>
+                      <p className="certificate-earned-text">{t('certificate.earned', 'قد حصل على')}</p>
                       <p className="certificate-achievements-text">
                         {data.achievements.map((ach, idx) => (
                           <span key={idx}>
                             {ach}
-                            {idx < data.achievements!.length - 1 ? '، ' : ''}
+                            {idx < data.achievements!.length - 1 ? (i18n.language === 'ar' ? '، ' : ', ') : ''}
                           </span>
                         ))}
                       </p>
@@ -131,7 +132,7 @@ export default function CertificateModal({
                   {data.description && (
                     <>
                       <div className="certificate-description-intro">
-                        <p className="certificate-earned-text">بعد إتمام فترة الخبرة في</p>
+                        <p className="certificate-earned-text">{t('certificate.afterCompleting', 'بعد إتمام فترة الخبرة في')}</p>
                       </div>
                       <div className="certificate-description-underline">
                         <p className="certificate-description-text">{data.description}</p>
@@ -142,7 +143,7 @@ export default function CertificateModal({
                   {/* Certificate Number */}
                   {data.certificateNumber && (
                     <div className="certificate-number">
-                      <span className="certificate-number-text">رقم الشهادة: {data.certificateNumber}</span>
+                      <span className="certificate-number-text">{t('certificate.certNumber', 'رقم الشهادة')}: {data.certificateNumber}</span>
                     </div>
                   )}
                 </div>
@@ -150,26 +151,26 @@ export default function CertificateModal({
                 {/* Footer Section */}
                 <div className="certificate-footer">
                   <div className="certificate-footer-left">
-                    <p className="certificate-org-name">{data.organizationName || 'أجودي'}</p>
+                    <p className="certificate-org-name">{data.organizationName || t('certificate.orgNameDefault', 'أجودي')}</p>
                     <div className="certificate-signature-line"></div>
                     {data.sealImage ? (
                       <div className="certificate-seal">
                         <img 
                           src={data.sealImage} 
-                          alt="ختم" 
+                          alt={t('certificate.officialSeal', 'ختم')} 
                           className="certificate-seal-image"
                         />
                       </div>
                     ) : (
-                      <p className="certificate-seal-text">الختم الرسمي</p>
+                      <p className="certificate-seal-text">{t('certificate.officialSeal', 'الختم الرسمي')}</p>
                     )}
                   </div>
 
                   <div className="certificate-footer-right">
-                    <p className="certificate-date-label">تاريخ الإصدار</p>
+                    <p className="certificate-date-label">{t('certificate.issueDate', 'تاريخ الإصدار')}</p>
                     <div className="certificate-signature-line"></div>
                     <p className="certificate-date-value">
-                      {data.issueDate || new Date().toLocaleDateString('ar-SA', {
+                      {data.issueDate || new Date().toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric',
@@ -179,10 +180,10 @@ export default function CertificateModal({
                       <div className="certificate-signature">
                         <img 
                           src={data.signatureImage} 
-                          alt="توقيع" 
+                          alt={t('certificate.officialSignature', 'توقيع')} 
                           className="certificate-signature-image"
                         />
-                        <p className="certificate-signature-label">التوقيع الرسمي</p>
+                        <p className="certificate-signature-label">{t('certificate.officialSignature', 'التوقيع الرسمي')}</p>
                       </div>
                     )}
                   </div>

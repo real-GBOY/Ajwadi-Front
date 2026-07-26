@@ -7,9 +7,9 @@ export default function NotFoundPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <h1 className="text-4xl font-bold text-gray-900 mb-4">404</h1>
-      <p className="text-gray-600 mb-8">الصفحة غير موجودة</p>
+      <p className="text-gray-600 mb-8">{t('pages.errors.notFoundPage', 'الصفحة غير موجودة')}</p>
       <Link to="/" className="text-emerald-600 hover:text-emerald-700">
-        العودة إلى الصفحة الرئيسية
+        {t('pages.errors.backToHome', 'العودة إلى الصفحة الرئيسية')}
       </Link>
     </div>
   );

@@ -1,6 +1,7 @@
 /** @format */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FormInput } from '../designSystem/ui/form-input';
 import { FormSelect } from '../designSystem/ui/form-select';
 import { FormTextarea } from '../designSystem/ui/form-textarea';
@@ -10,6 +11,7 @@ import pushNotificationService, {
 import { Send, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 
 export default function PushNotificationsPage() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ success: boolean; message: string; data?: any } | null>(null);
 
@@ -41,7 +43,7 @@ export default function PushNotificationsPage() {
       const response = await pushNotificationService.broadcast(payload);
       setResult({
         success: true,
-        message: `تم إرسال الإشعار بنجاح إلى ${response.totalRecipients} مستلم (${response.enqueued} تم الإرسال، ${response.skipped} تم التخطي)`,
+        message: `${t('notifications.sendSuccess', 'تم إرسال الإشعار بنجاح')} (${response.totalRecipients})`,
         data: response,
       });
       setBroadcastForm({
@@ -60,7 +62,7 @@ export default function PushNotificationsPage() {
     } catch (error: any) {
       setResult({
         success: false,
-        message: error.response?.data?.message || 'فشل في إرسال الإشعار',
+        message: error.response?.data?.message || t('notifications.sendFailed', 'فشل في إرسال الإشعار'),
       });
     } finally {
       setLoading(false);
@@ -71,8 +73,8 @@ export default function PushNotificationsPage() {
   return (
     <div className="p-8">
       <div className="mb-6">
-        <h1 className="text-3xl font-semibold text-text-strong">إدارة الإشعارات الفورية</h1>
-        <p className="text-text-sub mt-2">إرسال الإشعارات الفورية للعملاء والمستقلين</p>
+        <h1 className="text-3xl font-semibold text-text-strong">{t('notifications.title', 'إدارة الإشعارات الفورية')}</h1>
+        <p className="text-text-sub mt-2">{t('notifications.subtitle', 'إرسال الإشعارات الفورية للعملاء والمستقلين')}</p>
       </div>
 
       {result && (
@@ -104,22 +106,22 @@ export default function PushNotificationsPage() {
       )}
 
       <div className="bg-white rounded-lg border border-border p-6">
-        <h3 className="text-lg font-semibold mb-4">إرسال إشعار للعملاء والمستقلين</h3>
+        <h3 className="text-lg font-semibold mb-4">{t('notifications.sendSection', 'إرسال إشعار للعملاء والمستقلين')}</h3>
         <form onSubmit={handleBroadcast} className="space-y-4">
           <FormSelect
-            label="نوع الهدف"
+            label={t('notifications.targetType', 'نوع الهدف')}
             value={broadcastForm.targetType}
             onChange={(e) => setBroadcastForm({ ...broadcastForm, targetType: e.target.value as any })}
             options={[
-              { value: 'clients', label: 'جميع العملاء' },
-              { value: 'freelancers', label: 'جميع المستقلين' },
-              { value: 'specific', label: 'مستخدمون محددون' },
+              { value: 'clients', label: t('notifications.allClients', 'جميع العملاء') },
+              { value: 'freelancers', label: t('notifications.allFreelancers', 'جميع المستقلين') },
+              { value: 'specific', label: t('notifications.specificUsers', 'مستخدمون محددون') },
             ]}
             required
           />
           {broadcastForm.targetType === 'specific' && (
             <FormInput
-              label="معرفات المستخدمين (مفصولة بفواصل)"
+              label={t('notifications.userIds', 'معرفات المستخدمين (مفصولة بفواصل)')}
               value={broadcastUserIds}
               onChange={(e) => setBroadcastUserIds(e.target.value)}
               placeholder="uuid-1, uuid-2, uuid-3"
@@ -127,21 +129,21 @@ export default function PushNotificationsPage() {
             />
           )}
           <FormInput
-            label="نوع الإشعار"
+            label={t('notifications.notifType', 'نوع الإشعار')}
             value={broadcastForm.type}
             onChange={(e) => setBroadcastForm({ ...broadcastForm, type: e.target.value })}
             required
             placeholder="announcement"
           />
           <FormInput
-            label="العنوان"
+            label={t('notifications.notifTitle', 'العنوان')}
             value={broadcastForm.title}
             onChange={(e) => setBroadcastForm({ ...broadcastForm, title: e.target.value })}
             required
             placeholder="New Feature Available"
           />
           <FormTextarea
-            label="المحتوى"
+            label={t('notifications.content', 'المحتوى')}
             value={broadcastForm.body}
             onChange={(e) => setBroadcastForm({ ...broadcastForm, body: e.target.value })}
             required
@@ -149,7 +151,7 @@ export default function PushNotificationsPage() {
             rows={4}
           />
           <FormInput
-            label="مفتاح الحدث (اختياري)"
+            label={t('notifications.eventKey', 'مفتاح الحدث (اختياري)')}
             value={broadcastForm.sourceEventKey || ''}
             onChange={(e) => setBroadcastForm({ ...broadcastForm, sourceEventKey: e.target.value })}
             placeholder="announcement:new-feature:2026-02-14"
@@ -159,7 +161,7 @@ export default function PushNotificationsPage() {
             disabled={loading}
             className="w-full px-4 py-2.5 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
             {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-            <span>إرسال الإشعار</span>
+            <span>{t('notifications.sendBtn', 'إرسال الإشعار')}</span>
           </button>
         </form>
       </div>

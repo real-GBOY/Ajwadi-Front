@@ -1,0 +1,171 @@
+{
+  "clients": {
+    "title": "العملاء",
+    "searchPlaceholder": "ابحث عن عميل...",
+    "detailTitle": "تفاصيل العميل"
+  },
+  "freelancers": {
+    "title": "المستقلون",
+    "searchPlaceholder": "ابحث عن مستقل...",
+    "detailTitle": "تفاصيل المستقل"
+  },
+  "employees": {
+    "title": "الموظفون",
+    "searchPlaceholder": "ابحث عن موظف...",
+    "addEmployee": "إضافة موظف",
+    "editEmployee": "تعديل موظف"
+  },
+  "projects": {
+    "title": "المشاريع",
+    "subtitle": "تصفح وإدارة المشاريع",
+    "searchPlaceholder": "ابحث عن مشروع...",
+    "detailTitle": "تفاصيل المشروع",
+    "proposalDescription": "وصف العرض:",
+    "proposalBudget": "ميزانية العرض"
+  },
+  "identity": {
+    "title": "توثيق الهوية",
+    "subtitle": "إدارة طلبات التحقق للمستخدمين",
+    "searchPlaceholder": "البحث بالاسم...",
+    "usersUnderReview": "المستخدمون قيد المراجعة"
+  },
+  "contracts": {
+    "title": "العقود",
+    "subtitle": "عرض وإدارة عقود المشاريع",
+    "searchPlaceholder": "ابحث عن عقد...",
+    "detailTitle": "تفاصيل العقد"
+  },
+  "complaints": {
+    "publicTitle": "الشكاوى العامة",
+    "projectsTitle": "شكاوى المشاريع",
+    "searchPlaceholder": "ابحث في الشكاوى...",
+    "detailTitle": "تفاصيل الشكوى",
+    "viewProfile": "عرض الملف الشخصي",
+    "confirmDelete": "هل أنت متأكد من حذف هذه الشكوى؟",
+    "backToComplaints": "العودة إلى الشكاوى",
+    "notFound": "الشكوى غير موجودة",
+    "complaintNumber": "شكوى #",
+    "startChat": "بدء المناقشة حول الشكوى",
+    "hideChat": "إخفاء المحادثة",
+    "markUnread": "تعليم كغير مقروء",
+    "markRead": "تعليم كمقروء",
+    "unpin": "إلغاء التثبيت",
+    "pin": "تثبيت",
+    "resolveComplaint": "حل الشكوى",
+    "delete": "حذف",
+    "reasonTitle": "سبب الشكوى",
+    "timeInfo": "معلومات الوقت",
+    "createdAt": "تاريخ الإنشاء",
+    "updatedAt": "آخر تحديث",
+    "readAt": "تاريخ القراءة",
+    "pinnedAt": "تاريخ التثبيت",
+    "complainant": "المشتكي",
+    "freelancer": "المستقل",
+    "complaintId": "معرف الشكوى"
+  },
+  "demands": {
+    "tags": {
+      "title": "طلبات ربط العلامات",
+      "subtitle": "إدارة طلبات مرفقات العلامات",
+      "acceptSuccess": "تم قبول طلب مرفق العلامة بنجاح",
+      "rejectSuccess": "تم رفض طلب مرفق العلامة بنجاح",
+      "promptReason": "يرجى إدخال سبب الرفض:",
+      "errorAccept": "حدث خطأ أثناء قبول الطلب",
+      "errorReject": "حدث خطأ أثناء رفض الطلب"
+    },
+    "identity": {
+      "subtitle": "إدارة طلبات التحقق للمستخدمين",
+      "usersUnderReview": "المستخدمون قيد المراجعة"
+    },
+    "experience": {
+      "subtitle": "إدارة طلبات إثبات الخبرة للمستخدمين",
+      "certDesc": "تم منح هذه الشهادة تقديراً للخبرة والمهارات المتميزة في مجال العمل الحر",
+      "ach1": "إثبات الخبرة المهنية في المجال المطلوب",
+      "ach2": "الالتزام بمعايير الجودة والاحترافية",
+      "ach3": "المساهمة الفعالة في تطوير المشاريع",
+      "errorNoUser": "لا يمكن إنشاء الشهادة: اسم المستخدم غير متوفر"
+    }
+  },
+  "finance": {
+    "transactionsTitle": "المعاملات",
+    "withdrawTitle": "طلبات السحب",
+    "taxedTitle": "المعاملات الخاضعة للضريبة",
+    "topupTitle": "معاملات الإيداع",
+    "searchPlaceholder": "ابحث في السجلات المالية...",
+    "allTaxedCompleted": "جميع المعاملات مكتملة وقابلة للضريبة",
+    "escrowRelease": "إطلاق الضمان",
+    "searchTopup": "ابحث عن معاملة إيداع...",
+    "searchTx": "ابحث عن معاملة...",
+    "taxedSubtitle": "المعاملات المكتملة الخاضعة للضريبة",
+    "topUp": "إيداع",
+    "totalTopups": "إجمالي معاملات الإيداع",
+    "totalTransactions": "إجمالي المعاملات",
+    "txId": "المعاملة",
+    "userId": "معرف المستخدم",
+    "walletId": "معرف المحفظة"
+  },
+  "appData": {
+    "skillsTitle": "المهارات",
+    "specificationTitle": "المجالات",
+    "privacyPolicyTitle": "سياسة الخصوصية",
+    "tagsTitle": "العلامات",
+    "searchPlaceholder": "بحث...",
+    "addTag": "إضافة علامة",
+    "badge": "الشارة",
+    "confirmDeletePolicy": "هل أنت متأكد من حذف سياسة الخصوصية هذه؟",
+    "confirmDeleteSkill": "هل أنت متأكد من حذف هذه المهارة؟",
+    "confirmDeleteSpec": "هل أنت متأكد من حذف هذا المجال؟",
+    "confirmDeleteTag": "هل أنت متأكد من حذف هذه العلامة؟",
+    "editPolicy": "تعديل سياسة خصوصية",
+    "editSkill": "تعديل مهارة",
+    "editSpec": "تعديل مجال",
+    "editTag": "تعديل علامة",
+    "icon": "الأيقونة",
+    "imageLoadFailed": "فشل تحميل الصورة",
+    "searchPolicy": "ابحث عن سياسة خصوصية...",
+    "searchSkill": "ابحث عن مهارة...",
+    "searchSpec": "ابحث عن مجال...",
+    "searchTag": "ابحث عن علامة...",
+    "skillName": "اسم المهارة",
+    "tagName": "اسم العلامة",
+    "addNewPolicy": "إضافة سياسة خصوصية جديدة",
+    "addNewSkill": "إضافة مهارة جديدة",
+    "addNewSpec": "إضافة مجال جديد",
+    "addNewTag": "إضافة علامة جديدة",
+    "addPolicy": "إضافة سياسة خصوصية",
+    "addSkill": "إضافة مهارة",
+    "addSpec": "إضافة مجال"
+  },
+  "notifications": {
+    "pushTitle": "الإشعارات الفورية",
+    "sendNotification": "إرسال إشعار",
+    "title": "إدارة الإشعارات الفورية",
+    "subtitle": "إرسال الإشعارات الفورية للعملاء والمستقلين",
+    "sendSuccess": "تم إرسال الإشعار بنجاح",
+    "sendFailed": "فشل في إرسال الإشعار",
+    "sendSection": "إرسال إشعار للعملاء والمستقلين",
+    "targetType": "نوع الهدف",
+    "allClients": "جميع العملاء",
+    "allFreelancers": "جميع المستقلين",
+    "specificUsers": "مستخدمون محددون",
+    "userIds": "معرفات المستخدمين (مفصولة بفواصل)",
+    "notifType": "نوع الإشعار",
+    "notifTitle": "العنوان",
+    "content": "المحتوى",
+    "eventKey": "مفتاح الحدث (اختياري)",
+    "sendBtn": "إرسال الإشعار"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "underDevelopment": "صفحة الإعدادات - قيد التطوير"
+  },
+  "profile": {
+    "title": "الملف الشخصي",
+    "underDevelopment": "صفحة الملف الشخصي - قيد التطوير"
+  },
+  "errors": {
+    "notFoundPage": "الصفحة غير موجودة",
+    "backToHome": "العودة إلى الصفحة الرئيسية",
+    "unauthorized": "ليس لديك صلاحية للوصول إلى هذه الصفحة"
+  }
+}

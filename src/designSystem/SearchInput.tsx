@@ -2,6 +2,7 @@
 
 import { Search } from 'lucide-react';
 import { cn } from '@/utilities/index';
+import { useTranslation } from 'react-i18next';
 
 interface SearchInputProps {
    value: string;
@@ -14,10 +15,12 @@ interface SearchInputProps {
 function SearchInput({
    value,
    onChange,
-   placeholder = 'بحث...',
+   placeholder,
    className = '',
    icon: Icon = Search,
 }: SearchInputProps) {
+   const { t } = useTranslation();
+   const defaultPlaceholder = placeholder || t('actions.search', 'بحث...');
    // Check if className contains a width class, if so don't use flex-1
    const hasWidth = className.includes('w-') || className.includes('width');
    const containerClass = hasWidth
@@ -29,7 +32,7 @@ function SearchInput({
          <Icon className="absolute start-3 top-1/2 -translate-y-1/2 text-text-soft w-4 h-4" />
          <input
             type="text"
-            placeholder={placeholder}
+            placeholder={defaultPlaceholder}
             value={value}
             onChange={(e) => onChange(e.target.value)}
             className={cn(

@@ -11,20 +11,14 @@ import { useDebounce } from '../hooks/useDebounce';
 import type { Transaction } from '../services/walletService';
 import Loader from '../designSystem/Loader';
 
-const TYPE_LABELS: Record<string, string> = {
-  ESCROW_RELEASE: 'إطلاق الضمان',
-  TOP_UP: 'إيداع',
-  CONTRACT: 'عقد',
-};
-
 function formatAmount(raw: number | string, currency = 'SAR'): string {
   const num = Number(raw);
   return Number.isFinite(num) ? `${num.toFixed(2)} ${currency}` : `${raw ?? '-'} ${currency}`;
 }
 
-function formatDateShort(dateStr: string): string {
+function formatDateShort(dateStr: string, lang = 'ar'): string {
   try {
-    return new Date(dateStr).toLocaleDateString('ar-SA', {
+    return new Date(dateStr).toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -37,7 +31,7 @@ function formatDateShort(dateStr: string): string {
 }
 
 export default function TaxedTransactionPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -81,7 +75,7 @@ export default function TaxedTransactionPage() {
     () => [
       {
         accessorKey: 'id',
-        header: 'المعاملة',
+        header: t('finance.txId', 'المعاملة'),
         size: 90,
         cell: ({ row }) => (
           <span className="font-mono text-[11px] sm:text-xs text-text-sub">
@@ -91,7 +85,7 @@ export default function TaxedTransactionPage() {
       },
       {
         accessorKey: 'amount',
-        header: 'المبلغ',
+        header: t('labels.amount', 'المبلغ'),
         size: 100,
         cell: ({ row }) => (
           <span className="font-semibold text-text-strong text-xs sm:text-sm">
@@ -101,30 +95,40 @@ export default function TaxedTransactionPage() {
       },
       {
         accessorKey: 'type',
-        header: 'النوع',
+        header: t('labels.type', 'النوع'),
         size: 90,
-        cell: ({ row }) => (
-          <span className="text-[11px] sm:text-sm text-text-sub">
-            {TYPE_LABELS[row.original.type] || row.original.type}
-          </span>
-        ),
+        cell: ({ row }) => {
+          const typeStr =
+            row.original.type === 'ESCROW_RELEASE'
+              ? t('finance.escrowRelease', 'إطلاق الضمان')
+              : row.original.type === 'TOP_UP'
+              ? t('finance.topUp', 'إيداع')
+              : row.original.type === 'CONTRACT'
+              ? t('labels.contract', 'عقد')
+              : row.original.type;
+          return (
+            <span className="text-[11px] sm:text-sm text-text-sub">
+              {typeStr}
+            </span>
+          );
+        },
       },
       {
         accessorKey: 'createdAt',
-        header: 'التاريخ',
+        header: t('labels.date', 'التاريخ'),
         size: 100,
         cell: ({ row }) => {
           const date = row.original.createdAt;
           if (!date) return <span className="text-text-soft">-</span>;
           return (
             <span className="text-[11px] sm:text-sm text-text-sub whitespace-nowrap">
-              {formatDateShort(date)}
+              {formatDateShort(date, i18n.language)}
             </span>
           );
         },
       },
     ],
-    []
+    [i18n.language]
   );
 
   const currentPage = pagination.pageIndex + 1;
@@ -148,13 +152,13 @@ export default function TaxedTransactionPage() {
               {t('sidebar.taxedTransaction')}
             </h1>
             <p className="text-xs sm:text-sm text-text-sub mt-1">
-              المعاملات المكتملة الخاضعة للضريبة
+              {t('finance.taxedSubtitle', 'المعاملات المكتملة الخاضعة للضريبة')}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <span className="text-xs sm:text-sm text-text-sub">
-            إجمالي المعاملات: {filteredTransactions.length}
+            {t('finance.totalTransactions', 'إجمالي المعاملات')}: {filteredTransactions.length}
           </span>
         </div>
       </div>
@@ -166,13 +170,13 @@ export default function TaxedTransactionPage() {
             <SearchInput
               value={searchQuery}
               onChange={setSearchQuery}
-              placeholder="ابحث عن معاملة..."
+              placeholder={t('finance.searchTx', 'ابحث عن معاملة...')}
               className="w-full sm:max-w-md"
             />
             <div className="flex items-center gap-2 px-3 py-2 sm:py-1.5 bg-green-50 border border-green-200 rounded-lg text-center sm:text-start">
               <CheckCircle className="w-4 h-4 text-green-600 shrink-0" />
               <span className="text-xs sm:text-sm font-medium text-green-800">
-                جميع المعاملات مكتملة وقابلة للضريبة
+                {t('finance.allTaxedCompleted', 'جميع المعاملات مكتملة وقابلة للضريبة')}
               </span>
             </div>
           </div>
@@ -182,7 +186,7 @@ export default function TaxedTransactionPage() {
         <div className="md:hidden">
           {filteredTransactions.length === 0 ? (
             <div className="p-6 text-center text-text-sub text-sm">
-              لا توجد معاملات
+              {t('table.noResults', 'لا توجد نتائج')}
             </div>
           ) : (
             <ul className="divide-y divide-border">
@@ -198,9 +202,17 @@ export default function TaxedTransactionPage() {
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-xs text-text-sub">
-                      <span>{TYPE_LABELS[tx.type] || tx.type}</span>
+                      <span>
+                        {tx.type === 'ESCROW_RELEASE'
+                          ? t('finance.escrowRelease', 'إطلاق الضمان')
+                          : tx.type === 'TOP_UP'
+                          ? t('finance.topUp', 'إيداع')
+                          : tx.type === 'CONTRACT'
+                          ? t('labels.contract', 'عقد')
+                          : TYPE_LABELS[tx.type] || tx.type}
+                      </span>
                       <span className="whitespace-nowrap">
-                        {tx.createdAt ? formatDateShort(tx.createdAt) : '-'}
+                        {tx.createdAt ? formatDateShort(tx.createdAt, i18n.language) : '-'}
                       </span>
                     </div>
                     {tx.description && (
@@ -216,7 +228,7 @@ export default function TaxedTransactionPage() {
           {pageCount > 1 && (
             <div className="flex items-center justify-center gap-3 py-3 px-3 border-t border-border">
               <span className="text-xs text-text-sub">
-                صفحة {currentPage} من {pageCount}
+                {t('pagination.page', 'صفحة')} {currentPage} {t('pagination.of', 'من')} {pageCount}
               </span>
               <button
                 type="button"
@@ -224,7 +236,7 @@ export default function TaxedTransactionPage() {
                 disabled={pagination.pageIndex === 0}
                 className="p-2 rounded-lg text-text-sub hover:bg-bg-weak disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <ChevronRight className="w-5 h-5" />
+                <ChevronRight className="w-5 h-5 rtl:rotate-180 ltr:rotate-0" />
               </button>
               <button
                 type="button"
@@ -232,7 +244,7 @@ export default function TaxedTransactionPage() {
                 disabled={pagination.pageIndex >= pageCount - 1}
                 className="p-2 rounded-lg text-text-sub hover:bg-bg-weak disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <ChevronLeft className="w-5 h-5" />
+                <ChevronLeft className="w-5 h-5 rtl:rotate-180 ltr:rotate-0" />
               </button>
             </div>
           )}

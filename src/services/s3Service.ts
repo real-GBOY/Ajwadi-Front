@@ -3,6 +3,7 @@
 import apiClient from '@/config/axios';
 import endPoints from '@/config/endPoints';
 import axios from 'axios';
+import i18n from '@/config/i18n';
 
 // Types
 export type FileType = 'image' | 'document' | 'video' | 'audio' | 'other';
@@ -135,16 +136,16 @@ export const uploadFile = async (
     if (axios.isAxiosError(error)) {
       const status = error.response?.status;
       if (status === 401) {
-        throw new Error('غير مصرح - يرجى تسجيل الدخول');
+        throw new Error(i18n.t('apiErrors.unauthorized', 'غير مصرح - يرجى تسجيل الدخول'));
       }
       if (status === 400) {
-        throw new Error('طلب غير صحيح - يرجى التحقق من البيانات');
+        throw new Error(i18n.t('apiErrors.badRequest', 'طلب غير صحيح - يرجى التحقق من البيانات'));
       }
       if (status && status >= 500) {
-        throw new Error('خطأ في الخادم - يرجى المحاولة لاحقاً');
+        throw new Error(i18n.t('apiErrors.serverError', 'خطأ في الخادم - يرجى المحاولة لاحقاً'));
       }
-      throw new Error(error.response?.data?.message || 'فشل في رفع الملف');
+      throw new Error(error.response?.data?.message || i18n.t('apiErrors.uploadFailed', 'فشل في رفع الملف'));
     }
-    throw new Error('حدث خطأ غير متوقع أثناء رفع الملف');
+    throw new Error(i18n.t('apiErrors.unexpectedUploadError', 'حدث خطأ غير متوقع أثناء رفع الملف'));
   }
 };

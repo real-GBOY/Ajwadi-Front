@@ -10,8 +10,10 @@ import {
 import Loader from '../designSystem/Loader';
 import ComplaintCard from '../components/ComplaintCard';
 import { ChevronLeft, ChevronRight, Filter } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function ProjectsComplainPage() {
+  const { t } = useTranslation();
   const [statusFilter, setStatusFilter] = useState<'pending' | 'resolved' | ''>('');
   const [readFilter, setReadFilter] = useState<boolean | ''>('');
   const [pinnedFilter, setPinnedFilter] = useState<boolean | ''>('');
@@ -74,9 +76,9 @@ export default function ProjectsComplainPage() {
     <div className="p-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-semibold text-text-strong mb-2">شكاوى المشاريع</h1>
+          <h1 className="text-3xl font-semibold text-text-strong mb-2">{t('sidebar.projectsComplaints', 'شكاوى المشاريع')}</h1>
           <p className="text-sm text-text-sub">
-            إجمالي الشكاوى: <span className="font-semibold text-text-strong">{totalItems}</span>
+            {t('labels.totalComplaints', 'إجمالي الشكاوى')}: <span className="font-semibold text-text-strong">{totalItems}</span>
           </p>
         </div>
       </div>
@@ -87,42 +89,42 @@ export default function ProjectsComplainPage() {
           <div className="flex items-center gap-4 flex-wrap">
             <div className="flex items-center gap-2">
               <Filter className="w-4 h-4 text-text-sub" />
-              <label className="text-sm text-text-sub whitespace-nowrap">الحالة:</label>
+              <label className="text-sm text-text-sub whitespace-nowrap">{t('labels.status', 'الحالة')}:</label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value as 'pending' | 'resolved' | '')}
                 className="px-3 py-2 rounded-lg border border-border bg-background text-sm text-text-strong focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                <option value="">الكل</option>
-                <option value="pending">قيد المراجعة</option>
-                <option value="resolved">محلول</option>
+                <option value="">{t('actions.all', 'الكل')}</option>
+                <option value="pending">{t('status.reviewed', 'قيد المراجعة')}</option>
+                <option value="resolved">{t('status.resolved', 'محلول')}</option>
               </select>
             </div>
 
             <div className="flex items-center gap-2">
-              <label className="text-sm text-text-sub whitespace-nowrap">مقروء:</label>
+              <label className="text-sm text-text-sub whitespace-nowrap">{t('labels.read', 'مقروء')}:</label>
               <select
                 value={readFilter === '' ? '' : readFilter ? 'true' : 'false'}
                 onChange={(e) =>
                   setReadFilter(e.target.value === '' ? '' : e.target.value === 'true')
                 }
                 className="px-3 py-2 rounded-lg border border-border bg-background text-sm text-text-strong focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                <option value="">الكل</option>
-                <option value="true">مقروء</option>
-                <option value="false">غير مقروء</option>
+                <option value="">{t('actions.all', 'الكل')}</option>
+                <option value="true">{t('status.read', 'مقروء')}</option>
+                <option value="false">{t('status.unread', 'غير مقروء')}</option>
               </select>
             </div>
 
             <div className="flex items-center gap-2">
-              <label className="text-sm text-text-sub whitespace-nowrap">مثبت:</label>
+              <label className="text-sm text-text-sub whitespace-nowrap">{t('labels.pinned', 'مثبت')}:</label>
               <select
                 value={pinnedFilter === '' ? '' : pinnedFilter ? 'true' : 'false'}
                 onChange={(e) =>
                   setPinnedFilter(e.target.value === '' ? '' : e.target.value === 'true')
                 }
                 className="px-3 py-2 rounded-lg border border-border bg-background text-sm text-text-strong focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                <option value="">الكل</option>
-                <option value="true">مثبت</option>
-                <option value="false">غير مثبت</option>
+                <option value="">{t('actions.all', 'الكل')}</option>
+                <option value="true">{t('status.pinned', 'مثبت')}</option>
+                <option value="false">{t('status.unpinned', 'غير مثبت')}</option>
               </select>
             </div>
           </div>
@@ -130,7 +132,7 @@ export default function ProjectsComplainPage() {
 
         {isLoading ? (
           <div className="flex justify-center items-center py-20">
-            <Loader />
+            <Loader label={t('loading.general', 'جاري التحميل...')} />
           </div>
         ) : data.length > 0 ? (
           <>
@@ -146,8 +148,8 @@ export default function ProjectsComplainPage() {
             {pageCount > 1 && (
               <div className="p-4 border-t border-border flex items-center justify-between">
                 <div className="text-sm text-text-sub">
-                  عرض {pagination.pageIndex * pagination.pageSize + 1} -{' '}
-                  {Math.min((pagination.pageIndex + 1) * pagination.pageSize, totalItems)} من{' '}
+                  {t('pagination.showing', 'عرض')} {pagination.pageIndex * pagination.pageSize + 1} -{' '}
+                  {Math.min((pagination.pageIndex + 1) * pagination.pageSize, totalItems)} {t('pagination.of', 'من')}{' '}
                   {totalItems}
                 </div>
                 <div className="flex items-center gap-2">
@@ -155,16 +157,16 @@ export default function ProjectsComplainPage() {
                     onClick={handlePreviousPage}
                     disabled={pagination.pageIndex === 0}
                     className="p-2 rounded-lg border border-border bg-background hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                    <ChevronRight className="w-5 h-5 text-text-sub" />
+                    <ChevronRight className="w-5 h-5 text-text-sub rtl:rotate-0 ltr:rotate-180" />
                   </button>
                   <span className="text-sm text-text-strong px-3">
-                    صفحة {pagination.pageIndex + 1} من {pageCount}
+                    {t('pagination.page', 'صفحة')} {pagination.pageIndex + 1} {t('pagination.of', 'من')} {pageCount}
                   </span>
                   <button
                     onClick={handleNextPage}
                     disabled={pagination.pageIndex >= pageCount - 1}
                     className="p-2 rounded-lg border border-border bg-background hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                    <ChevronLeft className="w-5 h-5 text-text-sub" />
+                    <ChevronLeft className="w-5 h-5 text-text-sub rtl:rotate-0 ltr:rotate-180" />
                   </button>
                 </div>
               </div>
@@ -172,7 +174,7 @@ export default function ProjectsComplainPage() {
           </>
         ) : (
           <div className="p-12 text-center">
-            <p className="text-text-sub">لا توجد شكاوى</p>
+            <p className="text-text-sub">{t('table.noComplaints', 'لا توجد شكاوى')}</p>
           </div>
         )}
       </div>

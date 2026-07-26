@@ -11,7 +11,7 @@ import type { Specification, CreateSpecificationRequest } from '../services/spec
 import SpecificationForm from '../components/forms/SpecificationForm';
 
 export default function SpecificationPage() {
-   const { t } = useTranslation();
+   const { t, i18n } = useTranslation();
    const [searchQuery, setSearchQuery] = useState('');
    const [pagination, setPagination] = useState({
       pageIndex: 0,
@@ -56,7 +56,7 @@ export default function SpecificationPage() {
    };
 
    const handleDelete = useCallback(async (specification: Specification) => {
-      if (window.confirm('هل أنت متأكد من حذف هذا المجال؟')) {
+      if (window.confirm(t('appData.confirmDeleteSpec', 'هل أنت متأكد من حذف هذا المجال؟'))) {
          try {
             await deleteSpecificationMutation.mutateAsync(specification.id);
             refetch();
@@ -64,7 +64,7 @@ export default function SpecificationPage() {
             console.error('Error deleting specification:', error);
          }
       }
-   }, [deleteSpecificationMutation, refetch]);
+   }, [deleteSpecificationMutation, refetch, t]);
 
    const handleAdd = () => {
       setSelectedSpecification(null);
@@ -98,12 +98,12 @@ export default function SpecificationPage() {
       () => [
          {
             accessorKey: 'name',
-            header: 'الاسم',
+            header: t('labels.name', 'الاسم'),
             size: 250,
          },
          {
             accessorKey: 'icon',
-            header: 'الأيقونة',
+            header: t('appData.icon', 'الأيقونة'),
             size: 200,
             cell: ({ row }) => {
                const icon = row.getValue('icon') as string;
@@ -148,7 +148,7 @@ export default function SpecificationPage() {
          },
          {
             accessorKey: 'createdAt',
-            header: 'تاريخ الإنشاء',
+            header: t('labels.createdAt', 'تاريخ الإنشاء'),
             size: 200,
             cell: ({ row }) => {
                const date = row.getValue('createdAt') as string;
@@ -157,7 +157,7 @@ export default function SpecificationPage() {
                   const dateObj = new Date(date);
                   return (
                      <span>
-                        {dateObj.toLocaleDateString('ar-SA', {
+                        {dateObj.toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
                            year: 'numeric',
                            month: 'long',
                            day: 'numeric',
@@ -171,7 +171,7 @@ export default function SpecificationPage() {
          },
          {
             id: 'actions',
-            header: 'الإجراءات',
+            header: t('labels.actions', 'الإجراءات'),
             size: 100,
             cell: ({ row }) => {
                const specification = row.original;
@@ -183,7 +183,7 @@ export default function SpecificationPage() {
                            handleEdit(specification);
                         }}
                         className="p-1.5 text-text-sub hover:text-primary hover:bg-primary/10 rounded transition-colors"
-                        title="تعديل">
+                        title={t('actions.edit', 'تعديل')}>
                         <Edit className="w-4 h-4" />
                      </button>
                      <button
@@ -192,7 +192,7 @@ export default function SpecificationPage() {
                            handleDelete(specification);
                         }}
                         className="p-1.5 text-text-sub hover:text-danger hover:bg-danger/10 rounded transition-colors"
-                        title="حذف">
+                        title={t('actions.delete', 'حذف')}>
                         <Trash2 className="w-4 h-4" />
                      </button>
                   </div>
@@ -200,7 +200,7 @@ export default function SpecificationPage() {
             },
          },
       ],
-      [handleDelete]
+      [handleDelete, t, i18n.language]
    );
 
    return (
@@ -213,7 +213,7 @@ export default function SpecificationPage() {
                onClick={handleAdd}
                className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">
                <Plus className="w-5 h-5" />
-               <span>إضافة مجال</span>
+               <span>{t('appData.addSpec', 'إضافة مجال')}</span>
             </button>
          </div>
 
@@ -222,7 +222,7 @@ export default function SpecificationPage() {
                <SearchInput
                   value={searchQuery}
                   onChange={setSearchQuery}
-                  placeholder="ابحث عن مجال..."
+                  placeholder={t('appData.searchSpec', 'ابحث عن مجال...')}
                   className="max-w-md"
                />
             </div>
@@ -244,7 +244,7 @@ export default function SpecificationPage() {
          <Modal
             isOpen={isModalOpen}
             onClose={handleCloseModal}
-            title={selectedSpecification ? 'تعديل مجال' : 'إضافة مجال جديد'}
+            title={selectedSpecification ? t('appData.editSpec', 'تعديل مجال') : t('appData.addNewSpec', 'إضافة مجال جديد')}
             size="md">
             <SpecificationForm
                specification={selectedSpecification}

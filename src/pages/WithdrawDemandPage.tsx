@@ -13,7 +13,7 @@ import Loader from '../designSystem/Loader';
 import SuccessModal from '../designSystem/SuccessModal';
 
 export default function WithdrawDemandPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | WithdrawalStatus>('all');
   const [successModalOpen, setSuccessModalOpen] = useState(false);
@@ -68,17 +68,17 @@ export default function WithdrawDemandPage() {
       pending: {
         icon: Clock,
         className: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-        label: 'قيد المعالجة',
+        label: t('status.processing', 'قيد المعالجة'),
       },
       completed: {
         icon: CheckCircle,
         className: 'bg-green-100 text-green-800 border-green-200',
-        label: 'مكتمل',
+        label: t('status.completed', 'مكتمل'),
       },
       failed: {
         icon: XCircle,
         className: 'bg-red-100 text-red-800 border-red-200',
-        label: 'فشل',
+        label: t('status.failed', 'فشل'),
       },
     };
 
@@ -96,14 +96,14 @@ export default function WithdrawDemandPage() {
   };
 
   const handleStatusChange = async (withdrawal: Withdrawal, status: WithdrawalStatus) => {
-    if (!window.confirm('هل أنت متأكد من تغيير حالة طلب السحب؟')) return;
+    if (!window.confirm(t('withdrawals.confirmChange', 'هل أنت متأكد من تغيير حالة طلب السحب؟'))) return;
     try {
       await updateStatusMutation.mutateAsync({
         id: withdrawal.id,
         status,
       });
       refetch();
-      setSuccessMessage('تم تحديث حالة طلب السحب بنجاح');
+      setSuccessMessage(t('withdrawals.updateSuccess', 'تم تحديث حالة طلب السحب بنجاح'));
       setSuccessModalOpen(true);
     } catch (error) {
       console.error('Error updating withdrawal status:', error);
@@ -114,7 +114,7 @@ export default function WithdrawDemandPage() {
     () => [
       {
         accessorKey: 'id',
-        header: 'معرّف الطلب',
+        header: t('withdrawals.reqId', 'معرّف الطلب'),
         size: 220,
         cell: ({ row }) => {
           const id = row.getValue('id') as string;
@@ -127,7 +127,7 @@ export default function WithdrawDemandPage() {
       },
       {
         accessorKey: 'userId',
-        header: 'معرّف المستخدم',
+        header: t('finance.userId', 'معرّف المستخدم'),
         size: 220,
         cell: ({ row }) => {
           const userId = row.getValue('userId') as string;
@@ -140,7 +140,7 @@ export default function WithdrawDemandPage() {
       },
       {
         accessorKey: 'amount',
-        header: 'المبلغ',
+        header: t('labels.amount', 'المبلغ'),
         size: 140,
         cell: ({ row }) => {
           const rawAmount = row.getValue('amount') as number | string;
@@ -156,7 +156,7 @@ export default function WithdrawDemandPage() {
       },
       {
         accessorKey: 'status',
-        header: 'الحالة',
+        header: t('labels.status', 'الحالة'),
         size: 140,
         cell: ({ row }) => {
           const status = row.getValue('status') as WithdrawalStatus;
@@ -165,7 +165,7 @@ export default function WithdrawDemandPage() {
       },
       {
         accessorKey: 'createdAt',
-        header: 'تاريخ الإنشاء',
+        header: t('labels.createdAt', 'تاريخ الإنشاء'),
         size: 180,
         cell: ({ row }) => {
           const date = row.getValue('createdAt') as string;
@@ -174,7 +174,7 @@ export default function WithdrawDemandPage() {
             const d = new Date(date);
             return (
               <span className="text-sm text-text-sub">
-                {d.toLocaleDateString('ar-SA', {
+                {d.toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric',
@@ -190,7 +190,7 @@ export default function WithdrawDemandPage() {
       },
       {
         id: 'actions',
-        header: 'الإجراءات',
+        header: t('labels.actions', 'الإجراءات'),
         size: 180,
         cell: ({ row }) => {
           const withdrawal = row.original;
@@ -206,7 +206,7 @@ export default function WithdrawDemandPage() {
                 }}
                 className="px-2 py-1 text-xs rounded-lg border border-green-200 text-green-700 hover:bg-green-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                تعيين كمكتمل
+                {t('withdrawals.markCompleted', 'تعيين كمكتمل')}
               </button>
               <button
                 disabled={!isPending || updateStatusMutation.isPending}
@@ -216,14 +216,14 @@ export default function WithdrawDemandPage() {
                 }}
                 className="px-2 py-1 text-xs rounded-lg border border-red-200 text-red-700 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                تعيين كفاشل
+                {t('withdrawals.markFailed', 'تعيين كفاشل')}
               </button>
             </div>
           );
         },
       },
     ],
-    [updateStatusMutation.isPending]
+    [updateStatusMutation.isPending, i18n.language]
   );
 
   if (isLoading) {
@@ -237,7 +237,7 @@ export default function WithdrawDemandPage() {
           {t('sidebar.withdrawDemand')}
         </h1>
         <div className="flex items-center gap-2 text-sm text-text-sub">
-          <span>إجمالي الطلبات: {filteredWithdrawals.length}</span>
+          <span>{t('withdrawals.totalRequests', 'إجمالي الطلبات')}: {filteredWithdrawals.length}</span>
         </div>
       </div>
 
@@ -247,13 +247,13 @@ export default function WithdrawDemandPage() {
             <SearchInput
               value={searchQuery}
               onChange={setSearchQuery}
-              placeholder="ابحث عن طلب سحب..."
+              placeholder={t('withdrawals.searchPlaceholder', 'ابحث عن طلب سحب...')}
               className="max-w-md"
             />
 
             <div className="flex items-center gap-2">
               <label className="text-sm font-medium text-text-strong">
-                الحالة:
+                {t('labels.status', 'الحالة')}:
               </label>
               <select
                 value={statusFilter}
@@ -262,10 +262,10 @@ export default function WithdrawDemandPage() {
                 }
                 className="px-3 py-1.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
-                <option value="all">الكل</option>
-                <option value="pending">قيد المعالجة</option>
-                <option value="completed">مكتمل</option>
-                <option value="failed">فشل</option>
+                <option value="all">{t('status.all', 'الكل')}</option>
+                <option value="pending">{t('status.processing', 'قيد المعالجة')}</option>
+                <option value="completed">{t('status.completed', 'مكتمل')}</option>
+                <option value="failed">{t('status.failed', 'فشل')}</option>
               </select>
             </div>
           </div>
@@ -291,7 +291,7 @@ export default function WithdrawDemandPage() {
         isOpen={successModalOpen}
         onClose={() => setSuccessModalOpen(false)}
         message={successMessage}
-        details="تم تنفيذ العملية بنجاح."
+        details={t('actions.successDetails', 'تم تنفيذ العملية بنجاح.')}
       />
     </div>
   );

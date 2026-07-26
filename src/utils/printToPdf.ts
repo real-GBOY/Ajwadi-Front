@@ -34,7 +34,7 @@ export async function printToPdfBlob(): Promise<Blob> {
     iframeDoc.open();
     iframeDoc.write(`
       <!DOCTYPE html>
-      <html dir="rtl">
+      <html dir="${document.documentElement.dir || 'rtl'}">
         <head>
           <meta charset="UTF-8">
           <style>

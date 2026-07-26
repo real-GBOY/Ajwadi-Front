@@ -11,6 +11,7 @@ import {
   X,
   FileText,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface ContractCardProps {
   contract: Contract;
@@ -18,35 +19,42 @@ interface ContractCardProps {
 
 const STATUS_CONFIG: Record<
   string,
-  { label: string; className: string }
+  { labelKey: string; defaultLabel: string; className: string }
 > = {
   pending: {
-    label: 'قيد الانتظار',
+    labelKey: 'status.pending',
+    defaultLabel: 'قيد الانتظار',
     className: 'bg-amber-50 text-amber-700 border-amber-200',
   },
   approved: {
-    label: 'موافق عليه',
+    labelKey: 'status.approved',
+    defaultLabel: 'موافق عليه',
     className: 'bg-emerald-50 text-emerald-700 border-emerald-200',
   },
   rejected: {
-    label: 'مرفوض',
+    labelKey: 'status.rejected',
+    defaultLabel: 'مرفوض',
     className: 'bg-red-50 text-red-700 border-red-200',
   },
   active: {
-    label: 'نشط',
+    labelKey: 'status.active',
+    defaultLabel: 'نشط',
     className: 'bg-blue-50 text-blue-700 border-blue-200',
   },
   completed: {
-    label: 'مكتمل',
+    labelKey: 'status.completed',
+    defaultLabel: 'مكتمل',
     className: 'bg-green-50 text-green-700 border-green-200',
   },
   cancelled: {
-    label: 'ملغي',
+    labelKey: 'status.cancelled',
+    defaultLabel: 'ملغي',
     className: 'bg-slate-100 text-slate-600 border-slate-200',
   },
 };
 
 export default function ContractCard({ contract }: ContractCardProps) {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
   const handleView = (e: React.MouseEvent) => {
@@ -55,13 +63,14 @@ export default function ContractCard({ contract }: ContractCardProps) {
   };
 
   const statusInfo = STATUS_CONFIG[contract.status] || {
-    label: contract.status,
+    labelKey: 'status.cancelled',
+    defaultLabel: contract.status,
     className: 'bg-slate-100 text-slate-600 border-slate-200',
   };
 
   const formatCurrency = (amount: number | string) => {
     const num = typeof amount === 'string' ? parseFloat(amount) : amount;
-    return new Intl.NumberFormat('ar-SA', {
+    return new Intl.NumberFormat(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
       style: 'currency',
       currency: 'SAR',
       minimumFractionDigits: 0,
@@ -77,7 +86,7 @@ export default function ContractCard({ contract }: ContractCardProps) {
   const getInitials = (name: string) => name?.charAt(0).toUpperCase() || '—';
 
   const startDate = contract.startdate
-    ? new Date(contract.startdate).toLocaleDateString('ar-SA', {
+    ? new Date(contract.startdate).toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
@@ -161,19 +170,19 @@ export default function ContractCard({ contract }: ContractCardProps) {
           <span
             className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${statusInfo.className}`}
           >
-            {statusInfo.label}
+            {t(statusInfo.labelKey, statusInfo.defaultLabel)}
           </span>
           {contract.version != null && (
             <span className="flex items-center gap-1 text-xs text-slate-500">
               <FileText className="w-3.5 h-3.5 shrink-0" />
-              <span>الإصدار {contract.version}</span>
+              <span>{t('labels.version', 'الإصدار')} {contract.version}</span>
             </span>
           )}
         </div>
 
         {/* Title */}
         <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 leading-snug group-hover:text-primary transition-colors">
-          عقد <span className="font-english">#{contract.id.slice(0, 8)}</span>
+          {t('labels.contract', 'عقد')} <span className="font-english">#{contract.id.slice(0, 8)}</span>
         </h3>
         {contract.proposalData?.description && (
           <p className="text-sm text-gray-500 line-clamp-2 mb-4 leading-relaxed">
@@ -188,7 +197,7 @@ export default function ContractCard({ contract }: ContractCardProps) {
             <Avatar
               name={contract.freelancerData.name}
               picture={contract.freelancerData.profilePicture}
-              label="المستقل"
+              label={t('labels.freelancer', 'المستقل')}
               icon={Users}
             />
           )}
@@ -196,7 +205,7 @@ export default function ContractCard({ contract }: ContractCardProps) {
             <Avatar
               name={contract.clientData.name}
               picture={contract.clientData.profilePicture}
-              label="العميل"
+              label={t('labels.client', 'العميل')}
               icon={User}
             />
           )}
@@ -209,13 +218,13 @@ export default function ContractCard({ contract }: ContractCardProps) {
               <Coins className="w-4 h-4" />
             </span>
             <div className="min-w-0">
-              <span className="text-xs text-gray-500 block">قيمة العقد</span>
+              <span className="text-xs text-gray-500 block">{t('labels.contractValue', 'قيمة العقد')}</span>
               <span className="font-semibold text-gray-900">
                 {formatCurrency(contract.value)}
               </span>
               {contract.paidValue != null && Number(contract.paidValue) > 0 && (
                 <span className="text-xs text-gray-500 block mt-0.5">
-                  مدفوع: {formatCurrency(contract.paidValue)}
+                  {t('labels.paid', 'مدفوع')}: {formatCurrency(contract.paidValue)}
                 </span>
               )}
             </div>
@@ -225,8 +234,8 @@ export default function ContractCard({ contract }: ContractCardProps) {
               <Clock className="w-4 h-4" />
             </span>
             <div className="min-w-0">
-              <span className="text-xs text-gray-500 block">المدة</span>
-              <span className="font-semibold text-gray-900">{contract.duration} يوم</span>
+              <span className="text-xs text-gray-500 block">{t('labels.duration', 'المدة')}</span>
+              <span className="font-semibold text-gray-900">{contract.duration} {t('labels.days', 'يوم')}</span>
             </div>
           </div>
           <div className="flex items-center gap-3 text-sm">
@@ -234,7 +243,7 @@ export default function ContractCard({ contract }: ContractCardProps) {
               <Calendar className="w-4 h-4" />
             </span>
             <div className="min-w-0">
-              <span className="text-xs text-gray-500 block">تاريخ البدء</span>
+              <span className="text-xs text-gray-500 block">{t('labels.startDate', 'تاريخ البدء')}</span>
               <span className="font-medium text-gray-700">{startDate}</span>
             </div>
           </div>
@@ -248,7 +257,7 @@ export default function ContractCard({ contract }: ContractCardProps) {
             ) : (
               <X className="w-3.5 h-3.5 text-slate-400" />
             )}
-            <span>موافقة العميل</span>
+            <span>{t('labels.clientApproval', 'موافقة العميل')}</span>
           </span>
           <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-slate-50 text-slate-600 border border-slate-200/80">
             {contract.freelancerapproval ? (
@@ -256,7 +265,7 @@ export default function ContractCard({ contract }: ContractCardProps) {
             ) : (
               <X className="w-3.5 h-3.5 text-slate-400" />
             )}
-            <span>موافقة المستقل</span>
+            <span>{t('labels.freelancerApproval', 'موافقة المستقل')}</span>
           </span>
         </div>
 
@@ -273,8 +282,8 @@ export default function ContractCard({ contract }: ContractCardProps) {
             focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2
           "
         >
-          <span className="order-1">عرض التفاصيل</span>
-          <ArrowLeft className="w-4 h-4 rtl:rotate-180 shrink-0 order-2" />
+          <span className="order-1">{t('actions.viewDetails', 'عرض التفاصيل')}</span>
+          <ArrowLeft className="w-4 h-4 rtl:rotate-0 ltr:rotate-180 shrink-0 order-2" />
         </button>
       </div>
     </article>

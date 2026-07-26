@@ -5,6 +5,7 @@ import { Loader2, MessageCircle } from 'lucide-react';
 import Loader from '../designSystem/Loader';
 import { getCurrentUserId } from '../utils/getCurrentUserId';
 import ChatModal from './ChatModal';
+import { useTranslation } from 'react-i18next';
 
 interface ComplaintChatProps {
   complaint: Complaint;
@@ -12,6 +13,7 @@ interface ComplaintChatProps {
 }
 
 export default function ComplaintChat({ complaint, currentUserId }: ComplaintChatProps) {
+  const { t } = useTranslation();
   const [clientConversationId, setClientConversationId] = useState<string | null>(null);
   const [freelancerConversationId, setFreelancerConversationId] = useState<string | null>(null);
   const [openModal, setOpenModal] = useState<'client' | 'freelancer' | null>(null);
@@ -27,11 +29,11 @@ export default function ComplaintChat({ complaint, currentUserId }: ComplaintCha
     
     if (!currentUserIdValue) {
       console.error('Current user ID not found. Cannot create conversation.');
-      alert('خطأ: لم يتم العثور على معرف المستخدم الحالي. يرجى تسجيل الدخول مرة أخرى.');
+      alert(t('complaintChat.userNotFound', 'خطأ: لم يتم العثور على معرف المستخدم الحالي. يرجى تسجيل الدخول مرة أخرى.'));
       return;
     }
     
-    const conversationName = `شكوى #${complaint.id.slice(0, 8)} - مع العميل`;
+    const conversationName = `${t('complaintChat.complaint', 'شكوى')} #${complaint.id.slice(0, 8)} - ${t('complaintChat.withClient', 'مع العميل')}`;
     const participantIds = [currentUserIdValue, complaint.userId];
 
     findOrCreateConversation.mutate(
@@ -55,8 +57,8 @@ export default function ComplaintChat({ complaint, currentUserId }: ComplaintCha
           console.error('Failed to create client conversation:', error);
           const anyError = error as { response?: { data?: { message?: string } }; message?: string };
           const errorMessage =
-            anyError?.response?.data?.message || anyError?.message || 'حدث خطأ غير معروف';
-          alert(`خطأ في إنشاء المحادثة مع العميل: ${errorMessage}`);
+            anyError?.response?.data?.message || anyError?.message || t('complaintChat.unknownError', 'حدث خطأ غير معروف');
+          alert(`${t('complaintChat.errorClient', 'خطأ في إنشاء المحادثة مع العميل:')} ${errorMessage}`);
         },
       }
     );
@@ -70,11 +72,11 @@ export default function ComplaintChat({ complaint, currentUserId }: ComplaintCha
     
     if (!currentUserIdValue) {
       console.error('Current user ID not found. Cannot create conversation.');
-      alert('خطأ: لم يتم العثور على معرف المستخدم الحالي. يرجى تسجيل الدخول مرة أخرى.');
+      alert(t('complaintChat.userNotFound', 'خطأ: لم يتم العثور على معرف المستخدم الحالي. يرجى تسجيل الدخول مرة أخرى.'));
       return;
     }
     
-    const conversationName = `شكوى #${complaint.id.slice(0, 8)} - مع المستقل`;
+    const conversationName = `${t('complaintChat.complaint', 'شكوى')} #${complaint.id.slice(0, 8)} - ${t('complaintChat.withFreelancer', 'مع المستقل')}`;
     const participantIds = [currentUserIdValue, complaint.freelancerId];
 
     findOrCreateConversation.mutate(
@@ -98,8 +100,8 @@ export default function ComplaintChat({ complaint, currentUserId }: ComplaintCha
           console.error('Failed to create freelancer conversation:', error);
           const anyError = error as { response?: { data?: { message?: string } }; message?: string };
           const errorMessage =
-            anyError?.response?.data?.message || anyError?.message || 'حدث خطأ غير معروف';
-          alert(`خطأ في إنشاء المحادثة مع المستقل: ${errorMessage}`);
+            anyError?.response?.data?.message || anyError?.message || t('complaintChat.unknownError', 'حدث خطأ غير معروف');
+          alert(`${t('complaintChat.errorFreelancer', 'خطأ في إنشاء المحادثة مع المستقل:')} ${errorMessage}`);
         },
       }
     );
@@ -140,10 +142,10 @@ export default function ComplaintChat({ complaint, currentUserId }: ComplaintCha
         <div className="bg-white rounded-lg border border-border p-6">
           <div className="flex flex-col items-center justify-center py-12">
             <div className="text-center mb-6">
-              <h3 className="text-lg font-semibold text-text-strong mb-2">بدء محادثات حول الشكوى</h3>
+              <h3 className="text-lg font-semibold text-text-strong mb-2">{t('complaintChat.startChats', 'بدء محادثات حول الشكوى')}</h3>
               <p className="text-sm text-text-sub mb-4">
-                ابدأ محادثات منفصلة مع {complaint.user?.name || 'المشتكي'} و{' '}
-                {complaint.freelancer?.name || 'المستقل'} لمناقشة هذه الشكوى
+                {t('complaintChat.startSeparate', 'ابدأ محادثات منفصلة مع')} {complaint.user?.name || t('complaintChat.complainant', 'المشتكي')} {t('complaintChat.and', 'و')}{' '}
+                {complaint.freelancer?.name || t('complaintChat.freelancer', 'المستقل')} {t('complaintChat.toDiscuss', 'لمناقشة هذه الشكوى')}
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
@@ -168,12 +170,12 @@ export default function ComplaintChat({ complaint, currentUserId }: ComplaintCha
                   {findOrCreateConversation.isPending ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      <span>جاري البدء...</span>
+                      <span>{t('complaintChat.starting', 'جاري البدء...')}</span>
                     </>
                   ) : (
                     <>
                       <MessageCircle className="w-5 h-5" />
-                      <span>محادثة مع العميل</span>
+                      <span>{t('complaintChat.chatWithClient', 'محادثة مع العميل')}</span>
                     </>
                   )}
                 </button>
@@ -199,12 +201,12 @@ export default function ComplaintChat({ complaint, currentUserId }: ComplaintCha
                   {findOrCreateConversation.isPending ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      <span>جاري البدء...</span>
+                      <span>{t('complaintChat.starting', 'جاري البدء...')}</span>
                     </>
                   ) : (
                     <>
                       <MessageCircle className="w-5 h-5" />
-                      <span>محادثة مع المستقل</span>
+                      <span>{t('complaintChat.chatWithFreelancer', 'محادثة مع المستقل')}</span>
                     </>
                   )}
                 </button>
@@ -218,16 +220,16 @@ export default function ComplaintChat({ complaint, currentUserId }: ComplaintCha
           isOpen={openModal === 'client'}
           onClose={() => setOpenModal(null)}
           conversationId={clientConversationId}
-          conversationName={`شكوى #${complaint.id.slice(0, 8)} - مع العميل`}
-          participantName={complaint.user?.name || 'العميل'}
+          conversationName={`${t('complaintChat.complaint', 'شكوى')} #${complaint.id.slice(0, 8)} - ${t('complaintChat.withClient', 'مع العميل')}`}
+          participantName={complaint.user?.name || t('complaintChat.client', 'العميل')}
           participantId={complaint.userId}
         />
         <ChatModal
           isOpen={openModal === 'freelancer'}
           onClose={() => setOpenModal(null)}
           conversationId={freelancerConversationId}
-          conversationName={`شكوى #${complaint.id.slice(0, 8)} - مع المستقل`}
-          participantName={complaint.freelancer?.name || 'المستقل'}
+          conversationName={`${t('complaintChat.complaint', 'شكوى')} #${complaint.id.slice(0, 8)} - ${t('complaintChat.withFreelancer', 'مع المستقل')}`}
+          participantName={complaint.freelancer?.name || t('complaintChat.freelancer', 'المستقل')}
           participantId={complaint.freelancerId}
         />
       </>
@@ -258,7 +260,7 @@ export default function ComplaintChat({ complaint, currentUserId }: ComplaintCha
                 color: 'var(--c-primary)',
               }}>
               <MessageCircle className="w-5 h-5" />
-              <span>فتح محادثة مع العميل</span>
+              <span>{t('complaintChat.openWithClient', 'فتح محادثة مع العميل')}</span>
             </button>
           )}
           {complaint.freelancerId && freelancerConversationId && (
@@ -270,7 +272,7 @@ export default function ComplaintChat({ complaint, currentUserId }: ComplaintCha
                 color: 'var(--c-primary)',
               }}>
               <MessageCircle className="w-5 h-5" />
-              <span>فتح محادثة مع المستقل</span>
+              <span>{t('complaintChat.openWithFreelancer', 'فتح محادثة مع المستقل')}</span>
             </button>
           )}
         </div>
@@ -281,16 +283,16 @@ export default function ComplaintChat({ complaint, currentUserId }: ComplaintCha
         isOpen={openModal === 'client'}
         onClose={() => setOpenModal(null)}
         conversationId={clientConversationId}
-        conversationName={`شكوى #${complaint.id.slice(0, 8)} - مع العميل`}
-        participantName={complaint.user?.name || 'العميل'}
+        conversationName={`${t('complaintChat.complaint', 'شكوى')} #${complaint.id.slice(0, 8)} - ${t('complaintChat.withClient', 'مع العميل')}`}
+        participantName={complaint.user?.name || t('complaintChat.client', 'العميل')}
         participantId={complaint.userId}
       />
       <ChatModal
         isOpen={openModal === 'freelancer'}
         onClose={() => setOpenModal(null)}
         conversationId={freelancerConversationId}
-        conversationName={`شكوى #${complaint.id.slice(0, 8)} - مع المستقل`}
-        participantName={complaint.freelancer?.name || 'المستقل'}
+        conversationName={`${t('complaintChat.complaint', 'شكوى')} #${complaint.id.slice(0, 8)} - ${t('complaintChat.withFreelancer', 'مع المستقل')}`}
+        participantName={complaint.freelancer?.name || t('complaintChat.freelancer', 'المستقل')}
         participantId={complaint.freelancerId}
       />
     </>

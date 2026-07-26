@@ -12,6 +12,7 @@ import { getCurrentUserId } from '../utils/getCurrentUserId';
 import Loader from '../designSystem/Loader';
 import { useChatSocket } from '../hooks/chat/useChatSocket';
 import socketService from '../services/socketService';
+import { useTranslation } from 'react-i18next';
 
 interface ChatModalProps {
   isOpen: boolean;
@@ -30,6 +31,7 @@ export default function ChatModal({
   participantName,
   participantId,
 }: ChatModalProps) {
+  const { t } = useTranslation();
   const [messageText, setMessageText] = useState('');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploadingFiles, setUploadingFiles] = useState<boolean>(false);
@@ -404,8 +406,8 @@ export default function ChatModal({
       setSelectedFiles([]);
     } catch (error) {
       console.error('Failed to send message:', error);
-      const errorMessage = error instanceof Error ? error.message : 'حدث خطأ غير معروف';
-      alert(`خطأ في إرسال الرسالة: ${errorMessage}`);
+      const errorMessage = error instanceof Error ? error.message : t('chat.unknownError', 'حدث خطأ غير معروف');
+      alert(`${t('chat.errorSend', 'خطأ في إرسال الرسالة:')} ${errorMessage}`);
     } finally {
       setUploadingFiles(false);
       setIsSending(false);
@@ -421,14 +423,14 @@ export default function ChatModal({
 
   const getSenderName = (senderId: string) => {
     if (senderId === currentUserId) {
-      return 'أنت';
+      return t('chat.you', 'أنت');
     }
     if (senderId === participantId) {
-      return participantName || 'مستخدم';
+      return participantName || t('chat.user', 'مستخدم');
     }
     // Try to get from conversation participants
     const participant = conversation?.participants.find((p) => p.externalUserId === senderId);
-    return participant ? 'مستخدم' : 'مستخدم';
+    return participant ? t('chat.user', 'مستخدم') : t('chat.user', 'مستخدم');
   };
 
   const getSenderAvatar = (senderId: string) => {
@@ -477,7 +479,7 @@ export default function ChatModal({
       if (!src) {
         return (
           <div className="mt-2 p-3 bg-gray-100 rounded-lg text-sm text-text-sub">
-            {attachment.label || 'صورة'}
+            {attachment.label || t('chat.image', 'صورة')}
           </div>
         );
       }
@@ -485,7 +487,7 @@ export default function ChatModal({
         <div className="mt-2">
           <img
             src={src}
-            alt={attachment.label || 'صورة'}
+            alt={attachment.label || t('chat.image', 'صورة')}
             className="max-w-xs rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
             onClick={() => window.open(src, '_blank')}
           />
@@ -513,9 +515,9 @@ export default function ChatModal({
             <Play className="w-5 h-5" style={{ color: 'var(--c-primary)' }} />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-medium text-text-strong">{attachment.label || 'ملف صوتي'}</p>
+            <p className="text-sm font-medium text-text-strong">{attachment.label || t('chat.audio', 'ملف صوتي')}</p>
             {attachment.metadata?.duration && (
-              <p className="text-xs text-text-sub">{attachment.metadata.duration} ثانية</p>
+              <p className="text-xs text-text-sub">{attachment.metadata.duration} {t('chat.seconds', 'ثانية')}</p>
             )}
           </div>
           <a
@@ -536,9 +538,9 @@ export default function ChatModal({
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-text-strong truncate">
-            {attachment.label || 'ملف'}
+            {attachment.label || t('chat.file', 'ملف')}
           </p>
-          <p className="text-xs text-text-sub">مرفق</p>
+          <p className="text-xs text-text-sub">{t('chat.attachment', 'مرفق')}</p>
         </div>
         <a
           href={src}
@@ -555,8 +557,7 @@ export default function ChatModal({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-      onClick={onClose}
-      dir="rtl">
+      onClick={onClose}>
       <div
         className="bg-white rounded-lg shadow-xl w-full max-w-4xl h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}>
@@ -568,13 +569,13 @@ export default function ChatModal({
             </div>
             <div>
               <h2 className="text-lg font-semibold text-text-strong">
-                {conversationName || 'المحادثة'}
+                {conversationName || t('chat.conversation', 'المحادثة')}
               </h2>
               {participantName && (
-                <p className="text-xs text-text-sub">مع {participantName}</p>
+                <p className="text-xs text-text-sub">{t('chat.with', 'مع')} {participantName}</p>
               )}
               {!isConnected && (
-                <p className="text-xs text-red-500">غير متصل</p>
+                <p className="text-xs text-red-500">{t('chat.offline', 'غير متصل')}</p>
               )}
             </div>
           </div>
@@ -594,7 +595,7 @@ export default function ChatModal({
             <div className="flex items-center justify-center py-12">
               <div className="text-center">
                 <Loader />
-                <p className="text-text-sub mt-4">جاري إنشاء المحادثة...</p>
+                <p className="text-text-sub mt-4">{t('chat.creating', 'جاري إنشاء المحادثة...')}</p>
               </div>
             </div>
           ) : conversationLoading || messagesLoading ? (
@@ -603,7 +604,7 @@ export default function ChatModal({
             </div>
           ) : messages.length === 0 ? (
             <div className="flex items-center justify-center py-12">
-              <p className="text-text-sub">لا توجد رسائل بعد. ابدأ المحادثة!</p>
+              <p className="text-text-sub">{t('chat.noMessages', 'لا توجد رسائل بعد. ابدأ المحادثة!')}</p>
             </div>
           ) : (
             messages.map((message: Message) => {
@@ -647,19 +648,19 @@ export default function ChatModal({
                         </div>
                       )}
                       {message.isEdited && (
-                        <span className="text-xs opacity-70 mt-1 block">(تم التعديل)</span>
+                        <span className="text-xs opacity-70 mt-1 block">{t('chat.edited', '(تم التعديل)')}</span>
                       )}
                     </div>
                     {displayMessage.read && (
                       <span className="inline-flex items-center text-xs text-text-sub mt-1">
-                        <CheckCheck className="w-3.5 h-3.5 me-1" /> مقروء
+                        <CheckCheck className="w-3.5 h-3.5 me-1" /> {t('chat.read', 'مقروء')}
                       </span>
                     )}
                     {'localStatus' in displayMessage && displayMessage.senderId === currentUserId && (displayMessage as UiMessage).localStatus === 'sending' && (
-                      <span className="text-xs text-text-sub mt-1">جاري الإرسال...</span>
+                      <span className="text-xs text-text-sub mt-1">{t('chat.sending', 'جاري الإرسال...')}</span>
                     )}
                     {'localStatus' in displayMessage && displayMessage.senderId === currentUserId && (displayMessage as UiMessage).localStatus === 'failed' && (
-                      <span className="text-xs text-red-600 mt-1">فشل الإرسال</span>
+                      <span className="text-xs text-red-600 mt-1">{t('chat.sendFailed', 'فشل الإرسال')}</span>
                     )}
                   </div>
                 </div>
@@ -717,7 +718,7 @@ export default function ChatModal({
               value={messageText}
               onChange={(e) => setMessageText(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder={!conversationId ? 'جاري إنشاء المحادثة...' : !isConnected ? 'غير متصل...' : 'اكتب رسالة...'}
+              placeholder={!conversationId ? t('chat.creating', 'جاري إنشاء المحادثة...') : !isConnected ? t('chat.disconnected', 'غير متصل...') : t('chat.typeMessage', 'اكتب رسالة...')}
               className="flex-1 px-4 py-2 rounded-lg border border-border bg-background text-text-strong placeholder:text-text-sub focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"
               rows={2}
               disabled={!conversationId || !isConnected || isSending || uploadingFiles}
@@ -750,7 +751,7 @@ export default function ChatModal({
               ) : (
                 <Send className="w-4 h-4" />
               )}
-              <span>إرسال</span>
+              <span>{t('chat.send', 'إرسال')}</span>
             </button>
           </div>
         </div>

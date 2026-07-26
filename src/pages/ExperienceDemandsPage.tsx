@@ -18,7 +18,7 @@ import CertificateModal, { type CertificateData } from '@/components/Certificate
 import SuccessModal from '@/designSystem/SuccessModal';
 
 export default function ExperienceDemandsPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
@@ -54,7 +54,7 @@ export default function ExperienceDemandsPage() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('ar-SA', {
+    return date.toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -66,7 +66,7 @@ export default function ExperienceDemandsPage() {
       return (
         <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 flex items-center gap-1">
           <Clock className="w-3 h-3" />
-          قيد المراجعة
+          {t('status.reviewed', 'قيد المراجعة')}
         </span>
       );
     }
@@ -76,21 +76,21 @@ export default function ExperienceDemandsPage() {
         return (
           <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 flex items-center gap-1">
             <CheckCircle className="w-3 h-3" />
-            معتمد
+            {t('status.approved', 'معتمد')}
           </span>
         );
       case 'rejected':
         return (
           <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700 flex items-center gap-1">
             <XCircle className="w-3 h-3" />
-            مرفوض
+            {t('status.rejected', 'مرفوض')}
           </span>
         );
       default:
         return (
           <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 flex items-center gap-1">
             <Clock className="w-3 h-3" />
-            معلق
+            {t('status.pending', 'معلق')}
           </span>
         );
     }
@@ -101,24 +101,24 @@ export default function ExperienceDemandsPage() {
       // Open certificate modal first with detailed information
       setCertificateData({
         userName: demand.user.name,
-        issueDate: new Date().toLocaleDateString('ar-SA', {
+        issueDate: new Date().toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
           year: 'numeric',
           month: 'long',
           day: 'numeric',
         }),
         certificateNumber: `EXP-${demand.id.substring(0, 8).toUpperCase()}`,
-        description: 'تم منح هذه الشهادة تقديراً للخبرة والمهارات المتميزة في مجال العمل الحر',
+        description: t('demands.experience.certDesc', 'تم منح هذه الشهادة تقديراً للخبرة والمهارات المتميزة في مجال العمل الحر'),
         achievements: [
-          'إثبات الخبرة المهنية في المجال المطلوب',
-          'الالتزام بمعايير الجودة والاحترافية',
-          'المساهمة الفعالة في تطوير المشاريع',
+          t('demands.experience.ach1', 'إثبات الخبرة المهنية في المجال المطلوب'),
+          t('demands.experience.ach2', 'الالتزام بمعايير الجودة والاحترافية'),
+          t('demands.experience.ach3', 'المساهمة الفعالة في تطوير المشاريع'),
         ],
-        organizationName: 'أجودي',
+        organizationName: t('certificate.orgNameDefault', 'أجودي'),
       });
       setCurrentDemandId(demand.id);
       setIsCertificateModalOpen(true);
     } else {
-      alert('لا يمكن إنشاء الشهادة: اسم المستخدم غير متوفر');
+      alert(t('demands.experience.errorNoUser', 'لا يمكن إنشاء الشهادة: اسم المستخدم غير متوفر'));
     }
   };
 
@@ -139,8 +139,8 @@ export default function ExperienceDemandsPage() {
         sealImage: certificateData.sealImage,
         signatureImage: certificateData.signatureImage,
         issueDate: certificateData.issueDate,
-        organizationName: certificateData.organizationName || 'أجودي',
-        signerName: 'مدير المنصة', // Default signer name
+        organizationName: certificateData.organizationName || t('appData.ajwadi', 'أجودي'),
+        signerName: t('appData.platformManager', 'مدير المنصة'), // Default signer name
       });
 
       // Approve the demand
@@ -150,22 +150,22 @@ export default function ExperienceDemandsPage() {
       setIsCertificateModalOpen(false);
       setCertificateData(null);
       setCurrentDemandId(null);
-      setSuccessMessage('تم إنشاء الشهادة والموافقة على الطلب بنجاح');
+      setSuccessMessage(t('appData.certSuccess', 'تم إنشاء الشهادة والموافقة على الطلب بنجاح'));
       setSuccessModalOpen(true);
     } catch (error) {
       console.error('Failed to generate certificate:', error);
-      alert('فشل في إنشاء الشهادة. يرجى المحاولة مرة أخرى.');
+      alert(t('appData.certFailed', 'فشل في إنشاء الشهادة. يرجى المحاولة مرة أخرى.'));
     } finally {
       setIsGenerating(false);
     }
   };
 
   const handleReject = async (id: string) => {
-    const reason = window.prompt('يرجى إدخال سبب الرفض:');
+    const reason = window.prompt(t('appData.rejectReasonPrompt', 'يرجى إدخال سبب الرفض:'));
     if (reason) {
       try {
         await rejectMutation.mutateAsync({ id, payload: { reviewNote: reason } });
-        setSuccessMessage('تم رفض طلب الخبرة بنجاح');
+        setSuccessMessage(t('appData.rejectSuccess', 'تم رفض طلب الخبرة بنجاح'));
         setSuccessModalOpen(true);
       } catch (error) {
         console.error('Failed to reject:', error);
@@ -178,10 +178,10 @@ export default function ExperienceDemandsPage() {
   };
 
   return (
-    <div className="p-6 space-y-6" dir="rtl">
+    <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">طلبات الخبرة</h1>
-        <p className="text-gray-600">إدارة طلبات إثبات الخبرة للمستخدمين</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('sidebar.experience', 'طلبات الخبرة')}</h1>
+        <p className="text-gray-600">{t('demands.experience.subtitle', 'إدارة طلبات إثبات الخبرة للمستخدمين')}</p>
       </div>
 
       {/* Filters */}
@@ -193,12 +193,12 @@ export default function ExperienceDemandsPage() {
               setSearch(value);
               setPage(1);
             }}
-            placeholder="البحث بالاسم..."
+            placeholder={t('pages.identity.searchPlaceholder', 'البحث بالاسم...')}
           />
         </div>
 
         <div className="flex items-center gap-2">
-          <label className="text-sm text-gray-700">حالة المراجعة:</label>
+          <label className="text-sm text-gray-700">{t('labels.reviewStatus', 'حالة المراجعة')}:</label>
           <select
             value={reviewStatusFilter}
             onChange={(e) => {
@@ -207,15 +207,15 @@ export default function ExperienceDemandsPage() {
             }}
             className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           >
-            <option value="all">الكل</option>
-            <option value="pending">معلق</option>
-            <option value="approved">معتمد</option>
-            <option value="rejected">مرفوض</option>
+            <option value="all">{t('status.all', 'الكل')}</option>
+            <option value="pending">{t('status.pending', 'معلق')}</option>
+            <option value="approved">{t('status.approved', 'معتمد')}</option>
+            <option value="rejected">{t('status.rejected', 'مرفوض')}</option>
           </select>
         </div>
 
         <div className="flex items-center gap-2">
-          <label className="text-sm text-gray-700">قيد المراجعة:</label>
+          <label className="text-sm text-gray-700">{t('labels.underReview', 'قيد المراجعة')}:</label>
           <select
             value={underReviewFilter}
             onChange={(e) => {
@@ -224,9 +224,9 @@ export default function ExperienceDemandsPage() {
             }}
             className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           >
-            <option value="all">الكل</option>
-            <option value="true">نعم</option>
-            <option value="false">لا</option>
+            <option value="all">{t('status.all', 'الكل')}</option>
+            <option value="true">{t('actions.yes', 'نعم')}</option>
+            <option value="false">{t('actions.no', 'لا')}</option>
           </select>
         </div>
       </div>
@@ -234,15 +234,15 @@ export default function ExperienceDemandsPage() {
       {/* Experience Demands Section */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-semibold text-gray-900">طلبات الخبرة</h2>
+          <h2 className="text-2xl font-semibold text-gray-900">{t('sidebar.experience', 'طلبات الخبرة')}</h2>
           <div className="flex items-center gap-4">
             {underReviewCount !== undefined && (
               <span className="text-sm text-gray-500">
-                قيد المراجعة: <span className="font-semibold">{underReviewCount}</span>
+                {t('labels.underReview', 'قيد المراجعة')}: <span className="font-semibold">{underReviewCount}</span>
               </span>
             )}
             <span className="text-sm text-gray-500">
-              {experienceData?.pagination.totalItems || 0} طلب
+              {experienceData?.pagination.totalItems || 0} {t('labels.request', 'طلب')}
             </span>
           </div>
         </div>
@@ -279,7 +279,7 @@ export default function ExperienceDemandsPage() {
                     )}
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-gray-900 truncate">
-                        {demand.user?.name || 'مستخدم غير معروف'}
+                        {demand.user?.name || t('labels.unknownUser', 'مستخدم غير معروف')}
                       </h3>
                       <p className="text-sm text-gray-500">{demand.user?.phone || ''}</p>
                     </div>
@@ -287,11 +287,11 @@ export default function ExperienceDemandsPage() {
 
                   <div className="space-y-2 mb-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500">الحالة:</span>
+                      <span className="text-xs text-gray-500">{t('labels.status', 'الحالة')}:</span>
                       {getStatusBadge(demand)}
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500">التاريخ:</span>
+                      <span className="text-xs text-gray-500">{t('labels.date', 'التاريخ')}:</span>
                       <span className="text-xs text-gray-700">{formatDate(demand.createdAt)}</span>
                     </div>
                     {demand.exFile && (
@@ -312,7 +312,7 @@ export default function ExperienceDemandsPage() {
                       >
                         <img
                           src={demand.exFile.url}
-                          alt="شهادة الخبرة"
+                          alt={t('labels.experienceCertificate', 'شهادة الخبرة')}
                           className="w-full h-32 object-cover rounded-lg hover:opacity-80 transition-opacity"
                         />
                       </a>
@@ -321,7 +321,7 @@ export default function ExperienceDemandsPage() {
 
                   {demand.reviewNote && (
                     <div className="mb-3 p-2 bg-gray-50 rounded text-xs text-gray-600">
-                      <strong>ملاحظة:</strong> {demand.reviewNote}
+                      <strong>{t('labels.note', 'ملاحظة')}:</strong> {demand.reviewNote}
                     </div>
                   )}
 
@@ -332,7 +332,7 @@ export default function ExperienceDemandsPage() {
                         className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors text-sm font-medium"
                       >
                         <Eye className="w-4 h-4" />
-                        <span>عرض المستخدم</span>
+                        <span>{t('actions.viewUser', 'عرض المستخدم')}</span>
                       </button>
                     )}
                     {demand.isUnderReview && (
@@ -343,7 +343,7 @@ export default function ExperienceDemandsPage() {
                           className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors text-sm font-medium disabled:opacity-50"
                         >
                           <CheckCircle className="w-4 h-4" />
-                          <span>موافقة</span>
+                          <span>{t('actions.approve', 'موافقة')}</span>
                         </button>
                         <button
                           onClick={() => handleReject(demand.id)}
@@ -351,7 +351,7 @@ export default function ExperienceDemandsPage() {
                           className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium disabled:opacity-50"
                         >
                           <XCircle className="w-4 h-4" />
-                          <span>رفض</span>
+                          <span>{t('actions.reject', 'رفض')}</span>
                         </button>
                       </div>
                     )}
@@ -368,10 +368,10 @@ export default function ExperienceDemandsPage() {
                   disabled={!experienceData.pagination.hasPreviousPage}
                   className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                 >
-                  السابق
+                  {t('pagination.previous', 'السابق')}
                 </button>
                 <span className="px-4 py-2 text-sm text-gray-700">
-                  صفحة {experienceData.pagination.currentPage} من{' '}
+                  {t('pagination.page', 'صفحة')} {experienceData.pagination.currentPage} {t('pagination.of', 'من')}{' '}
                   {experienceData.pagination.totalPages}
                 </span>
                 <button
@@ -379,7 +379,7 @@ export default function ExperienceDemandsPage() {
                   disabled={!experienceData.pagination.hasNextPage}
                   className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                 >
-                  التالي
+                  {t('pagination.next', 'التالي')}
                 </button>
               </div>
             )}
@@ -387,7 +387,7 @@ export default function ExperienceDemandsPage() {
         ) : (
           <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
             <FileText className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-            <p className="text-gray-500">لا توجد طلبات خبرة</p>
+            <p className="text-gray-500">{t('table.noExperienceDemands', 'لا توجد طلبات خبرة')}</p>
           </div>
         )}
       </div>
@@ -412,7 +412,7 @@ export default function ExperienceDemandsPage() {
         isOpen={successModalOpen}
         onClose={() => setSuccessModalOpen(false)}
         message={successMessage}
-        details="تم تنفيذ العملية بنجاح."
+        details={t('actions.successDetails', 'تم تنفيذ العملية بنجاح.')}
       />
     </div>
   );

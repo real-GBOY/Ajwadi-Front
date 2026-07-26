@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   useGetComplaintById,
@@ -29,6 +30,7 @@ import Loader from '../designSystem/Loader';
 import ComplaintChat from '../components/ComplaintChat';
 
 export default function ComplaintDetailPage() {
+  const { t, i18n } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: complaintData, isLoading } = useGetComplaintById(id || null);
@@ -76,7 +78,7 @@ export default function ComplaintDetailPage() {
   };
 
   const handleDelete = async () => {
-    if (id && window.confirm('هل أنت متأكد من حذف هذه الشكوى؟')) {
+    if (id && window.confirm(t('pages.complaints.confirmDelete', 'هل أنت متأكد من حذف هذه الشكوى؟'))) {
       setIsDeleting(true);
       try {
         await deleteComplaint.mutateAsync(id);
@@ -99,7 +101,7 @@ export default function ComplaintDetailPage() {
             borderColor: 'var(--c-badge-success-border)',
           }}>
           <CheckCircle className="w-3 h-3 mr-1" />
-          محلول
+          {t('status.resolved', 'محلول')}
         </span>
       );
     }
@@ -112,7 +114,7 @@ export default function ComplaintDetailPage() {
           borderColor: 'var(--c-badge-warning-border)',
         }}>
         <Clock className="w-3 h-3 mr-1" />
-        قيد المراجعة
+        {t('status.reviewed', 'قيد المراجعة')}
       </span>
     );
   };
@@ -131,11 +133,11 @@ export default function ComplaintDetailPage() {
         <button
           onClick={() => navigate('/complain/projects')}
           className="flex items-center gap-2 text-text-sub hover:text-text-strong mb-6 transition-colors">
-          <ArrowLeft className="w-4 h-4" />
-          <span>العودة إلى الشكاوى</span>
+          <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
+          <span>{t('pages.complaints.backToComplaints', 'العودة إلى الشكاوى')}</span>
         </button>
         <div className="bg-white rounded-lg border border-border p-12 text-center">
-          <p className="text-text-sub">الشكوى غير موجودة</p>
+          <p className="text-text-sub">{t('pages.complaints.notFound', 'الشكوى غير موجودة')}</p>
         </div>
       </div>
     );
@@ -146,8 +148,8 @@ export default function ComplaintDetailPage() {
       <button
         onClick={() => navigate('/complain/projects')}
         className="flex items-center gap-2 text-text-sub hover:text-text-strong mb-6 transition-colors">
-        <ArrowLeft className="w-4 h-4" />
-        <span>العودة إلى الشكاوى</span>
+        <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
+        <span>{t('pages.complaints.backToComplaints', 'العودة إلى الشكاوى')}</span>
       </button>
 
       {/* Complaint Header */}
@@ -164,7 +166,7 @@ export default function ComplaintDetailPage() {
                 <div className="w-3 h-3 bg-primary rounded-full"></div>
               )}
               <h1 className="text-2xl font-semibold text-text-strong">
-                شكوى #{complaint.id.slice(0, 8)}
+                {t('pages.complaints.complaintNumber', 'شكوى #')}{complaint.id.slice(0, 8)}
               </h1>
               {getStatusBadge(complaint.status)}
             </div>
@@ -189,7 +191,7 @@ export default function ComplaintDetailPage() {
               e.currentTarget.style.backgroundColor = 'var(--c-primary)';
             }}>
             <MessageCircle className="w-4 h-4" />
-            <span>{showChat ? 'إخفاء المحادثة' : 'بدء محادثة حول الشكوى'}</span>
+            <span>{showChat ? t('pages.complaints.hideChat', 'إخفاء المحادثة') : t('pages.complaints.startChat', 'بدء محادثة حول الشكوى')}</span>
           </button>
 
           {complaint.read ? (
@@ -198,7 +200,7 @@ export default function ComplaintDetailPage() {
               disabled={markAsUnread.isPending}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border border-border bg-background hover:bg-gray-50 transition-colors disabled:opacity-50">
               <EyeOff className="w-4 h-4" />
-              <span>وضع علامة غير مقروء</span>
+              <span>{t('pages.complaints.markUnread', 'وضع علامة غير مقروء')}</span>
             </button>
           ) : (
             <button
@@ -215,7 +217,7 @@ export default function ComplaintDetailPage() {
                 e.currentTarget.style.backgroundColor = 'var(--c-primary)';
               }}>
               <Eye className="w-4 h-4" />
-              <span>وضع علامة مقروء</span>
+              <span>{t('pages.complaints.markRead', 'وضع علامة مقروء')}</span>
             </button>
           )}
 
@@ -225,7 +227,7 @@ export default function ComplaintDetailPage() {
               disabled={unpin.isPending}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border border-border bg-background hover:bg-gray-50 transition-colors disabled:opacity-50">
               <Pin className="w-4 h-4" />
-              <span>إلغاء التثبيت</span>
+              <span>{t('pages.complaints.unpin', 'إلغاء التثبيت')}</span>
             </button>
           ) : (
             <button
@@ -233,7 +235,7 @@ export default function ComplaintDetailPage() {
               disabled={pin.isPending}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border border-border bg-background hover:bg-gray-50 transition-colors disabled:opacity-50">
               <Pin className="w-4 h-4" />
-              <span>تثبيت</span>
+              <span>{t('pages.complaints.pin', 'تثبيت')}</span>
             </button>
           )}
 
@@ -252,7 +254,7 @@ export default function ComplaintDetailPage() {
                 e.currentTarget.style.opacity = '1';
               }}>
               <CheckCircle className="w-4 h-4" />
-              <span>حل الشكوى</span>
+              <span>{t('pages.complaints.resolveComplaint', 'حل الشكوى')}</span>
             </button>
           )}
 
@@ -270,7 +272,7 @@ export default function ComplaintDetailPage() {
               e.currentTarget.style.opacity = '1';
             }}>
             <Trash2 className="w-4 h-4" />
-            <span>حذف</span>
+            <span>{t('pages.complaints.delete', 'حذف')}</span>
           </button>
         </div>
       </div>
@@ -284,7 +286,7 @@ export default function ComplaintDetailPage() {
             <div className="bg-white rounded-lg border border-border p-6">
               <div className="flex items-center gap-2 mb-4">
                 <AlertCircle className="w-5 h-5 text-orange-600" />
-                <h2 className="text-lg font-semibold text-text-strong">سبب الشكوى</h2>
+                <h2 className="text-lg font-semibold text-text-strong">{t('pages.complaints.reasonTitle', 'سبب الشكوى')}</h2>
               </div>
               <p className="text-sm text-text-strong leading-relaxed whitespace-pre-wrap">
                 {complaint.reason}
@@ -294,16 +296,16 @@ export default function ComplaintDetailPage() {
 
           {/* Timestamps */}
           <div className="bg-white rounded-lg border border-border p-6">
-            <h2 className="text-lg font-semibold text-text-strong mb-4">معلومات الوقت</h2>
+            <h2 className="text-lg font-semibold text-text-strong mb-4">{t('pages.complaints.timeInfo', 'معلومات الوقت')}</h2>
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-100 rounded-lg">
                   <Calendar className="w-4 h-4 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-xs text-blue-600 font-medium mb-0.5">تاريخ الإنشاء</p>
+                  <p className="text-xs text-blue-600 font-medium mb-0.5">{t('pages.complaints.createdAt', 'تاريخ الإنشاء')}</p>
                   <p className="text-sm font-semibold text-text-strong">
-                    {new Date(complaint.createdAt).toLocaleDateString('ar-SA', {
+                    {new Date(complaint.createdAt).toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric',
@@ -320,9 +322,9 @@ export default function ComplaintDetailPage() {
                     <Calendar className="w-4 h-4 text-purple-600" />
                   </div>
                   <div>
-                    <p className="text-xs text-purple-600 font-medium mb-0.5">آخر تحديث</p>
+                    <p className="text-xs text-purple-600 font-medium mb-0.5">{t('pages.complaints.updatedAt', 'آخر تحديث')}</p>
                     <p className="text-sm font-semibold text-text-strong">
-                      {new Date(complaint.updatedAt).toLocaleDateString('ar-SA', {
+                      {new Date(complaint.updatedAt).toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric',
@@ -340,9 +342,9 @@ export default function ComplaintDetailPage() {
                     <Eye className="w-4 h-4 text-green-600" />
                   </div>
                   <div>
-                    <p className="text-xs text-green-600 font-medium mb-0.5">تاريخ القراءة</p>
+                    <p className="text-xs text-green-600 font-medium mb-0.5">{t('pages.complaints.readAt', 'تاريخ القراءة')}</p>
                     <p className="text-sm font-semibold text-text-strong">
-                      {new Date(complaint.readAt).toLocaleDateString('ar-SA', {
+                      {new Date(complaint.readAt).toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric',
@@ -360,9 +362,9 @@ export default function ComplaintDetailPage() {
                     <Pin className="w-4 h-4 text-indigo-600 fill-indigo-600" />
                   </div>
                   <div>
-                    <p className="text-xs text-indigo-600 font-medium mb-0.5">تاريخ التثبيت</p>
+                    <p className="text-xs text-indigo-600 font-medium mb-0.5">{t('pages.complaints.pinnedAt', 'تاريخ التثبيت')}</p>
                     <p className="text-sm font-semibold text-text-strong">
-                      {new Date(complaint.pinnedAt).toLocaleDateString('ar-SA', {
+                      {new Date(complaint.pinnedAt).toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric',
@@ -386,7 +388,7 @@ export default function ComplaintDetailPage() {
                 <div className="p-2 bg-blue-100 rounded-lg">
                   <User className="w-5 h-5 text-blue-600" />
                 </div>
-                <h2 className="text-lg font-semibold text-text-strong">المشتكي</h2>
+                <h2 className="text-lg font-semibold text-text-strong">{t('pages.complaints.complainant', 'المشتكي')}</h2>
               </div>
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
@@ -406,7 +408,7 @@ export default function ComplaintDetailPage() {
               <button
                 onClick={() => navigate(`/users/clients/${complaint.userId}`)}
                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-border bg-background hover:bg-gray-50 transition-colors">
-                عرض الملف الشخصي
+                {t('pages.complaints.viewProfile', 'عرض الملف الشخصي')}
               </button>
             </div>
           )}
@@ -418,7 +420,7 @@ export default function ComplaintDetailPage() {
                 <div className="p-2 bg-purple-100 rounded-lg">
                   <Users className="w-5 h-5 text-purple-600" />
                 </div>
-                <h2 className="text-lg font-semibold text-text-strong">المستقل</h2>
+                <h2 className="text-lg font-semibold text-text-strong">{t('pages.complaints.freelancer', 'المستقل')}</h2>
               </div>
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
@@ -438,7 +440,7 @@ export default function ComplaintDetailPage() {
               <button
                 onClick={() => navigate(`/users/freelancers/${complaint.freelancerId}`)}
                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-border bg-background hover:bg-gray-50 transition-colors">
-                عرض الملف الشخصي
+                {t('pages.complaints.viewProfile', 'عرض الملف الشخصي')}
               </button>
             </div>
           )}
@@ -449,7 +451,7 @@ export default function ComplaintDetailPage() {
               <div className="p-2 bg-gray-100 rounded-lg">
                 <AlertCircle className="w-5 h-5 text-gray-600" />
               </div>
-              <h2 className="text-lg font-semibold text-text-strong">معرف الشكوى</h2>
+              <h2 className="text-lg font-semibold text-text-strong">{t('pages.complaints.complaintId', 'معرف الشكوى')}</h2>
             </div>
             <p className="text-sm font-english text-text-sub font-mono break-all">
               {complaint.id}

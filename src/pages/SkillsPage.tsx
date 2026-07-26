@@ -11,7 +11,7 @@ import type { Skill, CreateSkillRequest } from '../services/skillService';
 import SkillsForm from '../components/forms/SkillsForm';
 
 export default function SkillsPage() {
-   const { t } = useTranslation();
+   const { t, i18n } = useTranslation();
    const [searchQuery, setSearchQuery] = useState('');
    const [pagination, setPagination] = useState({
       pageIndex: 0,
@@ -57,7 +57,7 @@ export default function SkillsPage() {
    };
 
    const handleDelete = useCallback(async (skill: Skill) => {
-      if (window.confirm('هل أنت متأكد من حذف هذه المهارة؟')) {
+      if (window.confirm(t('appData.confirmDeleteSkill', 'هل أنت متأكد من حذف هذه المهارة؟'))) {
          try {
             await deleteSkillMutation.mutateAsync(skill.id);
             refetch();
@@ -65,7 +65,7 @@ export default function SkillsPage() {
             console.error('Error deleting skill:', error);
          }
       }
-   }, [deleteSkillMutation, refetch]);
+   }, [deleteSkillMutation, refetch, t]);
 
    const handleAdd = () => {
       setSelectedSkill(null);
@@ -99,7 +99,7 @@ export default function SkillsPage() {
       () => [
          {
             accessorKey: 'name',
-            header: 'اسم المهارة',
+            header: t('appData.skillName', 'اسم المهارة'),
             size: 140,
             cell: ({ row }) => (
                <span className="truncate block max-w-[140px] sm:max-w-none" title={row.original.name}>
@@ -109,7 +109,7 @@ export default function SkillsPage() {
          },
          {
             accessorKey: 'createdAt',
-            header: 'تاريخ الإنشاء',
+            header: t('labels.createdAt', 'تاريخ الإنشاء'),
             size: 110,
             cell: ({ row }) => {
                const date = row.getValue('createdAt') as string;
@@ -118,7 +118,7 @@ export default function SkillsPage() {
                   const d = new Date(date);
                   return (
                      <span className="whitespace-nowrap text-[11px] sm:text-sm">
-                        {d.toLocaleDateString('ar-SA', {
+                        {d.toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
                            year: 'numeric',
                            month: 'short',
                            day: 'numeric',
@@ -132,7 +132,7 @@ export default function SkillsPage() {
          },
          {
             id: 'actions',
-            header: 'الإجراءات',
+            header: t('labels.actions', 'الإجراءات'),
             size: 80,
             cell: ({ row }) => {
                const skill = row.original;
@@ -144,7 +144,7 @@ export default function SkillsPage() {
                            handleEdit(skill);
                         }}
                         className="p-1.5 text-text-sub hover:text-primary hover:bg-primary/10 rounded transition-colors"
-                        title="تعديل">
+                        title={t('actions.edit', 'تعديل')}>
                         <Edit className="w-4 h-4" />
                      </button>
                      <button
@@ -153,7 +153,7 @@ export default function SkillsPage() {
                            handleDelete(skill);
                         }}
                         className="p-1.5 text-text-sub hover:text-danger hover:bg-danger/10 rounded transition-colors"
-                        title="حذف">
+                        title={t('actions.delete', 'حذف')}>
                         <Trash2 className="w-4 h-4" />
                      </button>
                   </div>
@@ -161,7 +161,7 @@ export default function SkillsPage() {
             },
          },
       ],
-      [handleDelete]
+      [handleDelete, t, i18n.language]
    );
 
    return (
@@ -174,7 +174,7 @@ export default function SkillsPage() {
                onClick={handleAdd}
                className="flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors w-full sm:w-auto shrink-0">
                <Plus className="w-5 h-5 shrink-0" />
-               <span>إضافة مهارة</span>
+               <span>{t('appData.addSkill', 'إضافة مهارة')}</span>
             </button>
          </div>
 
@@ -183,7 +183,7 @@ export default function SkillsPage() {
                <SearchInput
                   value={searchQuery}
                   onChange={setSearchQuery}
-                  placeholder="ابحث عن مهارة..."
+                  placeholder={t('appData.searchSkill', 'ابحث عن مهارة...')}
                   className="w-full max-w-md"
                />
             </div>
@@ -208,7 +208,7 @@ export default function SkillsPage() {
          <Modal
             isOpen={isModalOpen}
             onClose={handleCloseModal}
-            title={selectedSkill ? 'تعديل مهارة' : 'إضافة مهارة جديدة'}
+            title={selectedSkill ? t('appData.editSkill', 'تعديل مهارة') : t('appData.addNewSkill', 'إضافة مهارة جديدة')}
             size="md"
             className="max-w-[95vw] sm:max-w-lg">
             <SkillsForm

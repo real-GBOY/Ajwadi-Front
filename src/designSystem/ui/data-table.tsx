@@ -138,14 +138,14 @@ function DataTablePagination<TData>({
             type="button"
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
-            className="px-2 py-1 text-xs md:text-sm text-text-sub hover:bg-bg-weak rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            className="px-2 py-1 text-xs md:text-sm text-text-sub hover:bg-bg-weak rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors rtl:rotate-180">
             «
          </button>
          <button
             type="button"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
-            className="px-2 py-1 text-xs md:text-sm text-text-sub hover:bg-bg-weak rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            className="px-2 py-1 text-xs md:text-sm text-text-sub hover:bg-bg-weak rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors rtl:rotate-180">
             ‹
          </button>
 
@@ -187,14 +187,14 @@ function DataTablePagination<TData>({
             type="button"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
-            className="px-2 py-1 text-xs md:text-sm text-text-sub hover:bg-bg-weak rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            className="px-2 py-1 text-xs md:text-sm text-text-sub hover:bg-bg-weak rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors rtl:rotate-180">
             ›
          </button>
          <button
             type="button"
             onClick={() => table.setPageIndex(totalPages - 1)}
             disabled={!table.getCanNextPage()}
-            className="px-2 py-1 text-xs md:text-sm text-text-sub hover:bg-bg-weak rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            className="px-2 py-1 text-xs md:text-sm text-text-sub hover:bg-bg-weak rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors rtl:rotate-180">
             »
          </button>
       </div>

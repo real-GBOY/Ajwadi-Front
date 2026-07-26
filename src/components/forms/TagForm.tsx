@@ -3,6 +3,7 @@ import { Tag, CreateTagRequest } from '@/services/tagService';
 import { FormInput } from '@/designSystem/ui/form-input';
 import { uploadFile } from '@/services/s3Service';
 import { Upload, X, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface TagFormProps {
   tag?: Tag | null;
@@ -17,6 +18,7 @@ export default function TagForm({
   onCancel,
   isLoading = false,
 }: TagFormProps) {
+  const { t } = useTranslation();
   // API DTO: { name: string, badgeUrl?: array }
   const [formData, setFormData] = useState<CreateTagRequest>({
     name: '',
@@ -56,13 +58,13 @@ export default function TagForm({
 
     // Validate file type (images only)
     if (!file.type.startsWith('image/')) {
-      setUploadError('يرجى اختيار ملف صورة فقط');
+      setUploadError(t('validation.imageOnly', 'يرجى اختيار ملف صورة فقط'));
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      setUploadError('حجم الملف يجب أن يكون أقل من 5 ميجابايت');
+      setUploadError(t('validation.fileSizeLimit', 'حجم الملف يجب أن يكون أقل من 5 ميجابايت'));
       return;
     }
 
@@ -91,7 +93,7 @@ export default function TagForm({
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof CreateTagRequest, string>> = {};
     if (!formData.name.trim()) {
-      newErrors.name = 'اسم العلامة مطلوب';
+      newErrors.name = t('validation.tagNameRequired', 'اسم العلامة مطلوب');
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -142,7 +144,7 @@ export default function TagForm({
         await onSubmit(formData);
       }
     } catch (error: any) {
-      setUploadError(error.message || 'فشل في رفع الملف');
+      setUploadError(error.message || t('appData.imageLoadFailed', 'فشل في رفع الملف'));
       setIsUploading(false);
     } finally {
       setIsUploading(false);
@@ -153,20 +155,19 @@ export default function TagForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Name - API expects: name (string, required) */}
       <FormInput
-        label="اسم العلامة"
+        label={t('forms.tagName', 'اسم العلامة')}
         type="text"
         value={formData.name}
         onChange={(e) => handleChange('name', e.target.value)}
-        placeholder="أدخل اسم العلامة"
+        placeholder={t('forms.tagNamePlaceholder', 'أدخل اسم العلامة')}
         error={errors.name}
         required
-        dir="rtl"
       />
 
       {/* Badge Upload - API expects: badgeUrl (array, optional) */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2 text-right">
-          الشارة (اختياري)
+        <label className="block text-sm font-medium text-gray-700 mb-2 rtl:text-right ltr:text-left">
+          {t('forms.badgeOptional', 'الشارة (اختياري)')}
         </label>
 
         {/* File Input */}
@@ -192,9 +193,9 @@ export default function TagForm({
             <div className="flex flex-col items-center justify-center pt-5 pb-6">
               <Upload className={`w-8 h-8 mb-2 ${isUploading || isLoading ? 'text-gray-400' : 'text-gray-400'}`} />
               <p className="mb-2 text-sm text-gray-500 text-center">
-                <span className="font-semibold">انقر للرفع</span> أو اسحب الملف هنا
+                <span className="font-semibold">{t('forms.clickToUpload', 'انقر للرفع')}</span> {t('forms.orDrag', 'أو اسحب الملف هنا')}
               </p>
-              <p className="text-xs text-gray-500">PNG, JPG, GIF حتى 5MB</p>
+              <p className="text-xs text-gray-500">{t('forms.fileTypes', 'PNG, JPG, GIF حتى 5MB')}</p>
             </div>
           </label>
         ) : (
@@ -210,7 +211,7 @@ export default function TagForm({
                   type="button"
                   onClick={handleRemoveFile}
                   className="absolute top-2 left-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-                  title="إزالة الصورة">
+                  title={t('forms.removeImage', 'إزالة الصورة')}>
                   <X className="w-4 h-4" />
                 </button>
               )}
@@ -224,7 +225,7 @@ export default function TagForm({
               <label
                 htmlFor="badge-upload"
                 className="mt-2 block text-center text-sm text-primary hover:text-primary-dark cursor-pointer">
-                تغيير الصورة
+                {t('forms.changeImage', 'تغيير الصورة')}
               </label>
             )}
           </div>
@@ -232,7 +233,7 @@ export default function TagForm({
 
         {/* Error Message */}
         {uploadError && (
-          <p className="mt-2 text-sm text-red-600 text-right">{uploadError}</p>
+          <p className="mt-2 text-sm text-red-600 rtl:text-right ltr:text-left">{uploadError}</p>
         )}
       </div>
 
@@ -242,7 +243,7 @@ export default function TagForm({
           type="button"
           onClick={onCancel}
           className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
-          إلغاء
+          {t('actions.cancel', 'إلغاء')}
         </button>
         <button
           type="submit"
@@ -251,14 +252,14 @@ export default function TagForm({
           {isUploading ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              <span>جاري الرفع...</span>
+              <span>{t('actions.uploading', 'جاري الرفع...')}</span>
             </>
           ) : isLoading ? (
-            'جاري الحفظ...'
+            t('actions.saving', 'جاري الحفظ...')
           ) : tag ? (
-            'تحديث'
+            t('actions.update', 'تحديث')
           ) : (
-            'إضافة'
+            t('actions.add', 'إضافة')
           )}
         </button>
       </div>

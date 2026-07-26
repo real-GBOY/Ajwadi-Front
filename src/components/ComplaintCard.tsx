@@ -1,12 +1,14 @@
 import { useNavigate } from 'react-router-dom';
 import { Complaint } from '../services/complaintService';
 import { Eye, Pin, CheckCircle, XCircle, Clock, AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface ComplaintCardProps {
   complaint: Complaint;
 }
 
 export default function ComplaintCard({ complaint }: ComplaintCardProps) {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
   const getStatusBadge = (status: string) => {
@@ -20,7 +22,7 @@ export default function ComplaintCard({ complaint }: ComplaintCardProps) {
             borderColor: 'var(--c-badge-success-border)',
           }}>
           <CheckCircle className="w-3 h-3 mr-1" />
-          محلول
+          {t('status.resolved', 'محلول')}
         </span>
       );
     }
@@ -33,7 +35,7 @@ export default function ComplaintCard({ complaint }: ComplaintCardProps) {
           borderColor: 'var(--c-badge-warning-border)',
         }}>
         <Clock className="w-3 h-3 mr-1" />
-        قيد المراجعة
+        {t('status.reviewed', 'قيد المراجعة')}
       </span>
     );
   };
@@ -50,7 +52,7 @@ export default function ComplaintCard({ complaint }: ComplaintCardProps) {
               <div className="w-2 h-2 bg-primary rounded-full"></div>
             )}
             <h3 className="text-lg font-semibold text-text-strong">
-              شكوى #{complaint.id.slice(0, 8)}
+              {t('labels.complaint', 'شكوى')} #{complaint.id.slice(0, 8)}
             </h3>
           </div>
           {complaint.resonsummary && (
@@ -70,7 +72,7 @@ export default function ComplaintCard({ complaint }: ComplaintCardProps) {
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-blue-600 font-medium mb-0.5">المشتكي</p>
+              <p className="text-xs text-blue-600 font-medium mb-0.5">{t('labels.complainant', 'المشتكي')}</p>
               <p className="text-sm font-semibold text-text-strong truncate">
                 {complaint.user.name}
               </p>
@@ -89,7 +91,7 @@ export default function ComplaintCard({ complaint }: ComplaintCardProps) {
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-purple-600 font-medium mb-0.5">المستقل</p>
+              <p className="text-xs text-purple-600 font-medium mb-0.5">{t('labels.freelancer', 'المستقل')}</p>
               <p className="text-sm font-semibold text-text-strong truncate">
                 {complaint.freelancer.name}
               </p>
@@ -115,7 +117,7 @@ export default function ComplaintCard({ complaint }: ComplaintCardProps) {
       <div className="flex items-center justify-between pt-4 border-t border-border">
         <div className="flex items-center gap-4 text-xs text-text-sub">
           <span>
-            {new Date(complaint.createdAt).toLocaleDateString('ar-SA', {
+            {new Date(complaint.createdAt).toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
               year: 'numeric',
               month: 'short',
               day: 'numeric',
@@ -124,7 +126,7 @@ export default function ComplaintCard({ complaint }: ComplaintCardProps) {
           {complaint.readAt && (
             <span className="flex items-center gap-1">
               <CheckCircle className="w-3 h-3" />
-              مقروء
+              {t('status.read', 'مقروء')}
             </span>
           )}
         </div>
@@ -142,7 +144,7 @@ export default function ComplaintCard({ complaint }: ComplaintCardProps) {
             e.currentTarget.style.backgroundColor = 'var(--c-primary)';
           }}>
           <Eye className="w-4 h-4" />
-          <span>عرض التفاصيل</span>
+          <span>{t('actions.viewDetails', 'عرض التفاصيل')}</span>
         </button>
       </div>
     </div>

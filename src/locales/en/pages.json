@@ -1,0 +1,177 @@
+{
+  "clients": {
+    "title": "Clients",
+    "searchPlaceholder": "Search for a client...",
+    "detailTitle": "Client Details"
+  },
+  "freelancers": {
+    "title": "Freelancers",
+    "searchPlaceholder": "Search for a freelancer...",
+    "detailTitle": "Freelancer Details"
+  },
+  "employees": {
+    "title": "Employees",
+    "searchPlaceholder": "Search for an employee...",
+    "addEmployee": "Add Employee",
+    "editEmployee": "Edit Employee"
+  },
+  "projects": {
+    "title": "Projects",
+    "subtitle": "Browse and manage projects",
+    "searchPlaceholder": "Search for a project...",
+    "detailTitle": "Project Details",
+    "proposalDescription": "Proposal Description:",
+    "proposalBudget": "Proposal Budget"
+  },
+  "identity": {
+    "title": "Identity Verification",
+    "subtitle": "Manage user verification requests",
+    "searchPlaceholder": "Search by name...",
+    "usersUnderReview": "Users Under Review"
+  },
+  "contracts": {
+    "title": "Contracts",
+    "subtitle": "View and manage project contracts",
+    "searchPlaceholder": "Search for a contract...",
+    "detailTitle": "Contract Details"
+  },
+  "complaints": {
+    "publicTitle": "Public Complaints",
+    "projectsTitle": "Project Complaints",
+    "searchPlaceholder": "Search complaints...",
+    "detailTitle": "Complaint Details",
+    "viewProfile": "View Profile",
+    "confirmDelete": "Are you sure you want to delete this complaint?",
+    "backToComplaints": "Back to Complaints",
+    "notFound": "Complaint not found",
+    "complaintNumber": "Complaint #",
+    "startChat": "Start discussion about complaint",
+    "hideChat": "Hide chat",
+    "markUnread": "Mark as unread",
+    "markRead": "Mark as read",
+    "unpin": "Unpin",
+    "pin": "Pin",
+    "resolveComplaint": "Resolve complaint",
+    "delete": "Delete",
+    "reasonTitle": "Complaint Reason",
+    "timeInfo": "Time Information",
+    "createdAt": "Created At",
+    "updatedAt": "Last Updated",
+    "readAt": "Read At",
+    "pinnedAt": "Pinned At",
+    "complainant": "Complainant",
+    "freelancer": "Freelancer",
+    "complaintId": "Complaint ID"
+  },
+  "demands": {
+    "tagsTitle": "Tags Demands",
+    "identityTitle": "Identity Verification Demands",
+    "experienceTitle": "Experience Demands",
+    "searchPlaceholder": "Search demands...",
+    "viewUser": "View User",
+    "rejectionReasonPrompt": "Please enter the rejection reason:",
+    "tags": {
+      "title": "Tag Attachment Requests",
+      "subtitle": "Manage skill tag attachment requests by users",
+      "acceptSuccess": "Tag attachment request accepted successfully",
+      "rejectSuccess": "Tag attachment request rejected successfully",
+      "promptReason": "Please enter rejection reason:",
+      "errorAccept": "An error occurred while accepting the request",
+      "errorReject": "An error occurred while rejecting the request"
+    },
+    "identity": {
+      "subtitle": "Manage user verification requests",
+      "usersUnderReview": "Users Under Review"
+    },
+    "experience": {
+      "subtitle": "Manage experience proof requests for users",
+      "certDesc": "This certificate is awarded in recognition of outstanding experience and skills in freelancing",
+      "ach1": "Demonstrating professional experience in the required field",
+      "ach2": "Adherence to quality and professional standards",
+      "ach3": "Active contribution to project development",
+      "errorNoUser": "Cannot generate certificate: User name unavailable"
+    }
+  },
+  "finance": {
+    "transactionsTitle": "Transactions",
+    "withdrawTitle": "Withdrawal Demands",
+    "taxedTitle": "Taxed Transactions",
+    "topupTitle": "Deposit Transactions",
+    "searchPlaceholder": "Search financial records...",
+    "allTaxedCompleted": "All transactions completed and taxable",
+    "escrowRelease": "Escrow Release",
+    "searchTopup": "Search deposit transaction...",
+    "searchTx": "Search transaction...",
+    "taxedSubtitle": "Completed taxable transactions",
+    "topUp": "Deposit",
+    "totalTopups": "Total Deposit Transactions",
+    "totalTransactions": "Total Transactions",
+    "txId": "Transaction",
+    "userId": "User ID",
+    "walletId": "Wallet ID"
+  },
+  "appData": {
+    "skillsTitle": "Skills",
+    "specificationTitle": "Specializations",
+    "privacyPolicyTitle": "Privacy Policy",
+    "tagsTitle": "Tags",
+    "searchPlaceholder": "Search...",
+    "addTag": "Add Tag",
+    "badge": "Badge",
+    "confirmDeletePolicy": "Are you sure you want to delete this privacy policy?",
+    "confirmDeleteSkill": "Are you sure you want to delete this skill?",
+    "confirmDeleteSpec": "Are you sure you want to delete this specialization?",
+    "confirmDeleteTag": "Are you sure you want to delete this tag?",
+    "editPolicy": "Edit Privacy Policy",
+    "editSkill": "Edit Skill",
+    "editSpec": "Edit Specialization",
+    "editTag": "Edit Tag",
+    "icon": "Icon",
+    "imageLoadFailed": "Failed to load image",
+    "searchPolicy": "Search privacy policy...",
+    "searchSkill": "Search skill...",
+    "searchSpec": "Search specialization...",
+    "searchTag": "Search tag...",
+    "skillName": "Skill Name",
+    "tagName": "Tag Name",
+    "addNewPolicy": "Add New Privacy Policy",
+    "addNewSkill": "Add New Skill",
+    "addNewSpec": "Add New Specialization",
+    "addNewTag": "Add New Tag",
+    "addPolicy": "Add Privacy Policy",
+    "addSkill": "Add Skill",
+    "addSpec": "Add Specialization"
+  },
+  "notifications": {
+    "pushTitle": "Push Notifications",
+    "sendNotification": "Send Notification",
+    "title": "Push Notifications Management",
+    "subtitle": "Send push notifications to clients and freelancers",
+    "sendSuccess": "Notification sent successfully",
+    "sendFailed": "Failed to send notification",
+    "sendSection": "Send notification to clients and freelancers",
+    "targetType": "Target Type",
+    "allClients": "All Clients",
+    "allFreelancers": "All Freelancers",
+    "specificUsers": "Specific Users",
+    "userIds": "User IDs (comma-separated)",
+    "notifType": "Notification Type",
+    "notifTitle": "Title",
+    "content": "Content",
+    "eventKey": "Event Key (Optional)",
+    "sendBtn": "Send Notification"
+  },
+  "settings": {
+    "title": "Settings",
+    "underDevelopment": "Settings Page - Under Development"
+  },
+  "profile": {
+    "title": "Profile",
+    "underDevelopment": "Profile Page - Under Development"
+  },
+  "errors": {
+    "notFoundPage": "Page Not Found",
+    "backToHome": "Back to Home Page",
+    "unauthorized": "You do not have permission to access this page"
+  }
+}

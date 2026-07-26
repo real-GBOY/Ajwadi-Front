@@ -12,6 +12,7 @@ import {
   FolderKanban,
   Bell,
   X,
+  Globe,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
@@ -30,7 +31,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const [isUsersOpen, setIsUsersOpen] = useState(false);
@@ -205,7 +206,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
 
       <aside
         className={`
-          w-64 shrink-0 bg-gray-50 border-l border-gray-200 h-screen flex flex-col
+          w-64 shrink-0 bg-gray-50 rtl:border-l ltr:border-r border-gray-200 h-screen flex flex-col
           fixed inset-y-0 start-0 z-50 lg:relative lg:z-auto
           transition-transform duration-200 ease-out
           lg:translate-x-0
@@ -240,12 +241,12 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
               onClick={() => handleItemClick(item.id)}
               className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
                 itemActive
-                  ? 'bg-white text-gray-900 border-r-2 border-emerald-500'
+                  ? 'bg-white text-gray-900 rtl:border-r-2 ltr:border-l-2 border-emerald-500'
                   : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
               <Icon className="w-5 h-5" />
-              <span className="flex-1 text-right">{item.label}</span>
+              <span className="flex-1 rtl:text-right ltr:text-left">{item.label}</span>
             </button>
           );
         })}
@@ -257,7 +258,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
             className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-100 transition-colors"
           >
             <Users className="w-5 h-5" />
-            <span className="flex-1 text-right">{t('sidebar.users')}</span>
+            <span className="flex-1 rtl:text-right ltr:text-left">{t('sidebar.users')}</span>
             {isUsersOpen ? (
               <ChevronUp className="w-4 h-4" />
             ) : (
@@ -266,7 +267,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           </button>
           
           {isUsersOpen && (
-            <div className="mr-8 mt-1">
+            <div className="ms-8 mt-1">
               {usersItems.map((item) => {
                 const itemActive = isActive(item.id);
                 return (
@@ -275,11 +276,11 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                     onClick={() => handleItemClick(item.id)}
                     className={`w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors ${
                       itemActive
-                        ? 'bg-white text-gray-900 border-r-2 border-emerald-500'
+                        ? 'bg-white text-gray-900 rtl:border-r-2 ltr:border-l-2 border-emerald-500'
                         : 'text-gray-600 hover:bg-gray-100'
                     }`}
                   >
-                    <span className="flex-1 text-right">{item.label}</span>
+                    <span className="flex-1 rtl:text-right ltr:text-left">{item.label}</span>
                   </button>
                 );
               })}
@@ -294,7 +295,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
             className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-100 transition-colors"
           >
             <Database className="w-5 h-5" />
-            <span className="flex-1 text-right">{t('sidebar.appData')}</span>
+            <span className="flex-1 rtl:text-right ltr:text-left">{t('sidebar.appData')}</span>
             {isAppDataOpen ? (
               <ChevronUp className="w-4 h-4" />
             ) : (
@@ -303,7 +304,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           </button>
           
           {isAppDataOpen && (
-            <div className="mr-8 mt-1">
+            <div className="ms-8 mt-1">
               {appDataItems.map((item) => {
                 const itemActive = isActive(item.id);
                 return (
@@ -312,11 +313,11 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                     onClick={() => handleItemClick(item.id)}
                     className={`w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors ${
                       itemActive
-                        ? 'bg-white text-gray-900 border-r-2 border-emerald-500'
+                        ? 'bg-white text-gray-900 rtl:border-r-2 ltr:border-l-2 border-emerald-500'
                         : 'text-gray-600 hover:bg-gray-100'
                     }`}
                   >
-                    <span className="flex-1 text-right">{item.label}</span>
+                    <span className="flex-1 rtl:text-right ltr:text-left">{item.label}</span>
                   </button>
                 );
               })}
@@ -331,7 +332,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
             className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-100 transition-colors"
           >
             <ClipboardList className="w-5 h-5" />
-            <span className="flex-1 text-right">{t('sidebar.demands')}</span>
+            <span className="flex-1 rtl:text-right ltr:text-left">{t('sidebar.demands')}</span>
             {totalDemandsCount > 0 && (
               <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[10px] font-semibold text-white bg-primary rounded-full">
                 {totalDemandsCount > 99 ? '99+' : totalDemandsCount}
@@ -345,7 +346,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           </button>
           
           {isDemandsOpen && (
-            <div className="mr-8 mt-1">
+            <div className="ms-8 mt-1">
               {demandsItems.map((item) => {
                 const itemActive = isActive(item.id);
                 return (
@@ -354,11 +355,11 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                     onClick={() => handleItemClick(item.id)}
                     className={`w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors ${
                       itemActive
-                        ? 'bg-white text-gray-900 border-r-2 border-primary'
+                        ? 'bg-white text-gray-900 rtl:border-r-2 ltr:border-l-2 border-primary'
                         : 'text-gray-600 hover:bg-gray-100'
                     }`}
                   >
-                    <span className="flex-1 text-right min-w-0 truncate">{item.label}</span>
+                    <span className="flex-1 rtl:text-right ltr:text-left min-w-0 truncate">{item.label}</span>
                     {'count' in item && item.count !== undefined && (
                       <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[10px] font-semibold text-primary bg-primary/10 border border-primary/20 rounded-full shrink-0">
                         {typeof item.count === 'number' && item.count > 99 ? '99+' : item.count}
@@ -378,7 +379,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
             className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-100 transition-colors"
           >
             <AlertCircle className="w-5 h-5" />
-            <span className="flex-1 text-right">{t('sidebar.complain')}</span>
+            <span className="flex-1 rtl:text-right ltr:text-left">{t('sidebar.complain')}</span>
             {totalComplainCount > 0 && (
               <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[10px] font-semibold text-white bg-primary rounded-full shrink-0">
                 {totalComplainCount > 99 ? '99+' : totalComplainCount}
@@ -392,7 +393,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           </button>
           
           {isComplainOpen && (
-            <div className="mr-8 mt-1">
+            <div className="ms-8 mt-1">
               {complainItems.map((item) => {
                 const itemActive = isActive(item.id);
                 return (
@@ -401,11 +402,11 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                     onClick={() => handleItemClick(item.id)}
                     className={`w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors ${
                       itemActive
-                        ? 'bg-white text-gray-900 border-r-2 border-emerald-500'
+                        ? 'bg-white text-gray-900 rtl:border-r-2 ltr:border-l-2 border-emerald-500'
                         : 'text-gray-600 hover:bg-gray-100'
                     }`}
                   >
-                    <span className="flex-1 text-right min-w-0 truncate">{item.label}</span>
+                    <span className="flex-1 rtl:text-right ltr:text-left min-w-0 truncate">{item.label}</span>
                     {'count' in item && item.count !== undefined && (
                       <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[10px] font-semibold text-primary bg-primary/10 border border-primary/20 rounded-full shrink-0">
                         {typeof item.count === 'number' && item.count > 99 ? '99+' : item.count}
@@ -425,7 +426,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
             className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-100 transition-colors"
           >
             <DollarSign className="w-5 h-5" />
-            <span className="flex-1 text-right">{t('sidebar.finance')}</span>
+            <span className="flex-1 rtl:text-right ltr:text-left">{t('sidebar.finance')}</span>
             {isFinanceOpen ? (
               <ChevronUp className="w-4 h-4" />
             ) : (
@@ -434,7 +435,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           </button>
           
           {isFinanceOpen && (
-            <div className="mr-8 mt-1">
+            <div className="ms-8 mt-1">
               {financeItems.map((item) => {
                 const itemActive = isActive(item.id);
                 return (
@@ -443,11 +444,11 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                     onClick={() => handleItemClick(item.id)}
                     className={`w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors ${
                       itemActive
-                        ? 'bg-white text-gray-900 border-r-2 border-emerald-500'
+                        ? 'bg-white text-gray-900 rtl:border-r-2 ltr:border-l-2 border-emerald-500'
                         : 'text-gray-600 hover:bg-gray-100'
                     }`}
                   >
-                    <span className="flex-1 text-right">{item.label}</span>
+                    <span className="flex-1 rtl:text-right ltr:text-left">{item.label}</span>
                   </button>
                 );
               })}
@@ -462,7 +463,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
             className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-100 transition-colors"
           >
             <FolderKanban className="w-5 h-5" />
-            <span className="flex-1 text-right">{t('sidebar.projectsMenu')}</span>
+            <span className="flex-1 rtl:text-right ltr:text-left">{t('sidebar.projectsMenu')}</span>
             {isProjectsOpen ? (
               <ChevronUp className="w-4 h-4" />
             ) : (
@@ -471,7 +472,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           </button>
           
           {isProjectsOpen && (
-            <div className="mr-8 mt-1">
+            <div className="ms-8 mt-1">
               {projectsItems.map((item) => {
                 const itemActive = isActive(item.id);
                 return (
@@ -480,11 +481,11 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                     onClick={() => handleItemClick(item.id)}
                     className={`w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors ${
                       itemActive
-                        ? 'bg-white text-gray-900 border-r-2 border-emerald-500'
+                        ? 'bg-white text-gray-900 rtl:border-r-2 ltr:border-l-2 border-emerald-500'
                         : 'text-gray-600 hover:bg-gray-100'
                     }`}
                   >
-                    <span className="flex-1 text-right">{item.label}</span>
+                    <span className="flex-1 rtl:text-right ltr:text-left">{item.label}</span>
                   </button>
                 );
               })}
@@ -494,6 +495,17 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
       </nav>
 
       <div className="border-t border-gray-200 p-4 space-y-2">
+        <button
+          type="button"
+          onClick={() => {
+            const nextLang = i18n.language === 'ar' ? 'en' : 'ar';
+            i18n.changeLanguage(nextLang);
+          }}
+          className="w-full flex items-center gap-2 px-2 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+        >
+          <Globe className="w-5 h-5 text-emerald-600 shrink-0" />
+          <span className="font-medium text-gray-800">{i18n.language === 'ar' ? 'English' : 'العربية'}</span>
+        </button>
         <button
           onClick={() => {
             handleItemClick('logout');

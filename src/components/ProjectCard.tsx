@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import type { Project } from '../services/projectService';
 import { ArrowLeft, Calendar, Clock, Coins, FolderOpen } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface ProjectCardProps {
   project: Project;
@@ -8,35 +9,42 @@ interface ProjectCardProps {
 
 const STATUS_CONFIG: Record<
   string,
-  { label: string; className: string }
+  { labelKey: string; defaultLabel: string; className: string }
 > = {
   openforbids: {
-    label: 'مفتوح للعروض',
+    labelKey: 'status.openForBids',
+    defaultLabel: 'مفتوح للعروض',
     className: 'bg-emerald-50 text-emerald-700 border-emerald-200',
   },
   closedforbids: {
-    label: 'مغلق للعروض',
+    labelKey: 'status.closedForBids',
+    defaultLabel: 'مغلق للعروض',
     className: 'bg-slate-100 text-slate-700 border-slate-200',
   },
   in_progress: {
-    label: 'قيد التنفيذ',
+    labelKey: 'status.inProgress',
+    defaultLabel: 'قيد التنفيذ',
     className: 'bg-amber-50 text-amber-700 border-amber-200',
   },
   completed: {
-    label: 'مكتمل',
+    labelKey: 'status.completed',
+    defaultLabel: 'مكتمل',
     className: 'bg-green-50 text-green-700 border-green-200',
   },
   cancelled: {
-    label: 'ملغي',
+    labelKey: 'status.cancelled',
+    defaultLabel: 'ملغي',
     className: 'bg-red-50 text-red-700 border-red-200',
   },
   closed: {
-    label: 'مغلق',
+    labelKey: 'status.closed',
+    defaultLabel: 'مغلق',
     className: 'bg-slate-100 text-slate-600 border-slate-200',
   },
 };
 
 export default function ProjectCard({ project }: ProjectCardProps) {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
   const handleView = (e: React.MouseEvent) => {
@@ -45,13 +53,14 @@ export default function ProjectCard({ project }: ProjectCardProps) {
   };
 
   const statusInfo = STATUS_CONFIG[project.status] || {
-    label: project.status,
+    labelKey: 'status.closed',
+    defaultLabel: project.status,
     className: 'bg-slate-100 text-slate-600 border-slate-200',
   };
 
   const formatCurrency = (amount: number | string) => {
     const num = typeof amount === 'string' ? parseFloat(amount) : amount;
-    return new Intl.NumberFormat('ar-SA', {
+    return new Intl.NumberFormat(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
       style: 'currency',
       currency: 'SAR',
       minimumFractionDigits: 0,
@@ -60,7 +69,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
   };
 
   const createdDate = project.createdAt
-    ? new Date(project.createdAt).toLocaleDateString('ar-SA', {
+    ? new Date(project.createdAt).toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
@@ -105,7 +114,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
               ${statusInfo.className}
             `}
           >
-            {statusInfo.label}
+            {t(statusInfo.labelKey, statusInfo.defaultLabel)}
           </span>
           {project.specification && (
             <span className="flex items-center gap-1 text-xs text-gray-500 truncate max-w-[50%]">
@@ -135,7 +144,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
               <Coins className="w-4 h-4" />
             </span>
             <div className="min-w-0">
-              <span className="text-xs text-gray-500 block">الميزانية</span>
+              <span className="text-xs text-gray-500 block">{t('labels.budget', 'الميزانية')}</span>
               <span className="font-semibold text-gray-900">
                 {formatCurrency(project.minBudget)} – {formatCurrency(project.maxBudget)}
               </span>
@@ -146,8 +155,8 @@ export default function ProjectCard({ project }: ProjectCardProps) {
               <Clock className="w-4 h-4" />
             </span>
             <div className="min-w-0">
-              <span className="text-xs text-gray-500 block">المدة</span>
-              <span className="font-semibold text-gray-900">{project.duration} يوم</span>
+              <span className="text-xs text-gray-500 block">{t('labels.duration', 'المدة')}</span>
+              <span className="font-semibold text-gray-900">{project.duration} {t('labels.days', 'يوم')}</span>
             </div>
           </div>
           <div className="flex items-center gap-3 text-sm">
@@ -155,7 +164,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
               <Calendar className="w-4 h-4" />
             </span>
             <div className="min-w-0">
-              <span className="text-xs text-gray-500 block">تاريخ الإنشاء</span>
+              <span className="text-xs text-gray-500 block">{t('labels.createdAt', 'تاريخ الإنشاء')}</span>
               <span className="font-medium text-gray-700">{createdDate}</span>
             </div>
           </div>
@@ -174,8 +183,8 @@ export default function ProjectCard({ project }: ProjectCardProps) {
             focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2
           "
         >
-          <span className="order-1">عرض التفاصيل</span>
-          <ArrowLeft className="w-4 h-4 rtl:rotate-180 shrink-0 order-2" />
+          <span className="order-1">{t('actions.viewDetails', 'عرض التفاصيل')}</span>
+          <ArrowLeft className="w-4 h-4 rtl:rotate-0 ltr:rotate-180 shrink-0 order-2" />
         </button>
       </div>
     </article>

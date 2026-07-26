@@ -3,6 +3,7 @@ import { Skill, CreateSkillRequest } from '@/services/skillService';
 import { useListSpecifications } from '@/hooks/specifications/useSpecifications';
 import { FormInput } from '@/designSystem/ui/form-input';
 import { FormSelect } from '@/designSystem/ui/form-select';
+import { useTranslation } from 'react-i18next';
 
 interface SkillsFormProps {
   skill?: Skill | null;
@@ -17,6 +18,7 @@ export default function SkillsForm({
   onCancel,
   isLoading = false,
 }: SkillsFormProps) {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState<CreateSkillRequest>({
     name: '',
     specificationId: null,
@@ -60,7 +62,7 @@ export default function SkillsForm({
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof CreateSkillRequest, string>> = {};
     if (!formData.name.trim()) {
-      newErrors.name = 'اسم المهارة مطلوب';
+      newErrors.name = t('validation.skillNameRequired', 'اسم المهارة مطلوب');
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -83,29 +85,27 @@ export default function SkillsForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Name - API expects: name (string, required) */}
       <FormInput
-        label="اسم المهارة"
+        label={t('forms.skillName', 'اسم المهارة')}
         type="text"
         value={formData.name}
         onChange={(e) => handleChange('name', e.target.value)}
-        placeholder="أدخل اسم المهارة"
+        placeholder={t('forms.skillNamePlaceholder', 'أدخل اسم المهارة')}
         error={errors.name}
         required
-        dir="rtl"
       />
 
       {/* Specification - API expects: specificationId (string | null, optional) */}
       <FormSelect
-        label="المجال (اختياري)"
+        label={t('forms.specOptional', 'المجال (اختياري)')}
         value={formData.specificationId ? formData.specificationId.toString() : ''}
         onChange={(e) => {
           const value = e.target.value;
           handleChange('specificationId', value ? value : null);
         }}
         options={specificationOptions}
-        placeholder="اختر المجال (اختياري)"
+        placeholder={t('forms.specOptionalPlaceholder', 'اختر المجال (اختياري)')}
         isLoading={isLoadingSpecifications}
         disabled={isLoadingSpecifications}
-        dir="rtl"
       />
 
       {/* Actions */}
@@ -114,13 +114,13 @@ export default function SkillsForm({
           type="button"
           onClick={onCancel}
           className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
-          إلغاء
+          {t('actions.cancel', 'إلغاء')}
         </button>
         <button
           type="submit"
           disabled={isLoading}
           className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-          {isLoading ? 'جاري الحفظ...' : skill ? 'تحديث' : 'إضافة'}
+          {isLoading ? t('actions.saving', 'جاري الحفظ...') : skill ? t('actions.update', 'تحديث') : t('actions.add', 'إضافة')}
         </button>
       </div>
     </form>

@@ -3,6 +3,7 @@ import { PrivacyPolicy, CreatePrivacyPolicyRequest } from '@/services/privacyPol
 import { FormInput } from '@/designSystem/ui/form-input';
 import { FormTextarea } from '@/designSystem/ui/form-textarea';
 import { FormSelect } from '@/designSystem/ui/form-select';
+import { useTranslation } from 'react-i18next';
 
 interface PrivacyPolicyFormProps {
   privacyPolicy?: PrivacyPolicy | null;
@@ -17,6 +18,7 @@ export default function PrivacyPolicyForm({
   onCancel,
   isLoading = false,
 }: PrivacyPolicyFormProps) {
+  const { t } = useTranslation();
   // API DTO: { title: string, content: string, language?: "en" | "ar" | "fr" | "es" }
   const [formData, setFormData] = useState<CreatePrivacyPolicyRequest>({
     title: '',
@@ -46,10 +48,10 @@ export default function PrivacyPolicyForm({
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof CreatePrivacyPolicyRequest, string>> = {};
     if (!formData.title.trim()) {
-      newErrors.title = 'العنوان مطلوب';
+      newErrors.title = t('validation.titleRequired', 'العنوان مطلوب');
     }
     if (!formData.content.trim()) {
-      newErrors.content = 'المحتوى مطلوب';
+      newErrors.content = t('validation.contentRequired', 'المحتوى مطلوب');
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -62,8 +64,8 @@ export default function PrivacyPolicyForm({
   };
 
   const languageOptions = [
-    { value: 'ar', label: 'العربية' },
-    { value: 'en', label: 'English' },
+    { value: 'ar', label: t('forms.arabic', 'العربية') },
+    { value: 'en', label: t('forms.english', 'English') },
     { value: 'fr', label: 'Français' },
     { value: 'es', label: 'Español' },
   ];
@@ -72,37 +74,34 @@ export default function PrivacyPolicyForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Title - API expects: title (string, required, max 200 chars) */}
       <FormInput
-        label="العنوان"
+        label={t('forms.title', 'العنوان')}
         type="text"
         value={formData.title}
         onChange={(e) => handleChange('title', e.target.value)}
-        placeholder="أدخل العنوان"
+        placeholder={t('forms.titlePlaceholder', 'أدخل العنوان')}
         error={errors.title}
         required
         maxLength={200}
-        dir="rtl"
       />
 
       {/* Content - API expects: content (string, required) */}
       <FormTextarea
-        label="المحتوى"
+        label={t('forms.content', 'المحتوى')}
         value={formData.content}
         onChange={(e) => handleChange('content', e.target.value)}
         rows={8}
-        placeholder="أدخل محتوى سياسة الخصوصية"
+        placeholder={t('forms.contentPlaceholder', 'أدخل محتوى سياسة الخصوصية')}
         error={errors.content}
         required
-        dir="rtl"
       />
 
       {/* Language - API expects: language (enum: "en" | "ar" | "fr" | "es", optional, defaults to "en") */}
       <FormSelect
-        label="اللغة"
+        label={t('forms.language', 'اللغة')}
         value={formData.language || 'ar'}
         onChange={(e) => handleChange('language', e.target.value as 'en' | 'ar' | 'fr' | 'es')}
         options={languageOptions}
-        placeholder="اختر اللغة"
-        dir="rtl"
+        placeholder={t('forms.languagePlaceholder', 'اختر اللغة')}
       />
 
       {/* Actions */}
@@ -111,13 +110,13 @@ export default function PrivacyPolicyForm({
           type="button"
           onClick={onCancel}
           className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
-          إلغاء
+          {t('actions.cancel', 'إلغاء')}
         </button>
         <button
           type="submit"
           disabled={isLoading}
           className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-          {isLoading ? 'جاري الحفظ...' : privacyPolicy ? 'تحديث' : 'إضافة'}
+          {isLoading ? t('actions.saving', 'جاري الحفظ...') : privacyPolicy ? t('actions.update', 'تحديث') : t('actions.add', 'إضافة')}
         </button>
       </div>
     </form>

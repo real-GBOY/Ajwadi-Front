@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { Eye, EyeOff, Mail, Lock, AlertTriangle } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, AlertTriangle, Globe } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { employeeService } from '@/services/employeeService';
 
 export default function LoginPage() {
-   const { t } = useTranslation();
+   const { t, i18n } = useTranslation();
    const navigate = useNavigate();
    const [showPassword, setShowPassword] = useState(false);
    const [email, setEmail] = useState('admin@ajwadi.com');
@@ -30,7 +30,7 @@ export default function LoginPage() {
          // Navigate to dashboard
          navigate('/dashboard');
       } catch (err: any) {
-         const errorMessage = err?.response?.data?.message || err?.message || 'حدث خطأ أثناء تسجيل الدخول';
+         const errorMessage = err?.response?.data?.message || err?.message || t('auth.loginError', 'حدث خطأ أثناء تسجيل الدخول');
          setError(errorMessage);
       } finally {
          setIsLoading(false);
@@ -38,7 +38,19 @@ export default function LoginPage() {
    };
 
    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/20" dir="rtl">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/20 relative">
+         {/* Language Switcher */}
+         <button
+            type="button"
+            onClick={() => {
+               const nextLang = i18n.language === 'ar' ? 'en' : 'ar';
+               i18n.changeLanguage(nextLang);
+            }}
+            className="absolute top-6 end-6 flex items-center gap-2 px-3.5 py-2 bg-white/80 backdrop-blur-sm hover:bg-white text-gray-800 rounded-xl shadow-sm border border-gray-200/60 text-sm font-medium transition-all"
+         >
+            <Globe className="w-4 h-4 text-emerald-600" />
+            <span>{i18n.language === 'ar' ? 'English' : 'العربية'}</span>
+         </button>
          {/* Login Form Container */}
          <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 lg:p-12">
             {/* Header */}
@@ -60,7 +72,7 @@ export default function LoginPage() {
             </div>
 
             {/* Demo Notice */}
-            <div className="flex gap-3 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg text-sm mb-6 text-right">
+            <div className="flex gap-3 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg text-sm mb-6 text-start">
                <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
                <div>
                   <p className="font-semibold">{t('auth.demoNoticeTitle')}</p>
@@ -75,17 +87,17 @@ export default function LoginPage() {
                <div>
                   <label
                      htmlFor="email"
-                     className="block text-sm font-medium text-gray-700 mb-2 text-right">
+                     className="block text-sm font-medium text-gray-700 mb-2 text-start">
                      {t('auth.email')}
                   </label>
                   <div className="relative">
-                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                     <Mail className="absolute start-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                      <input
                         id="email"
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-right"
+                        className="w-full ps-10 pe-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-start"
                         placeholder={t('auth.emailPlaceholder')}
                         required
                      />
@@ -96,24 +108,24 @@ export default function LoginPage() {
                <div>
                   <label
                      htmlFor="password"
-                     className="block text-sm font-medium text-gray-700 mb-2 text-right">
+                     className="block text-sm font-medium text-gray-700 mb-2 text-start">
                      {t('auth.password')}
                   </label>
                   <div className="relative">
-                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                     <Lock className="absolute start-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                      <input
                         id="password"
                         type={showPassword ? 'text' : 'password'}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-right"
+                        className="w-full ps-10 pe-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-start"
                         placeholder={t('auth.passwordPlaceholder')}
                         required
                      />
                      <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 z-10">
+                        className="absolute end-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 z-10">
                         {showPassword ? (
                            <EyeOff className="w-5 h-5" />
                         ) : (
@@ -125,7 +137,7 @@ export default function LoginPage() {
 
                {/* Error Message */}
                {error && (
-                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm text-right">
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm text-start">
                      {error}
                   </div>
                )}
@@ -135,7 +147,7 @@ export default function LoginPage() {
                   type="submit"
                   disabled={isLoading}
                   className="w-full bg-primary text-white py-3 rounded-lg font-medium hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                  {isLoading ? 'جاري تسجيل الدخول...' : t('auth.login')}
+                  {isLoading ? t('loading.general', 'جاري تسجيل الدخول...') : t('auth.login')}
                </button>
             </form>
          </div>
