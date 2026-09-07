@@ -1,6 +1,9 @@
 import { io, Socket } from 'socket.io-client';
 import { Message, AttachmentRef } from './chatService';
 
+// Default backend origin (VPS deployment) used when no env vars are provided.
+const DEFAULT_WS_URL = 'https://ajwadi.13-220-157-42.sslip.io';
+
 // Get WebSocket URL from environment
 const getWebSocketUrl = (): string => {
   // If VITE_WS_URL is explicitly set, use it
@@ -24,13 +27,16 @@ const getWebSocketUrl = (): string => {
     }
   }
 
-  // Fallback to same origin (works when API is proxied under /api in Vite)
-  if (typeof window !== 'undefined' && window.location?.origin) {
+  // Local dev with a Vite proxy under /api: use the current origin.
+  if (
+    typeof window !== 'undefined' &&
+    /^(localhost|127\.0\.0\.1)$/.test(window.location?.hostname || '')
+  ) {
     return window.location.origin;
   }
 
-  // Last resort fallback (should be overridden by env in most setups)
-  return 'http://localhost:5000';
+  // No env override and no absolute API base: use the deployed backend origin.
+  return DEFAULT_WS_URL;
 };
 
 const WS_URL = getWebSocketUrl();

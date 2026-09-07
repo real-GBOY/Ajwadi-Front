@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || 'https://ajwadi.13-220-157-42.sslip.io/api';
 
 // endPoints.ts exports paths relative to this base (e.g. "/employees/login"),
 // never the full URL - axios.baseURL is the one place that applies it,
