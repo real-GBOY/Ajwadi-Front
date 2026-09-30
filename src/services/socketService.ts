@@ -2,7 +2,7 @@ import { io, Socket } from 'socket.io-client';
 import { Message, AttachmentRef } from './chatService';
 
 // Default backend origin (VPS deployment) used when no env vars are provided.
-const DEFAULT_WS_URL = 'https://ajwadi.13-220-157-42.sslip.io';
+const DEFAULT_WS_URL = 'https://ajwadi.100-26-109-162.sslip.io';
 
 // Get WebSocket URL from environment
 const getWebSocketUrl = (): string => {
